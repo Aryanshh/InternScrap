@@ -424,8 +424,8 @@ export const App: React.FC = () => {
 
       {/* Footer */}
       <footer className="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
-        <p>
-          InternScrap Aggregator • Terms-of-Service Safe • Local SQLite / Supabase PostgreSQL • Honest Non-Inflated Matching
+        <p className="font-medium text-slate-500">
+          Made with love with AI
         </p>
       </footer>
 
