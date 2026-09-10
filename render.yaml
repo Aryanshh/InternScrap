@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: internscrap-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /api/jobs/stats
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: DATABASE_URL
+        sync: false # Set in Render Dashboard with your Supabase PostgreSQL connection string
+      - key: CORS_ORIGINS
+        value: "https://internscrap.vercel.app,http://localhost:5173"
+      - key: ENABLE_BACKGROUND_SCHEDULER
+        value: "true"
+      - key: SCHEDULER_INTERVAL_HOURS
+        value: "6"
+      - key: ALERT_MIN_MATCH_SCORE
+        value: "70"
+      - key: DIGEST_RECIPIENT_EMAIL
+        sync: false # Optional: candidate email for alerts
+      - key: SMTP_HOST
+        sync: false # Optional: smtp.sendgrid.net or smtp.mailgun.org
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false

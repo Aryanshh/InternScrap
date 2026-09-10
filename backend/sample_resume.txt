@@ -1,0 +1,35 @@
+Aryan Sharma
+Software Engineer & Machine Learning Enthusiast
+Email: aryan.sharma@example.com | GitHub: github.com/aryansharma | San Francisco, CA
+
+PROFESSIONAL SUMMARY
+Results-oriented software engineer with expertise in Python, FastAPI, React, TypeScript, and modern database architectures. Experienced in building high-throughput microservices, responsive web dashboards, and deploying containerized applications with Docker.
+
+TECHNICAL SKILLS
+- Programming Languages: Python, TypeScript, JavaScript, SQL, Bash
+- Web & Frontend: React, Next.js, Tailwind CSS, HTML5, CSS3, Redux
+- Backend & APIs: FastAPI, Flask, Node.js, Express, RESTful APIs, GraphQL
+- Databases & Cache: PostgreSQL, Redis, SQLite, MongoDB
+- DevOps & Cloud: Docker, AWS (S3, EC2), Linux, Git, GitHub Actions, CI/CD
+- AI / ML: PyTorch, Scikit-learn, Hugging Face, LLM, RAG
+
+PROFESSIONAL EXPERIENCE
+Full Stack Software Engineer | Horizon Tech Labs (2023 - Present)
+- Designed and maintained scalable RESTful microservices using Python and FastAPI, serving 120k+ active requests daily.
+- Built responsive user dashboards in React and TypeScript with Tailwind CSS, improving core web vitals and mobile usability.
+- Engineered PostgreSQL database schemas and optimized index queries, reducing p95 query latency by 40%.
+- Containerized applications using Docker and set up automated testing and deployment with GitHub Actions.
+
+Software Engineering Intern | NextGen Innovations (Summer 2022)
+- Developed automated data collection pipelines in Python, processing over 50,000 records daily.
+- Implemented semantic document search using vector embeddings and Scikit-learn.
+- Collaborated in an agile team environment using Jira, Git, and pull request code reviews.
+
+SELECTED PROJECTS
+InternScrap - Job Aggregator & Tailoring Engine
+- Built full-stack platform aggregating listings across Remotive, Arbeitnow, RemoteOK, and The Muse.
+- Implemented fuzzy deduplication with rapidfuzz and local semantic resume matching.
+
+EDUCATION
+Bachelor of Science in Computer Science | University of California (2019 - 2023)
+- GPA: 3.85 / 4.0
