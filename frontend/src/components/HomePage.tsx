@@ -64,15 +64,9 @@ export const HomePage: React.FC<HomePageProps> = ({
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
-      {/* 1. Hero Command Center Banner */}
+      {/* Hero Greeting Banner */}
       <div className="relative rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 sm:p-10 shadow-xl overflow-hidden border border-slate-800">
         <div className="relative z-10 max-w-4xl">
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-slate-300 border border-white/10">
-              Logged in as: <strong>{activeUserId}</strong>
-            </span>
-          </div>
-
           <h1 className="text-2xl sm:text-4xl font-black tracking-tight">
             Welcome back, {currentProfile?.full_name || activeUserId}!
           </h1>
