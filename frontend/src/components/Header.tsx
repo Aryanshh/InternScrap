@@ -8,6 +8,7 @@ import {
   Compass,
   LogOut,
   FolderKanban,
+  Zap,
 } from 'lucide-react';
 import { LoginProfileSummary } from '../types/job';
 
@@ -20,6 +21,7 @@ interface HeaderProps {
   onViewChange: (view: 'home' | 'listings' | 'tracker' | 'profile') => void;
   onLogout: () => void;
   onSync: () => void;
+  onOpenAutoApplier?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -31,6 +33,7 @@ export const Header: React.FC<HeaderProps> = ({
   onViewChange,
   onLogout,
   onSync,
+  onOpenAutoApplier,
 }) => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -192,6 +195,18 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
               )}
             </div>
+
+            {/* Auto Applier Action Button */}
+            {onOpenAutoApplier && (
+              <button
+                onClick={onOpenAutoApplier}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl text-white bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-700 hover:from-indigo-700 hover:to-violet-800 transition-all shadow-xs shadow-indigo-200 whitespace-nowrap cursor-pointer ring-1 ring-white/10"
+                title="Launch Auto Applier & IIM Resume Engine"
+              >
+                <Zap className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+                <span>Auto Applier</span>
+              </button>
+            )}
 
             {/* Sync APIs Action Button */}
             <button

@@ -233,4 +233,64 @@ export const getProfileDocxUrl = (userId?: string): string => {
   return `${API_BASE}/profile/export-docx?user_id=${encodeURIComponent(uid)}`;
 };
 
+export interface AutoApplyResult {
+  run_id: string;
+  url: string;
+  platform: string;
+  status: string;
+  mode: string;
+  fields_filled: string[];
+  fields_count: number;
+  screenshot_url?: string;
+  resume_attached?: string;
+  timestamp: string;
+  logs: string[];
+}
+
+export interface AutoApplyBatchResponse {
+  success: boolean;
+  mode: string;
+  total_requested: number;
+  total_processed: number;
+  results: AutoApplyResult[];
+  resume_attached?: string;
+}
+
+export const runAutoApply = async (
+  urls: string[],
+  mode: 'review' | 'submit' = 'review',
+  customAnswers?: Record<string, string>
+): Promise<AutoApplyBatchResponse> => {
+  const res = await api.post<AutoApplyBatchResponse>('/auto-apply/run', {
+    urls,
+    mode,
+    user_id: getActiveUserId(),
+    custom_answers: customAnswers,
+  });
+  return res.data;
+};
+
+export const getAutoApplyVault = async (): Promise<any> => {
+  const res = await api.get('/auto-apply/vault', {
+    params: { user_id: getActiveUserId() },
+  });
+  return res.data;
+};
+
+export const getIimPreviewUrl = (userId?: string): string => {
+  const uid = userId || getActiveUserId();
+  return `${API_BASE}/resumes/iim-preview?user_id=${encodeURIComponent(uid)}`;
+};
+
+export const getIimPdfUrl = (userId?: string): string => {
+  const uid = userId || getActiveUserId();
+  return `${API_BASE}/resumes/iim-download-pdf?user_id=${encodeURIComponent(uid)}`;
+};
+
+export const getIimDocxUrl = (userId?: string): string => {
+  const uid = userId || getActiveUserId();
+  return `${API_BASE}/resumes/iim-download-docx?user_id=${encodeURIComponent(uid)}`;
+};
+
+
 

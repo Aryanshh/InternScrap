@@ -17,6 +17,7 @@ import {
   HelpCircle,
   FileText,
   Bookmark,
+  Zap,
 } from 'lucide-react';
 import { Job } from '../types/job';
 import { verifyJobLink } from '../api/client';
@@ -25,10 +26,11 @@ interface JobCardProps {
   job: Job;
   onTailor?: (job: Job) => void;
   onTrack?: (job: Job) => void;
+  onAutoApply?: (job: Job) => void;
   isTracked?: boolean;
 }
 
-export const JobCard: React.FC<JobCardProps> = ({ job, onTailor, onTrack, isTracked }) => {
+export const JobCard: React.FC<JobCardProps> = ({ job, onTailor, onTrack, onAutoApply, isTracked }) => {
   const [expanded, setExpanded] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [linkStatus, setLinkStatus] = useState<boolean | null>(
@@ -316,6 +318,17 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onTailor, onTrack, isTrac
             >
               <FileText className="w-3.5 h-3.5 mr-1.5 text-cyan-600" />
               <span>Tailor Resume</span>
+            </button>
+          )}
+
+          {onAutoApply && (
+            <button
+              onClick={() => onAutoApply(job)}
+              className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold text-amber-900 bg-gradient-to-r from-amber-100 to-amber-200 border border-amber-300 hover:from-amber-200 hover:to-amber-300 transition-all shadow-xs cursor-pointer"
+              title="Launch 1-Click Auto Applier with IIM Resume"
+            >
+              <Zap className="w-3.5 h-3.5 mr-1 text-amber-600 fill-amber-500" />
+              <span>Auto Apply</span>
             </button>
           )}
 

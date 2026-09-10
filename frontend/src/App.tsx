@@ -10,6 +10,7 @@ import { EmailDigestModal } from './components/EmailDigestModal';
 import { CandidateProfile } from './components/CandidateProfile';
 import { HomePage } from './components/HomePage';
 import { LoginPage } from './components/LoginPage';
+import { AutoApplierModal } from './components/AutoApplierModal';
 import {
   getJobs,
   getStats,
@@ -70,8 +71,15 @@ export const App: React.FC = () => {
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
   const [isDigestModalOpen, setIsDigestModalOpen] = useState(false);
+  const [isAutoApplierOpen, setIsAutoApplierOpen] = useState(false);
+  const [autoApplierInitialUrl, setAutoApplierInitialUrl] = useState<string | undefined>(undefined);
   const [tailoringJob, setTailoringJob] = useState<Job | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const handleOpenAutoApplier = (url?: string) => {
+    setAutoApplierInitialUrl(url);
+    setIsAutoApplierOpen(true);
+  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -238,6 +246,7 @@ export const App: React.FC = () => {
         onViewChange={setActiveView}
         onLogout={handleLogout}
         onSync={handleSync}
+        onOpenAutoApplier={() => handleOpenAutoApplier()}
       />
 
       {/* Main Content Area */}
@@ -388,6 +397,9 @@ export const App: React.FC = () => {
                     job={job}
                     onTailor={(selectedJob) => setTailoringJob(selectedJob)}
                     onTrack={handleTrackJob}
+                    onAutoApply={(selectedJob) =>
+                      handleOpenAutoApplier(selectedJob.apply_urls?.[0] || '')
+                    }
                     isTracked={trackedJobIds.has(job.id)}
                   />
                 ))}
@@ -454,6 +466,20 @@ export const App: React.FC = () => {
       <EmailDigestModal
         isOpen={isDigestModalOpen}
         onClose={() => setIsDigestModalOpen(false)}
+      />
+
+      <AutoApplierModal
+        isOpen={isAutoApplierOpen}
+        onClose={() => {
+          setIsAutoApplierOpen(false);
+          setAutoApplierInitialUrl(undefined);
+        }}
+        activeUserId={activeUserId}
+        initialUrl={autoApplierInitialUrl}
+        onApplicationApplied={() => {
+          loadInitialData();
+          showToast('Application logged to Application Tracker!');
+        }}
       />
     </div>
   );
