@@ -223,4 +223,22 @@ export interface LoginProfileSummary {
   target_platforms?: string[];
 }
 
+export interface AuthUser {
+  id: string;
+  username: string;
+  full_name?: string;
+}
 
+export interface AuthResponse {
+  success: boolean;
+  token: string;
+  user: AuthUser;
+  message?: string;
+}
+
+export interface UserPreset {
+  id: string;
+  name: string;
+  role: string;
+  preset_pwd: string;
+}

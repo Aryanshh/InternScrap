@@ -21,7 +21,8 @@ import {
   Building,
   Calendar,
   Layers,
-  ArrowRight
+  ArrowRight,
+  ArrowLeft,
 } from 'lucide-react';
 import { UserProfile, WorkExperienceItem, EducationItem, LoginProfileSummary } from '../types/job';
 import { getProfile, updateProfile, syncProfileFromResume, getProfileDocxUrl } from '../api/client';
@@ -46,6 +47,7 @@ interface CandidateProfileProps {
   loginProfiles: LoginProfileSummary[];
   onSwitchProfile: (userId: string) => void;
   onNavigateToListingsWithSource?: (source: string) => void;
+  onBackToHome?: () => void;
 }
 
 export const CandidateProfile: React.FC<CandidateProfileProps> = ({
@@ -53,6 +55,7 @@ export const CandidateProfile: React.FC<CandidateProfileProps> = ({
   loginProfiles,
   onSwitchProfile,
   onNavigateToListingsWithSource,
+  onBackToHome,
 }) => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -211,6 +214,19 @@ export const CandidateProfile: React.FC<CandidateProfileProps> = ({
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-12">
+      {/* Back to Home Button */}
+      {onBackToHome && (
+        <div className="flex items-center justify-between">
+          <button
+            onClick={onBackToHome}
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl border border-indigo-200 transition-all cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Home Command Center</span>
+          </button>
+        </div>
+      )}
+
       {/* Toast Notification */}
       {statusMessage && (
         <div

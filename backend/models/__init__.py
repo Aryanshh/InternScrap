@@ -4,5 +4,6 @@ from backend.models.match import Match
 from backend.models.tailored_resume import TailoredResume
 from backend.models.application import Application
 from backend.models.profile import UserProfile
+from backend.models.user import User
 
-__all__ = ["Job", "Resume", "Match", "TailoredResume", "Application", "UserProfile"]
+__all__ = ["Job", "Resume", "Match", "TailoredResume", "Application", "UserProfile", "User"]

@@ -8,6 +8,8 @@ import { TailorResumeModal } from './components/TailorResumeModal';
 import { ApplicationTracker } from './components/ApplicationTracker';
 import { EmailDigestModal } from './components/EmailDigestModal';
 import { CandidateProfile } from './components/CandidateProfile';
+import { HomePage } from './components/HomePage';
+import { LoginPage } from './components/LoginPage';
 import {
   getJobs,
   getStats,
@@ -19,8 +21,20 @@ import {
   getProfilesList,
   getActiveUserId,
   switchProfile,
+  getProfile,
+  getAuthToken,
+  clearAuth,
 } from './api/client';
-import { Job, JobStatsResponse, FilterState, ResumeData, LoginProfileSummary } from './types/job';
+import {
+  Job,
+  JobStatsResponse,
+  FilterState,
+  ResumeData,
+  LoginProfileSummary,
+  UserProfile,
+  ApplicationItem,
+  AuthUser,
+} from './types/job';
 import { Loader2, Sparkles, ChevronLeft, ChevronRight, Inbox, Layers, Globe, GraduationCap } from 'lucide-react';
 
 const initialFilters: FilterState = {
@@ -35,6 +49,13 @@ const initialFilters: FilterState = {
 };
 
 export const App: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => Boolean(getAuthToken()));
+  const [activeUserId, setActiveUserId] = useState<string>(() => getActiveUserId());
+  const [currentProfile, setCurrentProfile] = useState<UserProfile | null>(null);
+  const [loginProfiles, setLoginProfiles] = useState<LoginProfileSummary[]>([]);
+  const [applications, setApplications] = useState<ApplicationItem[]>([]);
+  const [trackedJobIds, setTrackedJobIds] = useState<Set<string>>(new Set());
+
   const [jobs, setJobs] = useState<Job[]>([]);
   const [totalJobs, setTotalJobs] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -44,20 +65,28 @@ export const App: React.FC = () => {
   const [filters, setFilters] = useState<FilterState>(initialFilters);
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
+
+  // Modals & Navigation
+  const [activeView, setActiveView] = useState<'home' | 'listings' | 'tracker' | 'profile'>('home');
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
+  const [isDigestModalOpen, setIsDigestModalOpen] = useState(false);
   const [tailoringJob, setTailoringJob] = useState<Job | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [activeView, setActiveView] = useState<'listings' | 'tracker' | 'profile'>('listings');
-  const [trackedJobIds, setTrackedJobIds] = useState<Set<string>>(new Set());
-  const [isDigestModalOpen, setIsDigestModalOpen] = useState(false);
-  const [activeUserId, setActiveUserId] = useState<string>(getActiveUserId());
-  const [loginProfiles, setLoginProfiles] = useState<LoginProfileSummary[]>([]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 4000);
   };
+
+  const loadProfileData = useCallback(async (uid: string) => {
+    try {
+      const prof = await getProfile(uid);
+      setCurrentProfile(prof);
+    } catch (err) {
+      console.error('Failed to load profile for user', uid, err);
+    }
+  }, []);
 
   const loadInitialData = useCallback(async () => {
     try {
@@ -71,17 +100,33 @@ export const App: React.FC = () => {
       setStats(statsData);
       setCategories(catData);
       setActiveResume(resumeData);
+      setApplications(appsData);
       setTrackedJobIds(new Set(appsData.map((a) => a.job_id)));
       setLoginProfiles(profilesList);
+      await loadProfileData(activeUserId);
     } catch (err) {
       console.error('Failed to load stats/categories/resume/applications/profiles', err);
     }
-  }, []);
+  }, [activeUserId, loadProfileData]);
+
+  const handleLoginSuccess = async (user: AuthUser) => {
+    setIsAuthenticated(true);
+    setActiveUserId(user.id);
+    showToast(`Logged in successfully as ${user.full_name || user.username}!`);
+    await loadInitialData();
+  };
+
+  const handleLogout = () => {
+    clearAuth();
+    setIsAuthenticated(false);
+    showToast('Signed out of InternScrap.');
+  };
 
   const handleSwitchProfile = async (newUserId: string) => {
     try {
       await switchProfile(newUserId);
       setActiveUserId(newUserId);
+      await loadProfileData(newUserId);
       const chosen = loginProfiles.find((p) => p.id === newUserId);
       showToast(`Switched active profile session to ${chosen?.full_name || newUserId}!`);
     } catch (err) {
@@ -98,6 +143,8 @@ export const App: React.FC = () => {
       }
       await trackApplication(job.id, 'saved');
       setTrackedJobIds((prev) => new Set(prev).add(job.id));
+      const updatedApps = await getApplications();
+      setApplications(updatedApps);
       showToast(`Added "${job.title}" to Application Tracker!`);
     } catch (err) {
       console.error('Failed to track job', err);
@@ -130,12 +177,16 @@ export const App: React.FC = () => {
   }, [filters]);
 
   useEffect(() => {
-    loadInitialData();
-  }, [loadInitialData]);
+    if (isAuthenticated) {
+      loadInitialData();
+    }
+  }, [isAuthenticated, loadInitialData]);
 
   useEffect(() => {
-    loadJobs();
-  }, [loadJobs]);
+    if (isAuthenticated && activeView === 'listings') {
+      loadJobs();
+    }
+  }, [isAuthenticated, activeView, loadJobs]);
 
   const handleSync = async () => {
     try {
@@ -171,9 +222,15 @@ export const App: React.FC = () => {
     setActiveResume(res);
     showToast(`Resume "${res.filename}" parsed! ${res.parsed_json?.skills?.length || 0} skills detected.`);
     loadJobs();
+    loadProfileData(activeUserId);
   };
 
   const availableSources = stats ? Object.keys(stats.sources || {}) : [];
+
+  // If user is not authenticated, render Login Page
+  if (!isAuthenticated) {
+    return <LoginPage onLoginSuccess={handleLoginSuccess} />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 selection:bg-indigo-500 selection:text-white">
@@ -185,38 +242,64 @@ export const App: React.FC = () => {
         </div>
       )}
 
-      {/* Navigation Header */}
+      {/* Streamlined Header */}
       <Header
-        stats={stats}
-        activeResume={activeResume}
-        isSyncing={isSyncing}
         activeView={activeView}
         trackedCount={trackedJobIds.size}
         activeUserId={activeUserId}
         loginProfiles={loginProfiles}
+        isSyncing={isSyncing}
         onViewChange={setActiveView}
         onSwitchProfile={handleSwitchProfile}
+        onLogout={handleLogout}
         onSync={handleSync}
-        onOpenManualModal={() => setIsManualModalOpen(true)}
-        onOpenResumeModal={() => setIsResumeModalOpen(true)}
-        onOpenDigestModal={() => setIsDigestModalOpen(true)}
       />
 
-      {/* Main Container */}
+      {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
-        {activeView === 'profile' ? (
+        {activeView === 'home' ? (
+          <HomePage
+            activeUserId={activeUserId}
+            currentProfile={currentProfile}
+            stats={stats}
+            activeResume={activeResume}
+            trackedCount={trackedJobIds.size}
+            applications={applications}
+            onNavigateToListings={() => {
+              setActiveView('listings');
+              loadJobs();
+            }}
+            onNavigateToTracker={() => setActiveView('tracker')}
+            onNavigateToProfile={() => setActiveView('profile')}
+            onOpenResumeModal={() => setIsResumeModalOpen(true)}
+            onOpenManualModal={() => setIsManualModalOpen(true)}
+            onOpenDigestModal={() => setIsDigestModalOpen(true)}
+          />
+        ) : activeView === 'profile' ? (
           <CandidateProfile
             activeUserId={activeUserId}
             loginProfiles={loginProfiles}
             onSwitchProfile={handleSwitchProfile}
+            onBackToHome={() => {
+              loadProfileData(activeUserId);
+              setActiveView('home');
+            }}
             onNavigateToListingsWithSource={(src) => {
               setFilters((prev) => ({ ...prev, source: src.toLowerCase(), page: 1 }));
               setActiveView('listings');
+              loadJobs();
             }}
           />
         ) : activeView === 'tracker' ? (
-          <ApplicationTracker onTailorJob={(selectedJob) => setTailoringJob(selectedJob)} />
+          <ApplicationTracker
+            onTailorJob={(selectedJob) => setTailoringJob(selectedJob)}
+            onBackToHome={() => {
+              loadInitialData();
+              setActiveView('home');
+            }}
+          />
         ) : (
+          /* Explore Listings View */
           <>
             {/* Banner Section */}
             <div className="mb-6 p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-indigo-900 via-indigo-800 to-violet-900 text-white shadow-lg relative overflow-hidden">
@@ -225,10 +308,10 @@ export const App: React.FC = () => {
                   Remote Platforms & AI Candidate Profile • Wellfound, Outlier, Mercor, Alignerr, Mindrift
                 </span>
                 <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                  Remote Talent Aggregator & Profile Hub
+                  Explore Remote Listings
                 </h1>
                 <p className="mt-2 text-indigo-100/80 text-sm leading-relaxed">
-                  Direct listings with transparent hourly rates ($30–$120/hr) across Outlier, Mercor, Wellfound, Alignerr, and Mindrift. Manage your candidate profile, sync skills from your resume, export ATS DOCX, and track applications.
+                  Direct listings with transparent hourly rates ($30–$120/hr) across Outlier, Mercor, Wellfound, Alignerr, and Mindrift. Filter by platform, match against your resume, and tailor ATS resumes.
                 </p>
 
                 {/* Live Stats Cards */}
@@ -333,7 +416,7 @@ export const App: React.FC = () => {
                 <button
                   onClick={() => handleFilterChange({ page: Math.max(1, filters.page - 1) })}
                   disabled={filters.page <= 1}
-                  className="p-2 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none transition-all"
+                  className="p-2 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
@@ -345,7 +428,7 @@ export const App: React.FC = () => {
                 <button
                   onClick={() => handleFilterChange({ page: Math.min(totalPages, filters.page + 1) })}
                   disabled={filters.page >= totalPages}
-                  className="p-2 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none transition-all"
+                  className="p-2 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
@@ -362,14 +445,13 @@ export const App: React.FC = () => {
         </p>
       </footer>
 
-      {/* Manual Job Modal */}
+      {/* Modals */}
       <ManualJobModal
         isOpen={isManualModalOpen}
         onClose={() => setIsManualModalOpen(false)}
         onJobAdded={handleJobAdded}
       />
 
-      {/* Resume Upload Modal */}
       <ResumeUploadModal
         isOpen={isResumeModalOpen}
         activeResume={activeResume}
@@ -377,7 +459,6 @@ export const App: React.FC = () => {
         onUploadSuccess={handleResumeUploaded}
       />
 
-      {/* Tailor Resume Modal */}
       {tailoringJob && (
         <TailorResumeModal
           job={tailoringJob}
@@ -386,7 +467,6 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* Email Digest Modal */}
       <EmailDigestModal
         isOpen={isDigestModalOpen}
         onClose={() => setIsDigestModalOpen(false)}
@@ -394,4 +474,5 @@ export const App: React.FC = () => {
     </div>
   );
 };
+
 export default App;

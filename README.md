@@ -19,31 +19,42 @@ Unlike traditional inflated scrapers, **InternScrap** enforces strict zero-fabri
 
 ### 🖼️ Live Platform Preview
 
-| Remote Platform Listings ($30–$120/hr) | Full Candidate Profile & ATS Export |
+| Dedicated Authentication Page (Login ID & Pwd) | Unified Home Command Center Dashboard |
 | :---: | :---: |
-| ![Remote Platforms Listings](docs/images/remote_platforms_listings.png) | ![Candidate Profile View](docs/images/candidate_profile_view.png) |
+| ![Login Page](docs/images/login_page.png) | ![Home Command Center](docs/images/home_dashboard_aryanshh.png) |
 
-| Candidate Profile: Aryan Sharma (`Aryanshh`) | Candidate Profile: Nishtha (`Nishtha`) |
+| Explore Remote Listings (Streamlined Header) | Blank Profile for Self-Setup (Aryanshh) |
 | :---: | :---: |
-| ![Profile Aryanshh](docs/images/profile_aryanshh.png) | ![Profile Nishtha](docs/images/profile_nishtha.png) |
+| ![Explore Listings](docs/images/explore_listings_clean.png) | ![Blank Self-Setup Profile](docs/images/profile_aryanshh_blank.png) |
 
-| Candidate Profile: Demo Candidate (`demo`) | 5-Stage Kanban Application Tracker |
+| 5-Stage Kanban Application Tracker | Automated Background Email Digest |
 | :---: | :---: |
-| ![Profile Demo](docs/images/profile_demo.png) | ![Kanban Application Tracker](docs/images/tracker_kanban_phase4.png) |
+| ![Kanban Application Tracker](docs/images/tracker_kanban_phase4.png) | ![Email Digest Scheduler](docs/images/email_digest_modal_phase4.png) |
 
 ---
 
 ## ✨ Key Features
 
-### 1. 👥 Multi-Candidate Profiles (`demo`, `Aryanshh`, `Nishtha`)
-- **Instant Profile Switching**: Switch between 3 realistic, tailored candidate profiles right from the sticky Header dropdown or the top switcher bar in Candidate Profile:
-  1. **`Aryanshh` (Aryan Sharma)**: Full-Stack Software Engineer & AI Alignment Specialist (UC Berkeley '24, $55/hr, skills: Python, React, FastAPI, RLHF, Vector DB).
-  2. **`Nishtha` (Nishtha)**: AI/ML Engineer & Data Science Specialist (Columbia MS '24, $65/hr, skills: PyTorch, TensorFlow, LLM Evaluation, Computer Vision, RAG).
-  3. **`demo` (Demo Candidate)**: Junior Full-Stack Developer & Technical Intern (UT Austin '26, $35/hr, skills: JavaScript, TypeScript, React, Python, SQL).
-- **Isolated User Sessions**: Each profile maintains its own target platform checklist, rate expectations, skills taxonomy, work experiences, education history, and ATS `.docx` exports.
-- **Persistent Local State**: Automatically persists the active profile across browser reloads (`localStorage.internscrap_user_id`).
+### 1. 🔐 ID & Password Authentication & Self-Setup Profiles
+- **Dedicated Authentication Portal**: Secure sign-in and account registration (`POST /api/auth/login`, `POST /api/auth/register`) with password hashing and session token persistence.
+- **Zero Mock Data for Aryanshh & Nishtha**: Profiles start completely clean (no mock experience, no mock degrees, no mock skills) so candidates can configure their authentic career details from scratch or click "Sync from Resume".
+- **Demo Account with Pre-filled Data**: `demo` (`demo123`) contains full mock engineering internship data for immediate testing.
+- **One-Click Quick Presets**: Quick-fill login buttons for `demo`, `Aryanshh`, and `Nishtha`.
 
-### 2. 🌐 Multi-Source Remote Platform Ingestion
+### 2. 🏠 Unified Home Command Center
+- **Clubbed Feature Hub**: Declutters the navigation bar by centralizing key platform modules into one executive dashboard:
+  - **Job Market Pulse (Job Count)**: Live statistics (`265 Total Listings`, remote roles, internships, active feeds) with 1-click navigation to Explore Listings.
+  - **Candidate Profile Setup**: Real-time setup status indicator, personal info, skills taxonomy count, and direct edit/DOCX download buttons.
+  - **Application Tracker**: 5-stage pipeline breakdown (`Saved`, `Applied`, `Interviewing`, `Offer`, `Rejected`) and Kanban launch action.
+  - **Resume & Matching Hub**: Synced resume metadata, skills detected, and one-click resume upload modal.
+  - **Paste Job (Manual Intake)**: Offline job intake portal for LinkedIn/Indeed/Unstop listings.
+  - **Email Digest Alerts**: APScheduler daemon status, frequency, and newsletter viewer.
+
+### 3. 🧭 Streamlined Navigation & Dedicated Explore Listings
+- **Clean Two-Pillar Header**: Reduced clutter from 8 separate buttons down to **`Home`**, **`Explore Listings`**, Candidate Account dropdown, and `Sync APIs`.
+- **Explore Listings View**: Fast, dedicated workspace featuring instant platform filter pills (Wellfound, Outlier AI, Mercor, Alignerr, Mindrift, Remotive, Arbeitnow), dual-factor non-inflated match scores, and ATS tailoring actions.
+
+### 4. 🌐 Multi-Source Remote Platform Ingestion
 - **Wellfound (formerly AngelList Talent)**: Seed, Series A, and Y-Combinator startup engineering roles.
 - **Outlier AI**: Frontier LLM training, data science, and reasoning evaluation ($40–$100/hr).
 - **Mercor**: Vetted AI contracts and full-stack software development ($60–$120/hr).

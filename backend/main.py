@@ -10,6 +10,7 @@ from backend.routes.tailoring import router as tailoring_router
 from backend.routes.tracker import router as tracker_router
 from backend.routes.scheduler import router as scheduler_router
 from backend.routes.profile import router as profile_router
+from backend.routes.auth import router as auth_router, seed_default_users
 from backend.services.scheduler import start_scheduler, shutdown_scheduler
 import backend.models # Ensure models are loaded
 
@@ -17,11 +18,12 @@ import backend.models # Ensure models are loaded
 async def lifespan(app: FastAPI):
     # Initialize DB tables
     Base.metadata.create_all(bind=engine)
-    # Seed default login profiles: demo, Aryanshh, Nishtha
+    # Seed default login accounts and profiles: demo, Aryanshh, Nishtha
     from backend.database import SessionLocal
     from backend.routes.profile import seed_all_profiles
     db = SessionLocal()
     try:
+        seed_default_users(db)
         seed_all_profiles(db)
     finally:
         db.close()
@@ -51,6 +53,7 @@ app.include_router(tailoring_router)
 app.include_router(tracker_router)
 app.include_router(scheduler_router)
 app.include_router(profile_router)
+app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 
 @app.get("/")
 def root():

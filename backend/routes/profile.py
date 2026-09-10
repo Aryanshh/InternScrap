@@ -43,67 +43,6 @@ class SwitchProfileRequest(BaseModel):
     user_id: str
 
 DEFAULT_PROFILES: Dict[str, Dict[str, Any]] = {
-    "Aryanshh": {
-        "id": "Aryanshh",
-        "full_name": "Aryan Sharma",
-        "email": "aryanshh08sri@gmail.com",
-        "phone": "+1 (555) 019-2834",
-        "location": "San Francisco, CA / Remote Worldwide",
-        "headline": "Full-Stack Software Engineer & AI Alignment Specialist",
-        "bio": (
-            "Software engineer specializing in React, TypeScript, Python, FastAPI, distributed systems, "
-            "and frontier AI evaluation. Experienced building high-throughput microservices, optimizing RLHF alignment pipelines, "
-            "and leading technical architecture for high-growth tech startups."
-        ),
-        "github_url": "https://github.com/Aryanshh",
-        "linkedin_url": "https://linkedin.com/in/aryanshh",
-        "portfolio_url": "https://aryanshh.dev",
-        "desired_work_mode": "remote",
-        "min_salary": 120000,
-        "min_hourly_rate": 55.0,
-        "target_platforms": ["Wellfound", "Outlier", "Mercor", "Alignerr", "Mindrift"],
-        "skills": [
-            "Python", "TypeScript", "React", "FastAPI", "PostgreSQL", "Docker", "Git",
-            "PyTorch", "LangChain", "Vector DB", "Prompt Engineering", "RLHF", "REST APIs",
-            "Node.js", "Tailwind CSS", "Redis", "CI/CD", "Next.js", "SQL"
-        ],
-        "experience": [
-            {
-                "company": "TechNova Solutions",
-                "role": "Full-Stack Software Engineer",
-                "location": "Remote",
-                "start_date": "Jun 2023",
-                "end_date": "Present",
-                "bullets": [
-                    "Architected high-throughput REST APIs in FastAPI and PostgreSQL, serving 120k daily requests with sub-50ms latency.",
-                    "Engineered modern responsive frontends with React, TypeScript, and Tailwind CSS, improving load speed by 38%.",
-                    "Implemented CI/CD automated test pipelines using Docker and GitHub Actions, reducing release cycle time by 45%."
-                ]
-            },
-            {
-                "company": "DataSphere AI",
-                "role": "AI Research & Evaluation Contractor",
-                "location": "Remote",
-                "start_date": "Jan 2023",
-                "end_date": "May 2023",
-                "bullets": [
-                    "Evaluated and benchmarked reasoning capabilities of frontier generative AI coding models across Python, C++, and SQL.",
-                    "Designed adversarial test cases and human-in-the-loop evaluation pipelines for RLHF alignment."
-                ]
-            }
-        ],
-        "education": [
-            {
-                "institution": "University of California, Berkeley",
-                "degree": "B.S. in Computer Science",
-                "grad_year": "2024",
-                "gpa": "3.85 / 4.0"
-            }
-        ],
-        "digest_enabled": True,
-        "digest_frequency": "4h",
-        "digest_min_score": 70.0
-    },
     "demo": {
         "id": "demo",
         "full_name": "Demo Candidate",
@@ -152,75 +91,70 @@ DEFAULT_PROFILES: Dict[str, Dict[str, Any]] = {
         "digest_frequency": "12h",
         "digest_min_score": 60.0
     },
+    "Aryanshh": {
+        "id": "Aryanshh",
+        "full_name": "Aryan Sharma",
+        "email": "",
+        "phone": "",
+        "location": "",
+        "headline": "",
+        "bio": "",
+        "github_url": "",
+        "linkedin_url": "",
+        "portfolio_url": "",
+        "desired_work_mode": "remote",
+        "min_salary": 0,
+        "min_hourly_rate": 0.0,
+        "target_platforms": [],
+        "skills": [],
+        "experience": [],
+        "education": [],
+        "digest_enabled": False,
+        "digest_frequency": "daily",
+        "digest_min_score": 70.0
+    },
     "Nishtha": {
         "id": "Nishtha",
         "full_name": "Nishtha",
-        "email": "nishtha@example.com",
-        "phone": "+1 (555) 789-0123",
-        "location": "New York, NY / Remote",
-        "headline": "AI/ML Engineer & Data Science Specialist",
-        "bio": (
-            "Machine Learning Engineer with strong background in deep learning, natural language processing, computer vision, "
-            "and predictive modeling. Passionate about deploying scalable transformer models, fine-tuning LLMs, and building intelligent data products."
-        ),
-        "github_url": "https://github.com/nishtha-ml",
-        "linkedin_url": "https://linkedin.com/in/nishtha-data",
-        "portfolio_url": "https://nishtha.ai",
+        "email": "",
+        "phone": "",
+        "location": "",
+        "headline": "",
+        "bio": "",
+        "github_url": "",
+        "linkedin_url": "",
+        "portfolio_url": "",
         "desired_work_mode": "remote",
-        "min_salary": 130000,
-        "min_hourly_rate": 65.0,
-        "target_platforms": ["Outlier", "Mercor", "Mindrift", "Wellfound", "Alignerr"],
-        "skills": [
-            "Python", "PyTorch", "TensorFlow", "Scikit-Learn", "Pandas", "NumPy", "NLP",
-            "LLM Evaluation", "Computer Vision", "FastAPI", "SQL", "Docker", "Hugging Face",
-            "RAG", "Prompt Engineering", "Data Structures"
-        ],
-        "experience": [
-            {
-                "company": "Apex AI Labs",
-                "role": "Machine Learning Engineer",
-                "location": "Remote",
-                "start_date": "Jul 2023",
-                "end_date": "Present",
-                "bullets": [
-                    "Trained and fine-tuned transformer-based NLP architectures for multi-domain document reasoning with PyTorch and Hugging Face.",
-                    "Built scalable semantic search pipelines with vector embeddings, reducing inference latency by 40%.",
-                    "Designed evaluation harness for measuring generative model hallucination rates and accuracy benchmarks."
-                ]
-            },
-            {
-                "company": "Cognitive Insights",
-                "role": "Data Science Specialist",
-                "location": "Remote",
-                "start_date": "Aug 2022",
-                "end_date": "Jun 2023",
-                "bullets": [
-                    "Developed predictive machine learning models in Python, Scikit-Learn, and Pandas delivering 94% classification precision.",
-                    "Collaborated on production data pipelines processing 2M+ records daily."
-                ]
-            }
-        ],
-        "education": [
-            {
-                "institution": "Columbia University",
-                "degree": "M.S. in Data Science & Machine Learning",
-                "grad_year": "2024",
-                "gpa": "3.92 / 4.0"
-            }
-        ],
-        "digest_enabled": True,
-        "digest_frequency": "4h",
-        "digest_min_score": 75.0
+        "min_salary": 0,
+        "min_hourly_rate": 0.0,
+        "target_platforms": [],
+        "skills": [],
+        "experience": [],
+        "education": [],
+        "digest_enabled": False,
+        "digest_frequency": "daily",
+        "digest_min_score": 70.0
     }
 }
 
-def seed_all_profiles(db: Session):
-    """Ensure demo, Aryanshh, and Nishtha profiles are present and populated."""
+def seed_all_profiles(db: Session, force_reset_blanks: bool = True):
+    """Ensure demo has mock data, and Aryanshh & Nishtha are reset to clean blank state for self-setup."""
     for pid, data in DEFAULT_PROFILES.items():
         existing = db.query(UserProfile).filter(UserProfile.id == pid).first()
         if not existing:
             new_p = UserProfile(**data)
             db.add(new_p)
+        elif pid in ("Aryanshh", "Nishtha") and force_reset_blanks:
+            # Check if existing profile contains old mock data (e.g. TechNova or Apex AI) and wipe clean
+            has_old_mock = False
+            for exp in (existing.experience or []):
+                if exp.get("company") in ("TechNova Solutions", "Apex AI Labs", "Cognitive Insights", "DataSphere AI"):
+                    has_old_mock = True
+                    break
+            if has_old_mock:
+                for k, v in data.items():
+                    if k != "id":
+                        setattr(existing, k, v)
     db.commit()
 
 def resolve_target_user_id(user_id: Optional[str], x_user_id: Optional[str]) -> str:
@@ -258,13 +192,12 @@ def list_profiles(db: Session = Depends(get_db)):
         {
             "id": p.id,
             "full_name": p.full_name,
-            "headline": p.headline,
-            "email": p.email,
+            "headline": p.headline if p.headline else "Profile Setup Pending (Self-Configured)",
+            "email": p.email or "",
             "avatar": p.full_name[:1].upper() if p.full_name else p.id[:1].upper(),
             "role_tag": (
-                "Full-Stack & AI" if p.id == "Aryanshh"
-                else "Intern / Junior" if p.id == "demo"
-                else "AI/ML & Data" if p.id == "Nishtha"
+                "Self-Setup" if p.id in ("Aryanshh", "Nishtha")
+                else "Demo / Intern" if p.id == "demo"
                 else "Candidate"
             ),
             "skills_count": len(p.skills or []),

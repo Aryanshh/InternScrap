@@ -17,11 +17,13 @@ import {
   Edit3,
   Check,
   Search,
-  RefreshCw
+  RefreshCw,
+  ArrowLeft,
 } from 'lucide-react';
 
 interface ApplicationTrackerProps {
   onTailorJob: (job: Job) => void;
+  onBackToHome?: () => void;
 }
 
 const STATUS_COLUMNS = [
@@ -32,7 +34,7 @@ const STATUS_COLUMNS = [
   { id: 'rejected', label: 'Archived / Rejected', icon: XCircle, color: 'border-rose-200 text-rose-700 bg-rose-50', badge: 'bg-rose-100 text-rose-800' },
 ] as const;
 
-export const ApplicationTracker: React.FC<ApplicationTrackerProps> = ({ onTailorJob }) => {
+export const ApplicationTracker: React.FC<ApplicationTrackerProps> = ({ onTailorJob, onBackToHome }) => {
   const [applications, setApplications] = useState<ApplicationItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -97,6 +99,19 @@ export const ApplicationTracker: React.FC<ApplicationTrackerProps> = ({ onTailor
 
   return (
     <div className="space-y-6">
+      {/* Back to Home Button */}
+      {onBackToHome && (
+        <div className="flex items-center justify-between">
+          <button
+            onClick={onBackToHome}
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl border border-indigo-200 transition-all cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Home Command Center</span>
+          </button>
+        </div>
+      )}
+
       {/* Top Controls & Metrics */}
       <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex flex-wrap items-center justify-between gap-4">
         <div>

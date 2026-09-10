@@ -1,5 +1,18 @@
 import axios from 'axios';
-import { JobListResponse, JobStatsResponse, Job, ResumeData, TailoredResumeResult, ApplicationItem, SchedulerStatus, UserProfile, LoginProfileSummary } from '../types/job';
+import {
+  JobListResponse,
+  JobStatsResponse,
+  Job,
+  ResumeData,
+  TailoredResumeResult,
+  ApplicationItem,
+  SchedulerStatus,
+  UserProfile,
+  LoginProfileSummary,
+  AuthResponse,
+  AuthUser,
+  UserPreset,
+} from '../types/job';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
@@ -9,6 +22,53 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('internscrap_auth_token');
+  const userId = localStorage.getItem('internscrap_user_id') || 'Aryanshh';
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  config.headers['X-User-Id'] = userId;
+  return config;
+});
+
+export const login = async (username: string, password: string): Promise<AuthResponse> => {
+  const res = await api.post<AuthResponse>('/auth/login', { username, password });
+  if (res.data.token) {
+    localStorage.setItem('internscrap_auth_token', res.data.token);
+    setActiveUserId(res.data.user.id);
+  }
+  return res.data;
+};
+
+export const register = async (username: string, password: string, fullName?: string): Promise<AuthResponse> => {
+  const res = await api.post<AuthResponse>('/auth/register', { username, password, full_name: fullName });
+  if (res.data.token) {
+    localStorage.setItem('internscrap_auth_token', res.data.token);
+    setActiveUserId(res.data.user.id);
+  }
+  return res.data;
+};
+
+export const getAuthPresets = async (): Promise<UserPreset[]> => {
+  const res = await api.get<UserPreset[]>('/auth/presets');
+  return res.data;
+};
+
+export const getCurrentAuthUser = async (): Promise<AuthUser> => {
+  const res = await api.get<AuthUser>('/auth/me');
+  return res.data;
+};
+
+export const getAuthToken = (): string | null => {
+  return localStorage.getItem('internscrap_auth_token');
+};
+
+export const clearAuth = (): void => {
+  localStorage.removeItem('internscrap_auth_token');
+  localStorage.removeItem('internscrap_user_id');
+};
 
 export const getJobs = async (params: Record<string, any>): Promise<JobListResponse> => {
   const cleanParams: Record<string, any> = {};
