@@ -55,7 +55,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div
             className="flex items-center space-x-3 shrink-0 cursor-pointer group select-none"
             onClick={() => onViewChange('home')}
-            title="Go to Home Command Center"
+            title="Go to Home"
           >
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-violet-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-200 group-hover:scale-105 group-hover:shadow-indigo-300 transition-all duration-200 ring-1 ring-indigo-500/20">
               <Sparkles className="w-5 h-5 text-white" />

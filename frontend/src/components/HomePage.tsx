@@ -68,11 +68,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       <div className="relative rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 sm:p-10 shadow-xl overflow-hidden border border-slate-800">
         <div className="relative z-10 max-w-4xl">
           <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Candidate Command Center</span>
-            </span>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-white/10 text-slate-300">
+            <span className="text-xs px-3 py-1 rounded-full bg-white/10 text-slate-300 border border-white/10">
               Logged in as: <strong>{activeUserId}</strong>
             </span>
           </div>
@@ -83,7 +79,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
           <p className="mt-2 text-slate-300 text-sm sm:text-base max-w-2xl leading-relaxed">
             {currentProfile?.headline ||
-              'Your genuine career command center. Search verified remote listings, track interview stages, manage ATS resumes, and build your profile.'}
+              'Search verified remote listings, track interview stages, manage ATS resumes, and build your profile.'}
           </p>
 
           {/* Profile Status Banner */}

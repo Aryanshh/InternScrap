@@ -107,7 +107,7 @@ export const ApplicationTracker: React.FC<ApplicationTrackerProps> = ({ onTailor
             className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl border border-indigo-200 transition-all cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to Home Command Center</span>
+            <span>Back to Home</span>
           </button>
         </div>
       )}
