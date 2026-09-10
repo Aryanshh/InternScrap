@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Briefcase, ShieldCheck, Lock, User, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
+import { Sparkles, Lock, User, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
 import { login, register } from '../api/client';
 import { AuthUser } from '../types/job';
 
@@ -60,18 +60,17 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 px-4">
         {/* Brand Header */}
         <div className="flex flex-col items-center text-center">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-xl shadow-indigo-500/20 mb-3">
-            <Briefcase className="w-7 h-7" />
+          <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-indigo-500 via-violet-600 to-purple-600 flex items-center justify-center text-white shadow-2xl shadow-indigo-500/30 mb-4 ring-1 ring-white/20 transform hover:scale-105 transition-transform duration-300">
+            <Sparkles className="w-8 h-8 text-white" />
           </div>
-          <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">InternScrap</h1>
-            <span className="inline-flex items-center gap-1 text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">
-              <ShieldCheck className="w-3 h-3 text-emerald-400" />
-              <span>ToS Safe</span>
-            </span>
+          <div className="flex items-center justify-center gap-1.5 mb-2">
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white font-sans">
+              Intern<span className="bg-gradient-to-r from-indigo-400 via-violet-300 to-purple-400 bg-clip-text text-transparent">Scrap</span>
+            </h1>
+            <span className="w-2 h-2 rounded-full bg-indigo-400 shadow-sm shadow-indigo-400/50" />
           </div>
-          <p className="text-slate-400 text-xs sm:text-sm max-w-xs">
-            Remote Talent Aggregator, AI Profile Hub & ATS-Tailored Career Suite
+          <p className="text-slate-400 text-xs sm:text-sm max-w-xs font-medium">
+            AI-Powered Remote Talent Aggregator & Career Command Center
           </p>
         </div>
 

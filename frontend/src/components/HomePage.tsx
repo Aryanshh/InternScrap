@@ -170,7 +170,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             </div>
 
             <p className="text-xs text-slate-600 mb-5 leading-relaxed">
-              Real-time software and AI contracts aggregated from Wellfound, Outlier, Mercor, Alignerr, Mindrift, and free ToS APIs.
+              Real-time software and AI contracts aggregated from Wellfound, Outlier, Mercor, Alignerr, Mindrift, and verified feeds.
             </p>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
@@ -318,7 +318,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 <PlusCircle className="w-5 h-5" />
               </div>
               <span className="text-[10px] px-2.5 py-1 rounded-full bg-teal-50 text-teal-700 font-semibold border border-teal-200">
-                ToS Safe Intake
+                Direct Intake
               </span>
             </div>
 
@@ -328,7 +328,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             </p>
 
             <div className="mt-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-xs text-slate-600 leading-relaxed">
-              Enables non-scraping manual intake to respect site terms of service while still letting you generate tailored ATS resumes and gap analysis.
+              Enables offline manual intake to privately match, evaluate requirements, and generate tailored ATS resumes and gap analysis.
             </div>
           </div>
 
