@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Lock, User, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
+import { Briefcase, Lock, User, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
 import { login, register } from '../api/client';
 import { AuthUser } from '../types/job';
 
@@ -60,17 +60,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 px-4">
         {/* Brand Header */}
         <div className="flex flex-col items-center text-center">
-          <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-indigo-500 via-violet-600 to-purple-600 flex items-center justify-center text-white shadow-2xl shadow-indigo-500/30 mb-4 ring-1 ring-white/20 transform hover:scale-105 transition-transform duration-300">
-            <Sparkles className="w-8 h-8 text-white" />
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-xl shadow-indigo-500/20 mb-3 transform hover:scale-105 transition-transform duration-300">
+            <Briefcase className="w-7 h-7 text-white" />
           </div>
-          <div className="flex items-center justify-center gap-1.5 mb-2">
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white font-sans">
-              Intern<span className="bg-gradient-to-r from-indigo-400 via-violet-300 to-purple-400 bg-clip-text text-transparent">Scrap</span>
-            </h1>
-            <span className="w-2 h-2 rounded-full bg-indigo-400 shadow-sm shadow-indigo-400/50" />
-          </div>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white mb-2">
+            InternScrap
+          </h1>
           <p className="text-slate-400 text-xs sm:text-sm max-w-xs font-medium">
-            AI-Powered Remote Talent Aggregator & Career Command Center
+            AI-Powered Remote Talent Aggregator & Career Hub
           </p>
         </div>
 
