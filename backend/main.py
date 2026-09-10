@@ -17,6 +17,14 @@ import backend.models # Ensure models are loaded
 async def lifespan(app: FastAPI):
     # Initialize DB tables
     Base.metadata.create_all(bind=engine)
+    # Seed default login profiles: demo, Aryanshh, Nishtha
+    from backend.database import SessionLocal
+    from backend.routes.profile import seed_all_profiles
+    db = SessionLocal()
+    try:
+        seed_all_profiles(db)
+    finally:
+        db.close()
     start_scheduler()
     yield
     shutdown_scheduler()

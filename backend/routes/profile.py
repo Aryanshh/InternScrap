@@ -3,7 +3,7 @@ import io
 import logging
 from datetime import datetime
 from typing import Optional, List, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, Header, Query
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from docx import Document
@@ -39,19 +39,267 @@ class ProfileUpdateRequest(BaseModel):
     digest_frequency: Optional[str] = None
     digest_min_score: Optional[float] = None
 
-def get_or_create_profile(db: Session) -> UserProfile:
-    profile = db.query(UserProfile).filter(UserProfile.id == "default_user").first()
+class SwitchProfileRequest(BaseModel):
+    user_id: str
+
+DEFAULT_PROFILES: Dict[str, Dict[str, Any]] = {
+    "Aryanshh": {
+        "id": "Aryanshh",
+        "full_name": "Aryan Sharma",
+        "email": "aryanshh08sri@gmail.com",
+        "phone": "+1 (555) 019-2834",
+        "location": "San Francisco, CA / Remote Worldwide",
+        "headline": "Full-Stack Software Engineer & AI Alignment Specialist",
+        "bio": (
+            "Software engineer specializing in React, TypeScript, Python, FastAPI, distributed systems, "
+            "and frontier AI evaluation. Experienced building high-throughput microservices, optimizing RLHF alignment pipelines, "
+            "and leading technical architecture for high-growth tech startups."
+        ),
+        "github_url": "https://github.com/Aryanshh",
+        "linkedin_url": "https://linkedin.com/in/aryanshh",
+        "portfolio_url": "https://aryanshh.dev",
+        "desired_work_mode": "remote",
+        "min_salary": 120000,
+        "min_hourly_rate": 55.0,
+        "target_platforms": ["Wellfound", "Outlier", "Mercor", "Alignerr", "Mindrift"],
+        "skills": [
+            "Python", "TypeScript", "React", "FastAPI", "PostgreSQL", "Docker", "Git",
+            "PyTorch", "LangChain", "Vector DB", "Prompt Engineering", "RLHF", "REST APIs",
+            "Node.js", "Tailwind CSS", "Redis", "CI/CD", "Next.js", "SQL"
+        ],
+        "experience": [
+            {
+                "company": "TechNova Solutions",
+                "role": "Full-Stack Software Engineer",
+                "location": "Remote",
+                "start_date": "Jun 2023",
+                "end_date": "Present",
+                "bullets": [
+                    "Architected high-throughput REST APIs in FastAPI and PostgreSQL, serving 120k daily requests with sub-50ms latency.",
+                    "Engineered modern responsive frontends with React, TypeScript, and Tailwind CSS, improving load speed by 38%.",
+                    "Implemented CI/CD automated test pipelines using Docker and GitHub Actions, reducing release cycle time by 45%."
+                ]
+            },
+            {
+                "company": "DataSphere AI",
+                "role": "AI Research & Evaluation Contractor",
+                "location": "Remote",
+                "start_date": "Jan 2023",
+                "end_date": "May 2023",
+                "bullets": [
+                    "Evaluated and benchmarked reasoning capabilities of frontier generative AI coding models across Python, C++, and SQL.",
+                    "Designed adversarial test cases and human-in-the-loop evaluation pipelines for RLHF alignment."
+                ]
+            }
+        ],
+        "education": [
+            {
+                "institution": "University of California, Berkeley",
+                "degree": "B.S. in Computer Science",
+                "grad_year": "2024",
+                "gpa": "3.85 / 4.0"
+            }
+        ],
+        "digest_enabled": True,
+        "digest_frequency": "4h",
+        "digest_min_score": 70.0
+    },
+    "demo": {
+        "id": "demo",
+        "full_name": "Demo Candidate",
+        "email": "demo@internscrap.dev",
+        "phone": "+1 (555) 123-4567",
+        "location": "Austin, TX / Remote",
+        "headline": "Junior Full-Stack Developer & Technical Intern",
+        "bio": (
+            "Passionate early-career developer focused on building interactive web applications with modern React, TypeScript, "
+            "and Python. Seeking high-impact software engineering internships, fellowships, and junior developer opportunities."
+        ),
+        "github_url": "https://github.com/demo",
+        "linkedin_url": "https://linkedin.com/in/demo-intern",
+        "portfolio_url": "https://demo.dev",
+        "desired_work_mode": "remote",
+        "min_salary": 75000,
+        "min_hourly_rate": 35.0,
+        "target_platforms": ["Wellfound", "Outlier", "Remotive", "Arbeitnow"],
+        "skills": [
+            "JavaScript", "TypeScript", "React", "Python", "HTML5", "CSS3", "Git",
+            "SQL", "Tailwind CSS", "REST APIs", "FastAPI", "Express"
+        ],
+        "experience": [
+            {
+                "company": "Campus Tech Labs",
+                "role": "Software Developer Intern",
+                "location": "Remote",
+                "start_date": "May 2024",
+                "end_date": "Aug 2024",
+                "bullets": [
+                    "Built dynamic React UI components with Tailwind CSS for internal student portal used by 2,000+ active campus members.",
+                    "Created RESTful endpoints in Python FastAPI with SQLite to handle course scheduling queries with sub-second response times.",
+                    "Authored automated unit tests ensuring 90%+ code coverage before production deployment."
+                ]
+            }
+        ],
+        "education": [
+            {
+                "institution": "University of Texas, Austin",
+                "degree": "B.S. in Computer Science",
+                "grad_year": "2026",
+                "gpa": "3.75 / 4.0"
+            }
+        ],
+        "digest_enabled": True,
+        "digest_frequency": "12h",
+        "digest_min_score": 60.0
+    },
+    "Nishtha": {
+        "id": "Nishtha",
+        "full_name": "Nishtha",
+        "email": "nishtha@example.com",
+        "phone": "+1 (555) 789-0123",
+        "location": "New York, NY / Remote",
+        "headline": "AI/ML Engineer & Data Science Specialist",
+        "bio": (
+            "Machine Learning Engineer with strong background in deep learning, natural language processing, computer vision, "
+            "and predictive modeling. Passionate about deploying scalable transformer models, fine-tuning LLMs, and building intelligent data products."
+        ),
+        "github_url": "https://github.com/nishtha-ml",
+        "linkedin_url": "https://linkedin.com/in/nishtha-data",
+        "portfolio_url": "https://nishtha.ai",
+        "desired_work_mode": "remote",
+        "min_salary": 130000,
+        "min_hourly_rate": 65.0,
+        "target_platforms": ["Outlier", "Mercor", "Mindrift", "Wellfound", "Alignerr"],
+        "skills": [
+            "Python", "PyTorch", "TensorFlow", "Scikit-Learn", "Pandas", "NumPy", "NLP",
+            "LLM Evaluation", "Computer Vision", "FastAPI", "SQL", "Docker", "Hugging Face",
+            "RAG", "Prompt Engineering", "Data Structures"
+        ],
+        "experience": [
+            {
+                "company": "Apex AI Labs",
+                "role": "Machine Learning Engineer",
+                "location": "Remote",
+                "start_date": "Jul 2023",
+                "end_date": "Present",
+                "bullets": [
+                    "Trained and fine-tuned transformer-based NLP architectures for multi-domain document reasoning with PyTorch and Hugging Face.",
+                    "Built scalable semantic search pipelines with vector embeddings, reducing inference latency by 40%.",
+                    "Designed evaluation harness for measuring generative model hallucination rates and accuracy benchmarks."
+                ]
+            },
+            {
+                "company": "Cognitive Insights",
+                "role": "Data Science Specialist",
+                "location": "Remote",
+                "start_date": "Aug 2022",
+                "end_date": "Jun 2023",
+                "bullets": [
+                    "Developed predictive machine learning models in Python, Scikit-Learn, and Pandas delivering 94% classification precision.",
+                    "Collaborated on production data pipelines processing 2M+ records daily."
+                ]
+            }
+        ],
+        "education": [
+            {
+                "institution": "Columbia University",
+                "degree": "M.S. in Data Science & Machine Learning",
+                "grad_year": "2024",
+                "gpa": "3.92 / 4.0"
+            }
+        ],
+        "digest_enabled": True,
+        "digest_frequency": "4h",
+        "digest_min_score": 75.0
+    }
+}
+
+def seed_all_profiles(db: Session):
+    """Ensure demo, Aryanshh, and Nishtha profiles are present and populated."""
+    for pid, data in DEFAULT_PROFILES.items():
+        existing = db.query(UserProfile).filter(UserProfile.id == pid).first()
+        if not existing:
+            new_p = UserProfile(**data)
+            db.add(new_p)
+    db.commit()
+
+def resolve_target_user_id(user_id: Optional[str], x_user_id: Optional[str]) -> str:
+    chosen = (user_id or x_user_id or "Aryanshh").strip()
+    if not chosen or chosen == "default_user":
+        chosen = "Aryanshh"
+    return chosen
+
+def get_or_create_profile(db: Session, user_id: Optional[str] = None) -> UserProfile:
+    target_id = resolve_target_user_id(user_id, None)
+    profile = db.query(UserProfile).filter(UserProfile.id == target_id).first()
     if not profile:
-        profile = UserProfile(id="default_user")
+        seed_data = DEFAULT_PROFILES.get(target_id)
+        if seed_data:
+            profile = UserProfile(**seed_data)
+        else:
+            profile = UserProfile(id=target_id, full_name=target_id)
         db.add(profile)
         db.commit()
         db.refresh(profile)
     return profile
 
+@router.get("/list")
+def list_profiles(db: Session = Depends(get_db)):
+    """Return the three candidate login profiles: demo, Aryanshh, and Nishtha."""
+    seed_all_profiles(db)
+    profiles = db.query(UserProfile).all()
+    
+    order = ["demo", "Aryanshh", "Nishtha"]
+    allowed = {"demo", "Aryanshh", "Nishtha"}
+    filtered = [p for p in profiles if p.id in allowed]
+    ordered = sorted(filtered, key=lambda p: order.index(p.id))
+    
+    return [
+        {
+            "id": p.id,
+            "full_name": p.full_name,
+            "headline": p.headline,
+            "email": p.email,
+            "avatar": p.full_name[:1].upper() if p.full_name else p.id[:1].upper(),
+            "role_tag": (
+                "Full-Stack & AI" if p.id == "Aryanshh"
+                else "Intern / Junior" if p.id == "demo"
+                else "AI/ML & Data" if p.id == "Nishtha"
+                else "Candidate"
+            ),
+            "skills_count": len(p.skills or []),
+            "desired_work_mode": p.desired_work_mode,
+            "min_hourly_rate": p.min_hourly_rate,
+            "target_platforms": p.target_platforms or [],
+        }
+        for p in ordered
+    ]
+
+@router.post("/switch")
+def switch_profile(payload: SwitchProfileRequest, db: Session = Depends(get_db)):
+    """Switch active profile session."""
+    target_id = payload.user_id.strip()
+    profile = get_or_create_profile(db, user_id=target_id)
+    return {
+        "message": f"Switched to profile: {profile.full_name} ({profile.id})",
+        "active_user_id": profile.id,
+        "profile": {
+            "id": profile.id,
+            "full_name": profile.full_name,
+            "headline": profile.headline,
+            "email": profile.email,
+        }
+    }
+
 @router.get("")
-def get_profile(db: Session = Depends(get_db)):
+def get_profile(
+    user_id: Optional[str] = Query(None),
+    x_user_id: Optional[str] = Header(None, alias="X-User-Id"),
+    db: Session = Depends(get_db)
+):
     """Retrieve candidate profile with active resume status."""
-    profile = get_or_create_profile(db)
+    target_id = resolve_target_user_id(user_id, x_user_id)
+    profile = get_or_create_profile(db, target_id)
     active_resume = db.query(Resume).filter(Resume.is_active == True).first()
 
     return {
@@ -84,9 +332,15 @@ def get_profile(db: Session = Depends(get_db)):
     }
 
 @router.put("")
-def update_profile(data: ProfileUpdateRequest, db: Session = Depends(get_db)):
+def update_profile(
+    data: ProfileUpdateRequest,
+    user_id: Optional[str] = Query(None),
+    x_user_id: Optional[str] = Header(None, alias="X-User-Id"),
+    db: Session = Depends(get_db)
+):
     """Update profile preferences, skills, and work history."""
-    profile = get_or_create_profile(db)
+    target_id = resolve_target_user_id(user_id, x_user_id)
+    profile = get_or_create_profile(db, target_id)
 
     update_dict = data.model_dump(exclude_unset=True)
     for key, value in update_dict.items():
@@ -109,9 +363,14 @@ def update_profile(data: ProfileUpdateRequest, db: Session = Depends(get_db)):
     }
 
 @router.post("/sync-from-resume")
-def sync_from_active_resume(db: Session = Depends(get_db)):
-    """Extract skills and experience from the active uploaded resume and merge into profile."""
-    profile = get_or_create_profile(db)
+def sync_from_active_resume(
+    user_id: Optional[str] = Query(None),
+    x_user_id: Optional[str] = Header(None, alias="X-User-Id"),
+    db: Session = Depends(get_db)
+):
+    """Extract skills and experience from the active uploaded resume and merge into targeted profile."""
+    target_id = resolve_target_user_id(user_id, x_user_id)
+    profile = get_or_create_profile(db, target_id)
     active_resume = db.query(Resume).filter(Resume.is_active == True).first()
 
     if not active_resume or not active_resume.parsed_json:
@@ -170,16 +429,21 @@ def sync_from_active_resume(db: Session = Depends(get_db)):
     db.refresh(profile)
 
     return {
-        "message": f"Successfully synced from resume: {', '.join(synced_items) if synced_items else 'Profile already up to date.'}",
+        "message": f"Successfully synced from resume for {profile.full_name}: {', '.join(synced_items) if synced_items else 'Profile already up to date.'}",
         "skills": profile.skills,
         "experience": profile.experience,
         "education": profile.education,
     }
 
 @router.get("/export-docx")
-def export_profile_docx(db: Session = Depends(get_db)):
+def export_profile_docx(
+    user_id: Optional[str] = Query(None),
+    x_user_id: Optional[str] = Header(None, alias="X-User-Id"),
+    db: Session = Depends(get_db)
+):
     """Compile the user profile into an ATS-formatted DOCX resume."""
-    profile = get_or_create_profile(db)
+    target_id = resolve_target_user_id(user_id, x_user_id)
+    profile = get_or_create_profile(db, target_id)
 
     doc = Document()
 
@@ -295,7 +559,7 @@ def export_profile_docx(db: Session = Depends(get_db)):
     doc.save(buffer)
     file_bytes = buffer.getvalue()
 
-    safe_name = (profile.full_name or "Candidate").replace(" ", "_")
+    safe_name = (profile.full_name or profile.id or "Candidate").replace(" ", "_")
     filename = f"{safe_name}_Profile_Resume.docx"
     return Response(
         content=file_bytes,

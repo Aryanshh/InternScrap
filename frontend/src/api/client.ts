@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { JobListResponse, JobStatsResponse, Job, ResumeData, TailoredResumeResult, ApplicationItem, SchedulerStatus, UserProfile } from '../types/job';
+import { JobListResponse, JobStatsResponse, Job, ResumeData, TailoredResumeResult, ApplicationItem, SchedulerStatus, UserProfile, LoginProfileSummary } from '../types/job';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
@@ -131,22 +131,46 @@ export const getDigestHtmlUrl = (): string => {
   return `${API_BASE}/digest/html`;
 };
 
-export const getProfile = async (): Promise<UserProfile> => {
-  const res = await api.get<UserProfile>('/profile');
+export const getActiveUserId = (): string => {
+  return localStorage.getItem('internscrap_user_id') || 'Aryanshh';
+};
+
+export const setActiveUserId = (userId: string): void => {
+  localStorage.setItem('internscrap_user_id', userId);
+};
+
+export const getProfilesList = async (): Promise<LoginProfileSummary[]> => {
+  const res = await api.get<LoginProfileSummary[]>('/profile/list');
   return res.data;
 };
 
-export const updateProfile = async (data: Partial<UserProfile>): Promise<any> => {
-  const res = await api.put('/profile', data);
+export const switchProfile = async (userId: string): Promise<any> => {
+  setActiveUserId(userId);
+  const res = await api.post('/profile/switch', { user_id: userId });
   return res.data;
 };
 
-export const syncProfileFromResume = async (): Promise<any> => {
-  const res = await api.post('/profile/sync-from-resume');
+export const getProfile = async (userId?: string): Promise<UserProfile> => {
+  const uid = userId || getActiveUserId();
+  const res = await api.get<UserProfile>('/profile', { params: { user_id: uid } });
   return res.data;
 };
 
-export const getProfileDocxUrl = (): string => {
-  return `${API_BASE}/profile/export-docx`;
+export const updateProfile = async (data: Partial<UserProfile>, userId?: string): Promise<any> => {
+  const uid = userId || getActiveUserId();
+  const res = await api.put('/profile', data, { params: { user_id: uid } });
+  return res.data;
 };
+
+export const syncProfileFromResume = async (userId?: string): Promise<any> => {
+  const uid = userId || getActiveUserId();
+  const res = await api.post('/profile/sync-from-resume', {}, { params: { user_id: uid } });
+  return res.data;
+};
+
+export const getProfileDocxUrl = (userId?: string): string => {
+  const uid = userId || getActiveUserId();
+  return `${API_BASE}/profile/export-docx?user_id=${encodeURIComponent(uid)}`;
+};
+
 

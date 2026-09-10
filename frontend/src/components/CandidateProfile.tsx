@@ -23,7 +23,7 @@ import {
   Layers,
   ArrowRight
 } from 'lucide-react';
-import { UserProfile, WorkExperienceItem, EducationItem } from '../types/job';
+import { UserProfile, WorkExperienceItem, EducationItem, LoginProfileSummary } from '../types/job';
 import { getProfile, updateProfile, syncProfileFromResume, getProfileDocxUrl } from '../api/client';
 
 const MODERN_REMOTE_PLATFORMS = [
@@ -42,10 +42,18 @@ const SUGGESTED_SKILLS = [
 ];
 
 interface CandidateProfileProps {
+  activeUserId: string;
+  loginProfiles: LoginProfileSummary[];
+  onSwitchProfile: (userId: string) => void;
   onNavigateToListingsWithSource?: (source: string) => void;
 }
 
-export const CandidateProfile: React.FC<CandidateProfileProps> = ({ onNavigateToListingsWithSource }) => {
+export const CandidateProfile: React.FC<CandidateProfileProps> = ({
+  activeUserId,
+  loginProfiles,
+  onSwitchProfile,
+  onNavigateToListingsWithSource,
+}) => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -75,16 +83,16 @@ export const CandidateProfile: React.FC<CandidateProfileProps> = ({ onNavigateTo
 
   useEffect(() => {
     fetchProfileData();
-  }, []);
+  }, [activeUserId]);
 
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      const data = await getProfile();
+      const data = await getProfile(activeUserId);
       setProfile(data);
     } catch (err: any) {
       console.error('Failed to load profile:', err);
-      setStatusMessage({ type: 'error', text: 'Failed to load profile. Please check server.' });
+      setStatusMessage({ type: 'error', text: `Failed to load profile for ${activeUserId}.` });
     } finally {
       setLoading(false);
     }
@@ -94,8 +102,8 @@ export const CandidateProfile: React.FC<CandidateProfileProps> = ({ onNavigateTo
     if (!profile) return;
     try {
       setSaving(true);
-      await updateProfile(profile);
-      setStatusMessage({ type: 'success', text: 'Candidate profile updated successfully!' });
+      await updateProfile(profile, activeUserId);
+      setStatusMessage({ type: 'success', text: `Profile updated for ${profile.full_name} (${activeUserId})!` });
       setTimeout(() => setStatusMessage(null), 4000);
     } catch (err: any) {
       console.error('Save failed:', err);
@@ -108,7 +116,7 @@ export const CandidateProfile: React.FC<CandidateProfileProps> = ({ onNavigateTo
   const handleSyncResume = async () => {
     try {
       setSyncing(true);
-      const res = await syncProfileFromResume();
+      const res = await syncProfileFromResume(activeUserId);
       setStatusMessage({ type: 'success', text: res.message || 'Synced skills and profile from active resume!' });
       await fetchProfileData();
       setTimeout(() => setStatusMessage(null), 5000);
@@ -226,6 +234,54 @@ export const CandidateProfile: React.FC<CandidateProfileProps> = ({ onNavigateTo
         </div>
       )}
 
+      {/* Login Profiles Switcher Card */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold">
+            <User className="w-4 h-4" />
+          </div>
+          <div>
+            <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block leading-none">
+              Candidate Login Profiles
+            </span>
+            <span className="text-[11px] text-slate-500">
+              Select one of the 3 profiles to switch account & view
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          {loginProfiles.map((p) => {
+            const isActive = p.id === activeUserId;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => onSwitchProfile(p.id)}
+                className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  isActive
+                    ? 'bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-300'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
+                }`}
+              >
+                <div className={`w-5 h-5 rounded-md flex items-center justify-center font-bold text-[10px] ${
+                  isActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                }`}>
+                  {p.avatar}
+                </div>
+                <span>{p.full_name}</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded font-medium ${
+                  isActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'
+                }`}>
+                  {p.role_tag}
+                </span>
+                {isActive && <CheckCircle2 className="w-3.5 h-3.5" />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Hero Header Card */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
@@ -286,7 +342,7 @@ export const CandidateProfile: React.FC<CandidateProfileProps> = ({ onNavigateTo
             </button>
 
             <a
-              href={getProfileDocxUrl()}
+              href={getProfileDocxUrl(activeUserId)}
               download
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-all shadow-xs"
               title="Download compiled profile resume formatted for ATS scanners"

@@ -23,15 +23,27 @@ Unlike traditional inflated scrapers, **InternScrap** enforces strict zero-fabri
 | :---: | :---: |
 | ![Remote Platforms Listings](docs/images/remote_platforms_listings.png) | ![Candidate Profile View](docs/images/candidate_profile_view.png) |
 
-| 5-Stage Kanban Application Tracker | Automated Background Email Digest |
+| Candidate Profile: Aryan Sharma (`Aryanshh`) | Candidate Profile: Nishtha (`Nishtha`) |
 | :---: | :---: |
-| ![Kanban Application Tracker](docs/images/tracker_kanban_phase4.png) | ![Email Digest Scheduler](docs/images/email_digest_modal_phase4.png) |
+| ![Profile Aryanshh](docs/images/profile_aryanshh.png) | ![Profile Nishtha](docs/images/profile_nishtha.png) |
+
+| Candidate Profile: Demo Candidate (`demo`) | 5-Stage Kanban Application Tracker |
+| :---: | :---: |
+| ![Profile Demo](docs/images/profile_demo.png) | ![Kanban Application Tracker](docs/images/tracker_kanban_phase4.png) |
 
 ---
 
 ## ✨ Key Features
 
-### 1. 🌐 Multi-Source Remote Platform Ingestion
+### 1. 👥 Multi-Candidate Profiles (`demo`, `Aryanshh`, `Nishtha`)
+- **Instant Profile Switching**: Switch between 3 realistic, tailored candidate profiles right from the sticky Header dropdown or the top switcher bar in Candidate Profile:
+  1. **`Aryanshh` (Aryan Sharma)**: Full-Stack Software Engineer & AI Alignment Specialist (UC Berkeley '24, $55/hr, skills: Python, React, FastAPI, RLHF, Vector DB).
+  2. **`Nishtha` (Nishtha)**: AI/ML Engineer & Data Science Specialist (Columbia MS '24, $65/hr, skills: PyTorch, TensorFlow, LLM Evaluation, Computer Vision, RAG).
+  3. **`demo` (Demo Candidate)**: Junior Full-Stack Developer & Technical Intern (UT Austin '26, $35/hr, skills: JavaScript, TypeScript, React, Python, SQL).
+- **Isolated User Sessions**: Each profile maintains its own target platform checklist, rate expectations, skills taxonomy, work experiences, education history, and ATS `.docx` exports.
+- **Persistent Local State**: Automatically persists the active profile across browser reloads (`localStorage.internscrap_user_id`).
+
+### 2. 🌐 Multi-Source Remote Platform Ingestion
 - **Wellfound (formerly AngelList Talent)**: Seed, Series A, and Y-Combinator startup engineering roles.
 - **Outlier AI**: Frontier LLM training, data science, and reasoning evaluation ($40–$100/hr).
 - **Mercor**: Vetted AI contracts and full-stack software development ($60–$120/hr).

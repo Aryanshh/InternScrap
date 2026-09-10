@@ -16,8 +16,11 @@ import {
   getActiveResume,
   getApplications,
   trackApplication,
+  getProfilesList,
+  getActiveUserId,
+  switchProfile,
 } from './api/client';
-import { Job, JobStatsResponse, FilterState, ResumeData } from './types/job';
+import { Job, JobStatsResponse, FilterState, ResumeData, LoginProfileSummary } from './types/job';
 import { Loader2, Sparkles, ChevronLeft, ChevronRight, Inbox, Layers, Globe, GraduationCap } from 'lucide-react';
 
 const initialFilters: FilterState = {
@@ -48,6 +51,8 @@ export const App: React.FC = () => {
   const [activeView, setActiveView] = useState<'listings' | 'tracker' | 'profile'>('listings');
   const [trackedJobIds, setTrackedJobIds] = useState<Set<string>>(new Set());
   const [isDigestModalOpen, setIsDigestModalOpen] = useState(false);
+  const [activeUserId, setActiveUserId] = useState<string>(getActiveUserId());
+  const [loginProfiles, setLoginProfiles] = useState<LoginProfileSummary[]>([]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -56,20 +61,34 @@ export const App: React.FC = () => {
 
   const loadInitialData = useCallback(async () => {
     try {
-      const [statsData, catData, resumeData, appsData] = await Promise.all([
+      const [statsData, catData, resumeData, appsData, profilesList] = await Promise.all([
         getStats(),
         getCategories(),
         getActiveResume(),
         getApplications(),
+        getProfilesList(),
       ]);
       setStats(statsData);
       setCategories(catData);
       setActiveResume(resumeData);
       setTrackedJobIds(new Set(appsData.map((a) => a.job_id)));
+      setLoginProfiles(profilesList);
     } catch (err) {
-      console.error('Failed to load stats/categories/resume/applications', err);
+      console.error('Failed to load stats/categories/resume/applications/profiles', err);
     }
   }, []);
+
+  const handleSwitchProfile = async (newUserId: string) => {
+    try {
+      await switchProfile(newUserId);
+      setActiveUserId(newUserId);
+      const chosen = loginProfiles.find((p) => p.id === newUserId);
+      showToast(`Switched active profile session to ${chosen?.full_name || newUserId}!`);
+    } catch (err) {
+      console.error('Failed to switch profile', err);
+      showToast('Failed to switch profile session.');
+    }
+  };
 
   const handleTrackJob = async (job: Job) => {
     try {
@@ -173,7 +192,10 @@ export const App: React.FC = () => {
         isSyncing={isSyncing}
         activeView={activeView}
         trackedCount={trackedJobIds.size}
+        activeUserId={activeUserId}
+        loginProfiles={loginProfiles}
         onViewChange={setActiveView}
+        onSwitchProfile={handleSwitchProfile}
         onSync={handleSync}
         onOpenManualModal={() => setIsManualModalOpen(true)}
         onOpenResumeModal={() => setIsResumeModalOpen(true)}
@@ -184,6 +206,9 @@ export const App: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
         {activeView === 'profile' ? (
           <CandidateProfile
+            activeUserId={activeUserId}
+            loginProfiles={loginProfiles}
+            onSwitchProfile={handleSwitchProfile}
             onNavigateToListingsWithSource={(src) => {
               setFilters((prev) => ({ ...prev, source: src.toLowerCase(), page: 1 }));
               setActiveView('listings');

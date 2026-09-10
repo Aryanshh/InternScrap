@@ -210,3 +210,17 @@ export interface UserProfile {
   } | null;
 }
 
+export interface LoginProfileSummary {
+  id: string;
+  full_name: string;
+  headline: string;
+  email: string;
+  avatar: string;
+  role_tag: string;
+  skills_count: number;
+  desired_work_mode: string;
+  min_hourly_rate?: number;
+  target_platforms?: string[];
+}
+
+
