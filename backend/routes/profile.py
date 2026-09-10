@@ -93,7 +93,7 @@ DEFAULT_PROFILES: Dict[str, Dict[str, Any]] = {
     },
     "Aryanshh": {
         "id": "Aryanshh",
-        "full_name": "Aryan Sharma",
+        "full_name": "Aryanshh Srivastava",
         "email": "",
         "phone": "",
         "location": "",
@@ -115,7 +115,7 @@ DEFAULT_PROFILES: Dict[str, Dict[str, Any]] = {
     },
     "Nishtha": {
         "id": "Nishtha",
-        "full_name": "Nishtha",
+        "full_name": "Nishtha Maheshwari",
         "email": "",
         "phone": "",
         "location": "",
@@ -144,17 +144,22 @@ def seed_all_profiles(db: Session, force_reset_blanks: bool = True):
         if not existing:
             new_p = UserProfile(**data)
             db.add(new_p)
-        elif pid in ("Aryanshh", "Nishtha") and force_reset_blanks:
-            # Check if existing profile contains old mock data (e.g. TechNova or Apex AI) and wipe clean
-            has_old_mock = False
-            for exp in (existing.experience or []):
-                if exp.get("company") in ("TechNova Solutions", "Apex AI Labs", "Cognitive Insights", "DataSphere AI"):
-                    has_old_mock = True
-                    break
-            if has_old_mock:
-                for k, v in data.items():
-                    if k != "id":
-                        setattr(existing, k, v)
+        else:
+            if pid == "Aryanshh" and existing.full_name in ("Aryan Sharma", "Aryanshh", None, ""):
+                existing.full_name = "Aryanshh Srivastava"
+            elif pid == "Nishtha" and existing.full_name in ("Nishtha", None, ""):
+                existing.full_name = "Nishtha Maheshwari"
+            if pid in ("Aryanshh", "Nishtha") and force_reset_blanks:
+                # Check if existing profile contains old mock data (e.g. TechNova or Apex AI) and wipe clean
+                has_old_mock = False
+                for exp in (existing.experience or []):
+                    if exp.get("company") in ("TechNova Solutions", "Apex AI Labs", "Cognitive Insights", "DataSphere AI"):
+                        has_old_mock = True
+                        break
+                if has_old_mock:
+                    for k, v in data.items():
+                        if k != "id":
+                            setattr(existing, k, v)
     db.commit()
 
 def resolve_target_user_id(user_id: Optional[str], x_user_id: Optional[str]) -> str:

@@ -20,7 +20,6 @@ import {
   trackApplication,
   getProfilesList,
   getActiveUserId,
-  switchProfile,
   getProfile,
   getAuthToken,
   clearAuth,
@@ -120,19 +119,6 @@ export const App: React.FC = () => {
     clearAuth();
     setIsAuthenticated(false);
     showToast('Signed out of InternScrap.');
-  };
-
-  const handleSwitchProfile = async (newUserId: string) => {
-    try {
-      await switchProfile(newUserId);
-      setActiveUserId(newUserId);
-      await loadProfileData(newUserId);
-      const chosen = loginProfiles.find((p) => p.id === newUserId);
-      showToast(`Switched active profile session to ${chosen?.full_name || newUserId}!`);
-    } catch (err) {
-      console.error('Failed to switch profile', err);
-      showToast('Failed to switch profile session.');
-    }
   };
 
   const handleTrackJob = async (job: Job) => {
@@ -250,7 +236,6 @@ export const App: React.FC = () => {
         loginProfiles={loginProfiles}
         isSyncing={isSyncing}
         onViewChange={setActiveView}
-        onSwitchProfile={handleSwitchProfile}
         onLogout={handleLogout}
         onSync={handleSync}
       />
@@ -279,7 +264,6 @@ export const App: React.FC = () => {
           <CandidateProfile
             activeUserId={activeUserId}
             loginProfiles={loginProfiles}
-            onSwitchProfile={handleSwitchProfile}
             onBackToHome={() => {
               loadProfileData(activeUserId);
               setActiveView('home');

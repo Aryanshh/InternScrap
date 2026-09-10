@@ -33,13 +33,13 @@ PRESET_USERS = [
         "id": "Aryanshh",
         "username": "Aryanshh",
         "password": "Aryanshh123",
-        "full_name": "Aryan Sharma",
+        "full_name": "Aryanshh Srivastava",
     },
     {
         "id": "Nishtha",
         "username": "Nishtha",
         "password": "Nishtha123",
-        "full_name": "Nishtha",
+        "full_name": "Nishtha Maheshwari",
     },
 ]
 
@@ -160,8 +160,8 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
 def get_presets():
     return [
         {"id": "demo", "name": "Demo Candidate", "role": "Full mock profile for testing", "preset_pwd": "demo123"},
-        {"id": "Aryanshh", "name": "Aryan Sharma", "role": "Blank profile (Setup your own)", "preset_pwd": "Aryanshh123"},
-        {"id": "Nishtha", "name": "Nishtha", "role": "Blank profile (Setup your own)", "preset_pwd": "Nishtha123"},
+        {"id": "Aryanshh", "name": "Aryanshh Srivastava", "role": "Blank profile (Setup your own)", "preset_pwd": "Aryanshh123"},
+        {"id": "Nishtha", "name": "Nishtha Maheshwari", "role": "Blank profile (Setup your own)", "preset_pwd": "Nishtha123"},
     ]
 
 @router.get("/me", response_model=UserResponse)

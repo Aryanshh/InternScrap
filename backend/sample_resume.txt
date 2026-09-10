@@ -1,6 +1,6 @@
-Aryan Sharma
+Aryanshh Srivastava
 Software Engineer & Machine Learning Enthusiast
-Email: aryan.sharma@example.com | GitHub: github.com/aryansharma | San Francisco, CA
+Email: aryanshh.srivastava@example.com | GitHub: github.com/aryanshh | San Francisco, CA
 
 PROFESSIONAL SUMMARY
 Results-oriented software engineer with expertise in Python, FastAPI, React, TypeScript, and modern database architectures. Experienced in building high-throughput microservices, responsive web dashboards, and deploying containerized applications with Docker.

@@ -5,7 +5,6 @@ import {
   ShieldCheck,
   User,
   ChevronDown,
-  Check,
   Home,
   Compass,
   LogOut,
@@ -20,7 +19,6 @@ interface HeaderProps {
   loginProfiles: LoginProfileSummary[];
   isSyncing: boolean;
   onViewChange: (view: 'home' | 'listings' | 'tracker' | 'profile') => void;
-  onSwitchProfile: (userId: string) => void;
   onLogout: () => void;
   onSync: () => void;
 }
@@ -32,7 +30,6 @@ export const Header: React.FC<HeaderProps> = ({
   loginProfiles,
   isSyncing,
   onViewChange,
-  onSwitchProfile,
   onLogout,
   onSync,
 }) => {
@@ -184,47 +181,6 @@ export const Header: React.FC<HeaderProps> = ({
                         {trackedCount}
                       </span>
                     </button>
-                  </div>
-
-                  {/* Profile Switcher Options */}
-                  <div className="py-1">
-                    <span className="px-3.5 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                      Switch Candidate Profile:
-                    </span>
-                    {loginProfiles.map((p) => {
-                      const isActive = p.id === activeUserId;
-                      return (
-                        <button
-                          key={p.id}
-                          onClick={() => {
-                            onSwitchProfile(p.id);
-                            setIsProfileMenuOpen(false);
-                          }}
-                          className={`w-full px-3.5 py-2 text-left flex items-center justify-between hover:bg-slate-50 transition-colors ${
-                            isActive ? 'bg-indigo-50/70' : ''
-                          }`}
-                        >
-                          <div className="flex items-center gap-2 min-w-0">
-                            <div
-                              className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
-                                isActive ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700'
-                              }`}
-                            >
-                              {p.avatar}
-                            </div>
-                            <div className="min-w-0">
-                              <span className="text-xs font-bold text-slate-900 block truncate">
-                                {p.full_name} ({p.id})
-                              </span>
-                              <span className="text-[10px] text-slate-500 block truncate">
-                                {p.headline || 'Self-Setup'}
-                              </span>
-                            </div>
-                          </div>
-                          {isActive && <Check className="w-4 h-4 text-indigo-600 shrink-0 ml-2" />}
-                        </button>
-                      );
-                    })}
                   </div>
 
                   {/* Sign Out */}

@@ -9,9 +9,9 @@ from backend.services.resume_parser import parse_resume, extract_skills
 from backend.services.matching_engine import evaluate_job_match, compute_keyword_match, compute_semantic_match
 
 SAMPLE_RESUME_TEXT = """
-Aryan Sharma
+Aryanshh Srivastava
 Full-Stack Engineer & AI Developer
-Email: aryan@example.com | GitHub: github.com/aryansharma | San Francisco, CA
+Email: aryanshh@example.com | GitHub: github.com/aryanshh | San Francisco, CA
 
 PROFESSIONAL SUMMARY
 Results-driven software engineer with 3+ years of experience developing robust full-stack web applications, 

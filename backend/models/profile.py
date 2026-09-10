@@ -7,7 +7,7 @@ class UserProfile(Base):
     __tablename__ = "user_profiles"
 
     id = Column(String(36), primary_key=True, default="default_user")
-    full_name = Column(String(120), default="Aryan Sharma")
+    full_name = Column(String(120), default="Aryanshh Srivastava")
     email = Column(String(120), default="candidate@example.com")
     phone = Column(String(50), default="+1 (555) 019-2834")
     location = Column(String(120), default="San Francisco, CA / Remote Worldwide")

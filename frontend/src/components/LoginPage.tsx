@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Briefcase, ShieldCheck, Lock, User, Eye, EyeOff, Sparkles, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
+import { Briefcase, ShieldCheck, Lock, User, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
 import { login, register } from '../api/client';
 import { AuthUser } from '../types/job';
 
@@ -9,45 +9,12 @@ interface LoginPageProps {
 
 export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   const [isRegister, setIsRegister] = useState(false);
-  const [username, setUsername] = useState('Aryanshh');
-  const [password, setPassword] = useState('Aryanshh123');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  const presets = [
-    {
-      id: 'demo',
-      name: 'demo',
-      pwd: 'demo123',
-      label: 'Demo Candidate',
-      badge: 'Full Mock Data',
-      badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    },
-    {
-      id: 'Aryanshh',
-      name: 'Aryanshh',
-      pwd: 'Aryanshh123',
-      label: 'Aryan Sharma',
-      badge: 'Blank • Self Setup',
-      badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-    },
-    {
-      id: 'Nishtha',
-      name: 'Nishtha',
-      pwd: 'Nishtha123',
-      label: 'Nishtha',
-      badge: 'Blank • Self Setup',
-      badgeColor: 'bg-purple-50 text-purple-700 border-purple-200',
-    },
-  ];
-
-  const handleApplyPreset = (preset: typeof presets[0]) => {
-    setUsername(preset.name);
-    setPassword(preset.pwd);
-    setErrorMsg(null);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,7 +132,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="e.g. Aryan Sharma"
+                    placeholder="e.g. Aryanshh Srivastava"
                     className="block w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400"
                   />
                 </div>
@@ -185,7 +152,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="e.g. Aryanshh or demo"
+                  placeholder="Enter your username or ID"
                   className="block w-full pl-10 pr-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400 font-medium"
                 />
               </div>
@@ -235,63 +202,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
               )}
             </button>
           </form>
-
-          {/* One-Click Quick Presets for Demo & Setup */}
-          {!isRegister && (
-            <div className="mt-6 pt-5 border-t border-slate-100">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2.5">
-                Quick Fill Login Credentials:
-              </span>
-              <div className="space-y-2">
-                {presets.map((p) => {
-                  const isSelected = username.toLowerCase() === p.name.toLowerCase();
-                  return (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => handleApplyPreset(p)}
-                      className={`w-full p-2.5 rounded-xl border text-left flex items-center justify-between transition-all ${
-                        isSelected
-                          ? 'bg-indigo-50/80 border-indigo-300 ring-1 ring-indigo-300'
-                          : 'bg-slate-50 border-slate-200 hover:bg-slate-100/80'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-2.5">
-                        <div
-                          className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs ${
-                            isSelected ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700'
-                          }`}
-                        >
-                          {p.name.charAt(0)}
-                        </div>
-                        <div>
-                          <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                            <span>{p.label}</span>
-                            <span className="text-[10px] text-slate-400 font-normal">({p.name})</span>
-                          </div>
-                          <span className="text-[10px] text-slate-500 font-mono">pwd: {p.pwd}</span>
-                        </div>
-                      </div>
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${p.badgeColor}`}>
-                        {p.badge}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Feature Highlights */}
-        <div className="mt-8 text-center text-xs text-slate-400 space-y-1">
-          <p className="flex items-center justify-center gap-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Zero mock data for Aryanshh & Nishtha — set up your genuine career profile</span>
-          </p>
-          <p className="text-slate-500 text-[11px]">
-            ToS-Safe Feeds • Honest Non-Inflated Matching • Zero-Fabrication ATS Tailoring
-          </p>
         </div>
       </div>
     </div>

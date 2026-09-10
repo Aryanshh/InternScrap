@@ -44,8 +44,7 @@ const SUGGESTED_SKILLS = [
 
 interface CandidateProfileProps {
   activeUserId: string;
-  loginProfiles: LoginProfileSummary[];
-  onSwitchProfile: (userId: string) => void;
+  loginProfiles?: LoginProfileSummary[];
   onNavigateToListingsWithSource?: (source: string) => void;
   onBackToHome?: () => void;
 }
@@ -53,7 +52,6 @@ interface CandidateProfileProps {
 export const CandidateProfile: React.FC<CandidateProfileProps> = ({
   activeUserId,
   loginProfiles,
-  onSwitchProfile,
   onNavigateToListingsWithSource,
   onBackToHome,
 }) => {
@@ -249,54 +247,6 @@ export const CandidateProfile: React.FC<CandidateProfileProps> = ({
           </button>
         </div>
       )}
-
-      {/* Login Profiles Switcher Card */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold">
-            <User className="w-4 h-4" />
-          </div>
-          <div>
-            <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block leading-none">
-              Candidate Login Profiles
-            </span>
-            <span className="text-[11px] text-slate-500">
-              Select one of the 3 profiles to switch account & view
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 flex-wrap">
-          {loginProfiles.map((p) => {
-            const isActive = p.id === activeUserId;
-            return (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => onSwitchProfile(p.id)}
-                className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                  isActive
-                    ? 'bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-300'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
-                }`}
-              >
-                <div className={`w-5 h-5 rounded-md flex items-center justify-center font-bold text-[10px] ${
-                  isActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
-                }`}>
-                  {p.avatar}
-                </div>
-                <span>{p.full_name}</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded font-medium ${
-                  isActive ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'
-                }`}>
-                  {p.role_tag}
-                </span>
-                {isActive && <CheckCircle2 className="w-3.5 h-3.5" />}
-              </button>
-            );
-          })}
-        </div>
-      </div>
 
       {/* Hero Header Card */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8">
