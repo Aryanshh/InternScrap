@@ -217,9 +217,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             className="w-full py-2 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
           >
             <option value="all">{hasActiveResume ? 'All Scores' : 'Upload Resume First'}</option>
-            <option value="70">High Match (≥ 70%)</option>
-            <option value="50">Moderate Match (≥ 50%)</option>
-            <option value="30">Any Relevance (≥ 30%)</option>
+            <option value="70">High Match (70%+)</option>
+            <option value="50">Moderate Match (50%+)</option>
+            <option value="30">Any Relevance (30%+)</option>
           </select>
         </div>
 

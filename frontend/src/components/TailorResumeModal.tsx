@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Check, X } from 'lucide-react';
 import { Job, TailoredResumeResult } from '../types/job';
 import { generateTailoredResume, checkTailoredResume, getResumeDownloadUrl } from '../api/client';
 
@@ -179,9 +180,10 @@ export const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ job, isOpe
                         tailoredData.diff_summary.promoted_skills.map((s, i) => (
                           <span
                             key={i}
-                            className="px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+                            className="px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 inline-flex items-center gap-1.5"
                           >
-                            ✓ {s}
+                            <Check className="w-3 h-3 text-emerald-400" />
+                            <span>{s}</span>
                           </span>
                         ))
                       ) : (
@@ -200,10 +202,11 @@ export const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ job, isOpe
                         {tailoredData.diff_summary.unmatched_jd_requirements.map((s, i) => (
                           <span
                             key={i}
-                            className="px-2.5 py-1 rounded-md text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                            className="px-2.5 py-1 rounded-md text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20 inline-flex items-center gap-1.5"
                             title="Candidate does not list this skill; omitted to avoid falsifying qualifications."
                           >
-                            ✕ {s}
+                            <X className="w-3 h-3 text-rose-400" />
+                            <span>{s}</span>
                           </span>
                         ))}
                       </div>
@@ -247,7 +250,7 @@ export const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ job, isOpe
                               #{b.new_rank}
                             </span>
                             <span className={`text-[10px] mt-1 font-medium ${isPromoted ? 'text-emerald-400' : 'text-slate-500'}`}>
-                              {isPromoted ? `▲ was #${b.original_rank}` : `was #${b.original_rank}`}
+                              {isPromoted ? `Promoted from #${b.original_rank}` : `was #${b.original_rank}`}
                             </span>
                           </div>
                           <div className="flex-1 min-w-0">

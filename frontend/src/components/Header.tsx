@@ -8,7 +8,7 @@ import {
   Compass,
   LogOut,
   FolderKanban,
-  Zap,
+  Send,
 } from 'lucide-react';
 import { LoginProfileSummary } from '../types/job';
 
@@ -200,10 +200,10 @@ export const Header: React.FC<HeaderProps> = ({
             {onOpenAutoApplier && (
               <button
                 onClick={onOpenAutoApplier}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl text-white bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-700 hover:from-indigo-700 hover:to-violet-800 transition-all shadow-xs shadow-indigo-200 whitespace-nowrap cursor-pointer ring-1 ring-white/10"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-xs shadow-indigo-100 whitespace-nowrap cursor-pointer"
                 title="Launch Auto Applier & IIM Resume Engine"
               >
-                <Zap className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+                <Send className="w-3.5 h-3.5" />
                 <span>Auto Applier</span>
               </button>
             )}

@@ -117,9 +117,10 @@ export const HomePage: React.FC<HomePageProps> = ({
               <div className="flex items-center gap-3">
                 <button
                   onClick={onNavigateToProfile}
-                  className="text-xs text-emerald-300 hover:text-white font-semibold underline underline-offset-4 cursor-pointer"
+                  className="text-xs text-emerald-300 hover:text-white font-semibold inline-flex items-center gap-1 cursor-pointer"
                 >
-                  Edit Profile →
+                  <span>Edit Profile</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
                 <a
                   href={getProfileDocxUrl(activeUserId)}
@@ -356,7 +357,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               </div>
               <div className="flex justify-between">
                 <span>Match Cutoff:</span>
-                <span className="font-semibold text-slate-800">≥ 70% Blended</span>
+                <span className="font-semibold text-slate-800">70%+ Blended</span>
               </div>
               <div className="flex justify-between">
                 <span>Digest Delivery:</span>

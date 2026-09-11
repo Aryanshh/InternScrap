@@ -17,7 +17,7 @@ import {
   HelpCircle,
   FileText,
   Bookmark,
-  Zap,
+  Send,
 } from 'lucide-react';
 import { Job } from '../types/job';
 import { verifyJobLink } from '../api/client';
@@ -324,10 +324,10 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onTailor, onTrack, onAuto
           {onAutoApply && (
             <button
               onClick={() => onAutoApply(job)}
-              className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold text-amber-900 bg-gradient-to-r from-amber-100 to-amber-200 border border-amber-300 hover:from-amber-200 hover:to-amber-300 transition-all shadow-xs cursor-pointer"
+              className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 transition-all shadow-xs cursor-pointer"
               title="Launch 1-Click Auto Applier with IIM Resume"
             >
-              <Zap className="w-3.5 h-3.5 mr-1 text-amber-600 fill-amber-500" />
+              <Send className="w-3.5 h-3.5 mr-1.5 text-indigo-600" />
               <span>Auto Apply</span>
             </button>
           )}

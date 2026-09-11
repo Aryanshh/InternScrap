@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Zap,
+  Send,
   FileText,
   ShieldCheck,
   X,
@@ -114,7 +114,7 @@ export const AutoApplierModal: React.FC<AutoApplierModalProps> = ({
         <div className="px-6 sm:px-8 py-5 border-b border-slate-200 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-2xl bg-indigo-600/40 border border-indigo-400/30 flex items-center justify-center text-indigo-300">
-              <Zap className="w-5 h-5 text-indigo-300" />
+              <Send className="w-5 h-5 text-indigo-300" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -268,7 +268,7 @@ export const AutoApplierModal: React.FC<AutoApplierModalProps> = ({
                     </>
                   ) : (
                     <>
-                      <Zap className="w-5 h-5" />
+                      <Send className="w-4 h-4" />
                       <span>
                         Run Auto-Applier ({urlInput.split('\n').filter((u) => u.trim()).length} Link
                         {urlInput.split('\n').filter((u) => u.trim()).length !== 1 ? 's' : ''})
@@ -408,9 +408,10 @@ export const AutoApplierModal: React.FC<AutoApplierModalProps> = ({
                             {res.fields_filled.map((f, fIdx) => (
                               <span
                                 key={fIdx}
-                                className="text-[10px] font-medium bg-white px-2 py-0.5 rounded-md border border-slate-200 text-slate-600"
+                                className="text-[10px] font-medium bg-white px-2 py-0.5 rounded-md border border-slate-200 text-slate-600 inline-flex items-center gap-1"
                               >
-                                ✓ {f}
+                                <Check className="w-2.5 h-2.5 text-emerald-600" />
+                                <span>{f}</span>
                               </span>
                             ))}
                           </div>
