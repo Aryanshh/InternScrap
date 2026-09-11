@@ -420,7 +420,10 @@ def generate_iim_pdf(data: Dict[str, Any], filename: Optional[str] = None) -> st
     html_content = get_iim_html_template(data)
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(
+            headless=True,
+            args=["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
+        )
         page = browser.new_page()
         page.set_content(html_content, wait_until="networkidle")
         page.pdf(

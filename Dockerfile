@@ -18,14 +18,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY backend/requirements.txt /app/backend/requirements.txt
 RUN pip install --no-cache-dir -r /app/backend/requirements.txt
 
+# Install Playwright Chromium headless browser and OS dependencies
+RUN playwright install --with-deps chromium
+
 # Pre-download SentenceTransformer model to eliminate cold-start runtime latency
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
 
 # Copy backend codebase
 COPY backend /app/backend
 
-# Create runtime directories for uploads, tailored resumes, and digests
-RUN mkdir -p /app/backend/uploads /app/tailored_resumes /app/digests
+# Create runtime directories for uploads, tailored resumes, generated resumes, and digests
+RUN mkdir -p /app/backend/uploads /app/tailored_resumes /app/digests /app/backend/generated_resumes/screenshots
 
 EXPOSE 8000
 

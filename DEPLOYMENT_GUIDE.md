@@ -102,7 +102,7 @@ graph TD
 3. Configure the project settings:
    - **Framework Preset**: `Vite`
    - **Root Directory**: `frontend`
-   - **Build Command**: `yarn build` (or `npm run build`)
+   - **Build Command**: `npm run build`
    - **Output Directory**: `dist`
 4. In **Environment Variables**, add:
    - **Name**: `VITE_API_URL`
@@ -138,5 +138,6 @@ Verify each feature in production:
 - [ ] **Manual Intake**: Click **Paste Job** to paste a listing from a site that prohibits automated scraping (e.g., LinkedIn or Indeed).
 - [ ] **Resume Matching**: Upload a PDF or DOCX resume. Verify that the match score pills and factual gap analysis tags appear on every card.
 - [ ] **Resume Tailoring**: Click **Tailor Resume** on any job card. Verify that the Zero-Fabrication Diff modal loads and you can download the tailored ATS `.docx` document.
+- [ ] **Auto Applier & IIM Resume**: Open the Auto Applier modal. Click "Preview 1-Page IIM PDF" to verify pixel-perfect PDF rendering, or run review mode on Greenhouse/Lever URLs.
 - [ ] **Application Pipeline**: Click the **Track** bookmark on 2-3 jobs. Navigate to the **Tracker** tab and move cards between `Saved`, `Applied`, `Interviewing`, `Offer`, and `Rejected`. Add custom interview notes.
 - [ ] **Automated Digest**: Click **Email Digest** in the header. Confirm the green "APScheduler: Active & Running" badge and review the live HTML newsletter preview.
