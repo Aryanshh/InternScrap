@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.config import settings
-from backend.database import Base, engine
+from backend.database import Base, init_db, SessionLocal
 from backend.routes.jobs import router as jobs_router
 from backend.routes.resumes import router as resumes_router
 from backend.routes.tailoring import router as tailoring_router
@@ -18,11 +18,9 @@ import backend.models # Ensure models are loaded
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize DB tables with resilience check
-    from backend.database import ensure_db_connected
-    ensure_db_connected()
-    Base.metadata.create_all(bind=engine)
+    init_db()
+
     # Seed default login accounts and profiles: demo, Aryanshh, Nishtha
-    from backend.database import SessionLocal
     from backend.routes.profile import seed_all_profiles
     db = SessionLocal()
     try:

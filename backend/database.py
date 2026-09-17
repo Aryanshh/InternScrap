@@ -39,9 +39,9 @@ def get_db():
     finally:
         db.close()
 
-def ensure_db_connected():
+def init_db():
     """
-    Verifies database connectivity during application boot.
+    Safely verifies database connectivity and creates tables during application boot.
     If the remote PostgreSQL database is unreachable (e.g., direct IPv6 Supabase host
     on an IPv4-only cloud provider like Render), falls back to local SQLite so the
     container does not exit with status 1 and passes cloud health checks.
@@ -50,15 +50,24 @@ def ensure_db_connected():
     try:
         with engine.connect() as conn:
             pass
-        logger.info("Database connection established successfully.")
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database initialized successfully with primary DATABASE_URL.")
     except Exception as exc:
         logger.error(
-            f"Failed to connect to primary database: {exc}\n"
+            f"Failed to connect to primary database ({settings.DATABASE_URL}): {exc}\n"
             f"If using Supabase on Render: Render is IPv4-only and Supabase direct connection "
             f"(port 5432) is IPv6-only. Use the Supabase Connection Pooler URI (port 6543) instead:\n"
             f"postgresql://postgres.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:6543/postgres?sslmode=require\n"
-            f"Temporarily falling back to local SQLite (jobs.db) so the service starts up cleanly."
+            f"Temporarily falling back to local SQLite (jobs.db) so the container stays healthy and online."
         )
+        try:
+            engine.dispose()
+        except Exception:
+            pass
         engine = create_engine("sqlite:///./jobs.db", connect_args={"check_same_thread": False}, echo=False)
         SessionLocal.configure(bind=engine)
-        Base.metadata.create_all(bind=engine)
+        try:
+            Base.metadata.create_all(bind=engine)
+            logger.info("Local SQLite fallback database initialized successfully.")
+        except Exception as fallback_err:
+            logger.error(f"Fallback SQLite table creation error: {fallback_err}")
