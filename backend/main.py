@@ -17,7 +17,9 @@ import backend.models # Ensure models are loaded
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Initialize DB tables
+    # Initialize DB tables with resilience check
+    from backend.database import ensure_db_connected
+    ensure_db_connected()
     Base.metadata.create_all(bind=engine)
     # Seed default login accounts and profiles: demo, Aryanshh, Nishtha
     from backend.database import SessionLocal
@@ -26,6 +28,9 @@ async def lifespan(app: FastAPI):
     try:
         seed_default_users(db)
         seed_all_profiles(db)
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f"Default seeding notice: {e}")
     finally:
         db.close()
     start_scheduler()

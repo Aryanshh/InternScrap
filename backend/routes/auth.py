@@ -11,9 +11,6 @@ from backend.models.profile import UserProfile
 
 router = APIRouter()
 
-# Create tables
-Base.metadata.create_all(bind=engine)
-
 SALT = "internscrap_secure_salt_2026"
 
 def hash_password(password: str) -> str:
