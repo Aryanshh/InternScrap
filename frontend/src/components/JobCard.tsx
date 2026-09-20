@@ -18,6 +18,7 @@ import {
   FileText,
   Bookmark,
   Send,
+  Plus,
 } from 'lucide-react';
 import { Job } from '../types/job';
 import { verifyJobLink } from '../api/client';
@@ -28,9 +29,19 @@ interface JobCardProps {
   onTrack?: (job: Job) => void;
   onAutoApply?: (job: Job) => void;
   isTracked?: boolean;
+  isQueued?: boolean;
+  onToggleQueue?: (job: Job) => void;
 }
 
-export const JobCard: React.FC<JobCardProps> = ({ job, onTailor, onTrack, onAutoApply, isTracked }) => {
+export const JobCard: React.FC<JobCardProps> = ({
+  job,
+  onTailor,
+  onTrack,
+  onAutoApply,
+  isTracked,
+  isQueued,
+  onToggleQueue,
+}) => {
   const [expanded, setExpanded] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [linkStatus, setLinkStatus] = useState<boolean | null>(
@@ -329,6 +340,25 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onTailor, onTrack, onAuto
             >
               <Send className="w-3.5 h-3.5 mr-1.5 text-indigo-600" />
               <span>Auto Apply</span>
+            </button>
+          )}
+
+          {onToggleQueue && (
+            <button
+              onClick={() => onToggleQueue(job)}
+              className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all shadow-xs cursor-pointer ${
+                isQueued
+                  ? 'bg-violet-600 text-white border border-violet-700 shadow-violet-200 hover:bg-violet-700'
+                  : 'bg-violet-50 text-violet-700 border border-violet-200 hover:bg-violet-100'
+              }`}
+              title={isQueued ? 'Remove from Auto-Apply queue' : 'Add to 1-Click Auto-Apply queue'}
+            >
+              {isQueued ? (
+                <CheckCircle2 className="w-3.5 h-3.5 mr-1.5 text-white" />
+              ) : (
+                <Plus className="w-3.5 h-3.5 mr-1.5 text-violet-600" />
+              )}
+              <span>{isQueued ? 'Queued' : '+ Queue'}</span>
             </button>
           )}
 

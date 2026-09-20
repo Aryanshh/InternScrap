@@ -1,5 +1,5 @@
 import logging
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import declarative_base, sessionmaker
 from backend.config import settings
 
@@ -39,6 +39,39 @@ def get_db():
     finally:
         db.close()
 
+def _migrate_table_columns(eng):
+    """Safely adds newly defined columns to existing database tables if they do not yet exist."""
+    new_columns = [
+        ("user_profiles", "wellfound_url", "VARCHAR(255) DEFAULT 'https://wellfound.com/u/aryanshh'"),
+        ("user_profiles", "twitter_url", "VARCHAR(255) DEFAULT 'https://x.com/aryanshh'"),
+        ("user_profiles", "primary_role", "VARCHAR(120) DEFAULT 'Full-Stack Software Engineer'"),
+        ("user_profiles", "years_of_experience", "INTEGER DEFAULT 3"),
+        ("user_profiles", "notice_period", "VARCHAR(50) DEFAULT 'Immediately available'"),
+        ("user_profiles", "relocation_open", "BOOLEAN DEFAULT 0"),
+        ("user_profiles", "work_authorization", "VARCHAR(50) DEFAULT 'yes'"),
+        ("user_profiles", "require_sponsorship", "VARCHAR(50) DEFAULT 'no'"),
+        ("user_profiles", "citizenship_country", "VARCHAR(100) DEFAULT 'United States'"),
+        ("user_profiles", "personal_pitch", "TEXT DEFAULT ''"),
+        ("user_profiles", "proudest_project_highlight", "TEXT DEFAULT ''"),
+        ("user_profiles", "eeo_gender", "VARCHAR(60) DEFAULT 'Decline to self-identify'"),
+        ("user_profiles", "eeo_race", "VARCHAR(60) DEFAULT 'Decline to self-identify'"),
+        ("user_profiles", "eeo_veteran", "VARCHAR(60) DEFAULT 'I am not a protected veteran'"),
+        ("user_profiles", "eeo_disability", "VARCHAR(60) DEFAULT 'No, I do not have a disability'"),
+        ("user_profiles", "custom_answers", "JSON DEFAULT '{}'"),
+        ("user_profiles", "skills_with_years", "JSON DEFAULT '[]'"),
+    ]
+    try:
+        with eng.connect() as conn:
+            for table, col, col_def in new_columns:
+                try:
+                    conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {col_def}"))
+                    conn.commit()
+                except Exception:
+                    pass
+    except Exception:
+        pass
+
+
 def init_db():
     """
     Safely verifies database connectivity and creates tables during application boot.
@@ -51,6 +84,7 @@ def init_db():
         with engine.connect() as conn:
             pass
         Base.metadata.create_all(bind=engine)
+        _migrate_table_columns(engine)
         logger.info("Database initialized successfully with primary DATABASE_URL.")
     except Exception as exc:
         logger.error(
@@ -68,6 +102,7 @@ def init_db():
         SessionLocal.configure(bind=engine)
         try:
             Base.metadata.create_all(bind=engine)
+            _migrate_table_columns(engine)
             logger.info("Local SQLite fallback database initialized successfully.")
         except Exception as fallback_err:
             logger.error(f"Fallback SQLite table creation error: {fallback_err}")

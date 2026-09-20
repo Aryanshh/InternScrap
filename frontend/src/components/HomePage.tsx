@@ -12,6 +12,8 @@ import {
   ArrowRight,
   CheckCircle2,
   ChevronRight,
+  Send,
+  ShieldCheck,
 } from 'lucide-react';
 import { JobStatsResponse, ResumeData, UserProfile, ApplicationItem } from '../types/job';
 import { getProfileDocxUrl } from '../api/client';
@@ -29,6 +31,8 @@ interface HomePageProps {
   onOpenResumeModal: () => void;
   onOpenManualModal: () => void;
   onOpenDigestModal: () => void;
+  onOpenAutoApplier?: () => void;
+  queuedCount?: number;
 }
 
 export const HomePage: React.FC<HomePageProps> = ({
@@ -44,6 +48,8 @@ export const HomePage: React.FC<HomePageProps> = ({
   onOpenResumeModal,
   onOpenManualModal,
   onOpenDigestModal,
+  onOpenAutoApplier,
+  queuedCount = 0,
 }) => {
   const isProfileEmpty =
     !currentProfile ||
@@ -250,8 +256,8 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       </div>
 
-      {/* 3. Bottom Tier Cards: 3 Equal Columns (Resume Hub, Paste Job, Email Digest) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* 3. Bottom Tier Cards: 4 Columns (Resume Hub, Auto Applier, Paste Job, Email Digest) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Card 3: Resume & Matching Hub */}
         <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
           <div>
@@ -298,6 +304,48 @@ export const HomePage: React.FC<HomePageProps> = ({
           >
             <FileText className="w-3.5 h-3.5" />
             <span>{activeResume ? 'Manage / Replace Resume' : 'Upload Resume'}</span>
+          </button>
+        </div>
+
+        {/* Card: Auto Applier & Wellfound Vault */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center font-bold">
+                <Send className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] px-2.5 py-1 rounded-full bg-violet-50 text-violet-700 font-semibold border border-violet-200">
+                {queuedCount > 0 ? `${queuedCount} Queued` : 'Wellfound Style'}
+              </span>
+            </div>
+
+            <h3 className="text-base font-bold text-slate-900">Auto Applier &amp; Vault</h3>
+            <p className="text-xs text-slate-500 mt-1">
+              1-Click applications backed by authentic Wellfound dossier &amp; 1-page IIM resumes.
+            </p>
+
+            <div className="mt-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-xs space-y-1.5 text-slate-600">
+              <div className="flex justify-between">
+                <span>AI Plagiarism:</span>
+                <span className="font-semibold text-emerald-700">0% (Zero-Fabrication)</span>
+              </div>
+              <div className="flex justify-between">
+                <span>IIM Themes:</span>
+                <span className="font-semibold text-slate-800">Classic, Executive, Tech</span>
+              </div>
+              <div className="flex justify-between">
+                <span>ATS Formats:</span>
+                <span className="font-semibold text-slate-800">Greenhouse, Lever, Ashby</span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={onOpenAutoApplier}
+            className="mt-5 w-full py-2.5 px-4 rounded-xl bg-violet-50 hover:bg-violet-100 text-violet-700 border border-violet-200 font-bold text-xs transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
+          >
+            <Send className="w-3.5 h-3.5" />
+            <span>Launch Auto-Applier</span>
           </button>
         </div>
 

@@ -35,7 +35,7 @@ import {
   ApplicationItem,
   AuthUser,
 } from './types/job';
-import { Loader2, Sparkles, ChevronLeft, ChevronRight, Inbox, Layers, Globe, GraduationCap } from 'lucide-react';
+import { Loader2, Sparkles, ChevronLeft, ChevronRight, Inbox, Layers, Globe, GraduationCap, Send } from 'lucide-react';
 
 const initialFilters: FilterState = {
   search: '',
@@ -73,11 +73,41 @@ export const App: React.FC = () => {
   const [isDigestModalOpen, setIsDigestModalOpen] = useState(false);
   const [isAutoApplierOpen, setIsAutoApplierOpen] = useState(false);
   const [autoApplierInitialUrl, setAutoApplierInitialUrl] = useState<string | undefined>(undefined);
+  const [autoApplierInitialUrls, setAutoApplierInitialUrls] = useState<string[] | undefined>(undefined);
+  const [queuedJobs, setQueuedJobs] = useState<Map<string, Job>>(new Map());
   const [tailoringJob, setTailoringJob] = useState<Job | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const handleOpenAutoApplier = (url?: string) => {
     setAutoApplierInitialUrl(url);
+    setAutoApplierInitialUrls(undefined);
+    setIsAutoApplierOpen(true);
+  };
+
+  const handleToggleQueue = (job: Job) => {
+    setQueuedJobs((prev) => {
+      const next = new Map(prev);
+      if (next.has(job.id)) {
+        next.delete(job.id);
+        showToast(`Removed "${job.title}" from Auto-Apply queue.`);
+      } else {
+        next.set(job.id, job);
+        showToast(`Added "${job.title}" to Auto-Apply queue!`);
+      }
+      return next;
+    });
+  };
+
+  const handleLaunchQueuedAutoApply = () => {
+    const urls = Array.from(queuedJobs.values())
+      .flatMap((j) => j.apply_urls || [])
+      .filter((u) => u && (u.startsWith('http://') || u.startsWith('https://')));
+    if (urls.length === 0) {
+      showToast('No valid apply URLs found in queued jobs.');
+      return;
+    }
+    setAutoApplierInitialUrl(undefined);
+    setAutoApplierInitialUrls(urls);
     setIsAutoApplierOpen(true);
   };
 
@@ -268,6 +298,8 @@ export const App: React.FC = () => {
             onOpenResumeModal={() => setIsResumeModalOpen(true)}
             onOpenManualModal={() => setIsManualModalOpen(true)}
             onOpenDigestModal={() => setIsDigestModalOpen(true)}
+            onOpenAutoApplier={() => handleOpenAutoApplier()}
+            queuedCount={queuedJobs.size}
           />
         ) : activeView === 'profile' ? (
           <CandidateProfile
@@ -401,6 +433,8 @@ export const App: React.FC = () => {
                       handleOpenAutoApplier(selectedJob.apply_urls?.[0] || '')
                     }
                     isTracked={trackedJobIds.has(job.id)}
+                    isQueued={queuedJobs.has(job.id)}
+                    onToggleQueue={handleToggleQueue}
                   />
                 ))}
               </div>
@@ -473,14 +507,47 @@ export const App: React.FC = () => {
         onClose={() => {
           setIsAutoApplierOpen(false);
           setAutoApplierInitialUrl(undefined);
+          setAutoApplierInitialUrls(undefined);
         }}
         activeUserId={activeUserId}
         initialUrl={autoApplierInitialUrl}
+        initialUrls={autoApplierInitialUrls}
         onApplicationApplied={() => {
           loadInitialData();
           showToast('Application logged to Application Tracker!');
         }}
       />
+
+      {/* Floating Auto-Apply Queue Bar */}
+      {queuedJobs.size > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900/95 backdrop-blur-md text-white px-5 py-3 rounded-2xl shadow-2xl border border-indigo-500/40 flex items-center gap-4 animate-in slide-in-from-bottom duration-300">
+          <div className="flex items-center gap-2 text-xs">
+            <span className="w-2.5 h-2.5 rounded-full bg-violet-400 animate-pulse" />
+            <span className="font-bold">
+              {queuedJobs.size} Job{queuedJobs.size > 1 ? 's' : ''} in Auto-Apply Queue
+            </span>
+          </div>
+          <div className="h-4 w-px bg-slate-700" />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleLaunchQueuedAutoApply}
+              className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>Launch Auto-Applier</span>
+            </button>
+            <button
+              onClick={() => {
+                setQueuedJobs(new Map());
+                showToast('Auto-Apply queue cleared.');
+              }}
+              className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition-all cursor-pointer"
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

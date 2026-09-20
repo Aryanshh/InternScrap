@@ -259,11 +259,13 @@ export interface AutoApplyBatchResponse {
 export const runAutoApply = async (
   urls: string[],
   mode: 'review' | 'submit' = 'review',
+  theme: string = 'classic',
   customAnswers?: Record<string, string>
 ): Promise<AutoApplyBatchResponse> => {
   const res = await api.post<AutoApplyBatchResponse>('/auto-apply/run', {
     urls,
     mode,
+    theme,
     user_id: getActiveUserId(),
     custom_answers: customAnswers,
   });
@@ -277,14 +279,28 @@ export const getAutoApplyVault = async (): Promise<any> => {
   return res.data;
 };
 
-export const getIimPreviewUrl = (userId?: string): string => {
-  const uid = userId || getActiveUserId();
-  return `${API_BASE}/resumes/iim-preview?user_id=${encodeURIComponent(uid)}`;
+export const updateAutoApplyVault = async (data: any): Promise<any> => {
+  const res = await api.put('/auto-apply/vault', data, {
+    params: { user_id: getActiveUserId() },
+  });
+  return res.data;
 };
 
-export const getIimPdfUrl = (userId?: string): string => {
+export const getQueuedJobs = async (mode: 'saved' | 'top_matches' = 'saved'): Promise<{ count: number; mode: string; jobs: any[] }> => {
+  const res = await api.get('/auto-apply/queued-jobs', {
+    params: { mode, user_id: getActiveUserId() },
+  });
+  return res.data;
+};
+
+export const getIimPreviewUrl = (userId?: string, theme: string = 'classic'): string => {
   const uid = userId || getActiveUserId();
-  return `${API_BASE}/resumes/iim-download-pdf?user_id=${encodeURIComponent(uid)}`;
+  return `${API_BASE}/resumes/iim-preview?user_id=${encodeURIComponent(uid)}&theme=${encodeURIComponent(theme)}`;
+};
+
+export const getIimPdfUrl = (userId?: string, theme: string = 'classic'): string => {
+  const uid = userId || getActiveUserId();
+  return `${API_BASE}/resumes/iim-download-pdf?user_id=${encodeURIComponent(uid)}&theme=${encodeURIComponent(theme)}`;
 };
 
 export const getIimDocxUrl = (userId?: string): string => {

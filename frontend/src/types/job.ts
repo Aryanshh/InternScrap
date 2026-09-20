@@ -242,3 +242,53 @@ export interface UserPreset {
   role: string;
   preset_pwd: string;
 }
+
+export type IimResumeTheme = 'classic' | 'executive' | 'tech';
+
+export interface SkillWithYears {
+  skill: string;
+  years: number;
+}
+
+export interface WellfoundProfileData {
+  id: string;
+  full_name: string;
+  email: string;
+  phone?: string;
+  location?: string;
+  headline?: string;
+  bio?: string;
+  github_url?: string;
+  linkedin_url?: string;
+  portfolio_url?: string;
+  wellfound_url?: string;
+  twitter_url?: string;
+  primary_role: string;
+  years_of_experience: number;
+  desired_work_mode: string;
+  notice_period: string;
+  relocation_open: boolean;
+  min_salary: number;
+  min_hourly_rate?: number;
+  work_authorization: string;
+  require_sponsorship: string;
+  citizenship_country: string;
+  personal_pitch: string;
+  proudest_project_highlight: string;
+  eeo_gender: string;
+  eeo_race: string;
+  eeo_veteran: string;
+  eeo_disability: string;
+  skills_with_years: SkillWithYears[];
+  custom_answers: Record<string, string>;
+  skills: string[];
+  experience: WorkExperienceItem[];
+  education: EducationItem[];
+}
+
+export interface QueuedJobItem {
+  id: string;
+  title: string;
+  company: string;
+  apply_url: string;
+}

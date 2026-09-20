@@ -22,14 +22,69 @@ class UserProfile(Base):
     github_url = Column(String(255), default="https://github.com/aryansharma")
     linkedin_url = Column(String(255), default="https://linkedin.com/in/aryansharma")
     portfolio_url = Column(String(255), default="https://aryansharma.dev")
+    wellfound_url = Column(String(255), default="https://wellfound.com/u/aryanshh")
+    twitter_url = Column(String(255), default="https://x.com/aryanshh")
 
-    # Preferences
+    # Wellfound Work Preferences
+    primary_role = Column(String(120), default="Full-Stack Software Engineer")
+    years_of_experience = Column(Integer, default=3)
     desired_work_mode = Column(String(50), default="remote")  # remote, hybrid, on-site, any
+    notice_period = Column(String(50), default="Immediately available")
+    relocation_open = Column(Boolean, default=False)
     min_salary = Column(Integer, default=110000)
     min_hourly_rate = Column(Float, default=45.0)
+
+    # Work Authorization & Legal Compliance
+    work_authorization = Column(String(50), default="yes")  # yes / no
+    require_sponsorship = Column(String(50), default="no")  # yes / no
+    citizenship_country = Column(String(100), default="United States")
+
+    # Wellfound Culture & Factual Personal Pitch (Zero-Fabrication)
+    personal_pitch = Column(
+        Text,
+        default=(
+            "Full-Stack Software Engineer passionate about high-throughput backend systems and intuitive web frontends. "
+            "Experienced in architecting production REST APIs in FastAPI and crafting resilient UI systems in React and TypeScript."
+        ),
+    )
+    proudest_project_highlight = Column(
+        Text,
+        default=(
+            "Engineered distributed job scraping and applicant tracking system processing 120k+ daily listings with sub-50ms latency."
+        ),
+    )
+
+    # EEO / Demographic Defaults (Standard "Decline" Option Supported)
+    eeo_gender = Column(String(60), default="Decline to self-identify")
+    eeo_race = Column(String(60), default="Decline to self-identify")
+    eeo_veteran = Column(String(60), default="I am not a protected veteran")
+    eeo_disability = Column(String(60), default="No, I do not have a disability")
+
+    # Custom Q&A key-value dictionary for company-specific questions
+    custom_answers = Column(JSON, default=dict)
+
     target_platforms = Column(
         JSON,
         default=lambda: ["Wellfound", "Outlier", "Mercor", "Alignerr", "Mindrift", "RemoteOK"],
+    )
+
+    # Structured Skills with Real Tenure (Wellfound Style)
+    skills_with_years = Column(
+        JSON,
+        default=lambda: [
+            {"skill": "Python", "years": 3},
+            {"skill": "TypeScript", "years": 2},
+            {"skill": "JavaScript", "years": 3},
+            {"skill": "React", "years": 2},
+            {"skill": "FastAPI", "years": 2},
+            {"skill": "PostgreSQL", "years": 2},
+            {"skill": "Docker", "years": 2},
+            {"skill": "Git", "years": 3},
+            {"skill": "Tailwind CSS", "years": 2},
+            {"skill": "SQL", "years": 3},
+            {"skill": "Node.js", "years": 2},
+            {"skill": "REST APIs", "years": 3},
+        ],
     )
 
     # Structured Career Data

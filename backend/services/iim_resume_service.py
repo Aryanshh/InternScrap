@@ -40,14 +40,13 @@ def highlight_metrics_in_text(text: str) -> str:
     return formatted
 
 
-def get_iim_html_template(data: Dict[str, Any]) -> str:
+def get_iim_html_template(data: Dict[str, Any], theme: str = "classic") -> str:
     """
     Generates high-density, authoritative 1-page IIM (Indian Institute of Management) resume HTML.
-    Features:
-    - Conservative Serif/Sans typography (Times New Roman / Georgia / Garamond fallback)
-    - Distinctive IIM Academic Qualifications table: Year | Degree | Institute / Board | % / CGPA
-    - Bolded quantitative impact metrics and technical stacks
-    - Clean horizontal rules and minimal vertical padding designed strictly for 1-page fit
+    Supports themes:
+    - classic: Traditional Times New Roman serif, solid dividers, IIM Ahmedabad/Bangalore style
+    - executive: Clean modern sans-serif (Inter/Segoe UI), subtle background headers, crisp corporate feel
+    - tech: Monospace/technical typography, quantified engineering accents
     """
     name = data.get("full_name") or "Aryanshh Srivastava"
     headline = data.get("headline") or "Software Engineer"
@@ -204,6 +203,29 @@ def get_iim_html_template(data: Dict[str, Any]) -> str:
     </ul>
     """
 
+    theme_clean = (theme or "classic").lower()
+    if theme_clean == "executive":
+        font_family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif"
+        header_border = "2px solid #0f172a"
+        section_border = "1.5px solid #1e293b"
+        section_title_bg = "background: #f8fafc; padding: 2px 6px; border-left: 3px solid #0284c7;"
+        table_th_bg = "#f1f5f9"
+        table_border = "0.75px solid #cbd5e1"
+    elif theme_clean == "tech":
+        font_family = "'JetBrains Mono', 'Fira Code', 'Consolas', 'Courier New', monospace, sans-serif"
+        header_border = "2px solid #18181b"
+        section_border = "1px dashed #3f3f46"
+        section_title_bg = "background: #fafafa; padding: 1px 4px; border-left: 2px solid #18181b;"
+        table_th_bg = "#f4f4f5"
+        table_border = "0.75px solid #71717a"
+    else:  # classic
+        font_family = "'Times New Roman', Times, 'Georgia', serif"
+        header_border = "1.5px solid #000000"
+        section_border = "1px solid #222222"
+        section_title_bg = ""
+        table_th_bg = "#f2f2f2"
+        table_border = "0.75px solid #333333"
+
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -219,7 +241,7 @@ def get_iim_html_template(data: Dict[str, Any]) -> str:
         padding: 0;
     }}
     body {{
-        font-family: 'Times New Roman', Times, 'Georgia', serif;
+        font-family: {font_family};
         font-size: 9.5pt;
         line-height: 1.25;
         color: #111111;
@@ -235,7 +257,7 @@ def get_iim_html_template(data: Dict[str, Any]) -> str:
     .header {{
         text-align: center;
         margin-bottom: 7px;
-        border-bottom: 1.5px solid #000000;
+        border-bottom: {header_border};
         padding-bottom: 5px;
     }}
     .name {{
@@ -273,9 +295,10 @@ def get_iim_html_template(data: Dict[str, Any]) -> str:
         text-transform: uppercase;
         letter-spacing: 0.8px;
         color: #000000;
-        border-bottom: 1px solid #222222;
+        border-bottom: {section_border};
         padding-bottom: 1.5px;
         margin-bottom: 4px;
+        {section_title_bg}
     }}
 
     /* Table for Education (IIM Trademark) */
@@ -286,12 +309,12 @@ def get_iim_html_template(data: Dict[str, Any]) -> str:
         font-size: 8.5pt;
     }}
     .iim-table th, .iim-table td {{
-        border: 0.75px solid #333333;
+        border: {table_border};
         padding: 3px 6px;
         vertical-align: middle;
     }}
     .iim-table th {{
-        background-color: #f2f2f2;
+        background-color: {table_th_bg};
         font-weight: 700;
         text-transform: uppercase;
         font-size: 8pt;
@@ -408,16 +431,17 @@ def get_iim_html_template(data: Dict[str, Any]) -> str:
     return html
 
 
-def generate_iim_pdf(data: Dict[str, Any], filename: Optional[str] = None) -> str:
+def generate_iim_pdf(data: Dict[str, Any], filename: Optional[str] = None, theme: str = "classic") -> str:
     """
     Renders the IIM Resume HTML to a pixel-perfect 1-page PDF using Playwright headless Chromium.
+    Supports themes: classic, executive, tech.
     """
     if not filename:
         candidate_slug = re.sub(r"[^a-zA-Z0-9_]", "_", data.get("full_name", "candidate")).lower()
-        filename = f"IIM_Resume_{candidate_slug}_{uuid.uuid4().hex[:6]}.pdf"
+        filename = f"IIM_Resume_{theme}_{candidate_slug}_{uuid.uuid4().hex[:6]}.pdf"
 
     output_path = OUTPUT_DIR / filename
-    html_content = get_iim_html_template(data)
+    html_content = get_iim_html_template(data, theme=theme)
 
     with sync_playwright() as p:
         browser = p.chromium.launch(
