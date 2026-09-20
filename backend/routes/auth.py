@@ -65,11 +65,16 @@ class RegisterRequest(BaseModel):
     username: str
     password: str
     full_name: Optional[str] = ""
+    email: Optional[str] = ""
+    primary_role: Optional[str] = "Software Engineer"
+    desired_work_mode: Optional[str] = "Remote"
+    years_of_experience: Optional[int] = 1
 
 class UserResponse(BaseModel):
     id: str
     username: str
     full_name: Optional[str] = ""
+    email: Optional[str] = ""
 
 class AuthResponse(BaseModel):
     success: bool
@@ -80,9 +85,17 @@ class AuthResponse(BaseModel):
 @router.post("/login", response_model=AuthResponse)
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
     seed_default_users(db)
-    user = db.query(User).filter(User.username.ilike(payload.username.strip())).first()
+    login_id = payload.username.strip()
+    user = (
+        db.query(User)
+        .filter((User.username.ilike(login_id)) | (User.email.ilike(login_id)))
+        .first()
+    )
     if not user:
-        raise HTTPException(status_code=401, detail="User account not found. Check username or create account.")
+        raise HTTPException(
+            status_code=401,
+            detail="User account not found. Check your username/email or create an account.",
+        )
     
     if not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid password. Please try again.")
@@ -91,7 +104,12 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     return AuthResponse(
         success=True,
         token=token,
-        user=UserResponse(id=user.id, username=user.username, full_name=user.full_name),
+        user=UserResponse(
+            id=user.id,
+            username=user.username,
+            full_name=user.full_name,
+            email=user.email or "",
+        ),
         message=f"Welcome back, {user.full_name or user.username}!",
     )
 
@@ -99,57 +117,106 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
 def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     seed_default_users(db)
     username = payload.username.strip()
-    if len(username) < 2:
-        raise HTTPException(status_code=400, detail="Username must be at least 2 characters long.")
-    if len(payload.password) < 4:
-        raise HTTPException(status_code=400, detail="Password must be at least 4 characters long.")
+    if len(username) < 3:
+        raise HTTPException(status_code=400, detail="Username must be at least 3 characters long.")
+    
+    if not all(c.isalnum() or c in ("_", "-", ".") for c in username):
+        raise HTTPException(
+            status_code=400,
+            detail="Username can only contain letters, numbers, hyphens, periods, and underscores.",
+        )
+
+    if len(payload.password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters long.")
+    
+    email = (payload.email or "").strip().lower()
+    if email and ("@" not in email or "." not in email):
+        raise HTTPException(status_code=400, detail="Please enter a valid email address.")
     
     existing = db.query(User).filter(User.username.ilike(username)).first()
     if existing:
-        raise HTTPException(status_code=400, detail="An account with this username already exists.")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Username '{username}' is already taken. Please choose another username.",
+        )
     
+    if email:
+        existing_email = db.query(User).filter(User.email.ilike(email)).first()
+        if existing_email:
+            raise HTTPException(
+                status_code=400,
+                detail="An account with this email address already exists. Please sign in instead.",
+            )
+
     user_id = username
+    full_name = payload.full_name.strip() if payload.full_name else username
+    primary_role = (payload.primary_role or "Software Engineer").strip()
+    desired_work_mode = (payload.desired_work_mode or "Remote").strip()
+    years_of_experience = int(payload.years_of_experience) if payload.years_of_experience is not None else 1
+
     new_user = User(
         id=user_id,
         username=username,
+        email=email,
         password_hash=hash_password(payload.password),
-        full_name=payload.full_name.strip() if payload.full_name else username,
+        full_name=full_name,
     )
     db.add(new_user)
     
-    # Also initialize empty UserProfile
+    # Initialize clean UserProfile with valid column parameters
     existing_prof = db.query(UserProfile).filter(UserProfile.id == user_id).first()
     if not existing_prof:
-        empty_profile = UserProfile(
+        new_profile = UserProfile(
             id=user_id,
-            full_name=payload.full_name.strip() if payload.full_name else username,
-            email="",
+            full_name=full_name,
+            email=email or f"{username}@example.com",
             phone="",
-            headline="",
-            primary_location="",
-            bio="",
+            location="Remote",
+            headline=f"{primary_role} • {desired_work_mode}",
+            bio=f"{full_name} is a {primary_role} seeking {desired_work_mode.lower()} opportunities.",
             github_url="",
             linkedin_url="",
             portfolio_url="",
-            desired_work_mode="remote",
-            min_hourly_rate=0,
-            min_annual_base=0,
-            target_platforms=[],
+            wellfound_url="",
+            twitter_url="",
+            primary_role=primary_role,
+            years_of_experience=years_of_experience,
+            desired_work_mode=desired_work_mode,
+            notice_period="Immediately available",
+            relocation_open=False,
+            min_salary=90000,
+            min_hourly_rate=45.0,
+            work_authorization="yes",
+            require_sponsorship="no",
+            citizenship_country="United States",
+            personal_pitch=f"Passionate {primary_role} dedicated to building robust software systems and collaborating with high-velocity teams.",
+            proudest_project_highlight="",
+            eeo_gender="Decline to self-identify",
+            eeo_race="Decline to self-identify",
+            eeo_veteran="I am not a protected veteran",
+            eeo_disability="No, I do not have a disability",
+            custom_answers={},
             skills=[],
-            work_experience=[],
+            skills_with_years=[],
+            experience=[],
             education=[],
-            digest_enabled=False,
-            digest_cadence="daily",
-            digest_match_threshold=70.0,
+            digest_enabled=True,
+            digest_frequency="daily",
+            digest_min_score=70.0,
         )
-        db.add(empty_profile)
+        db.add(new_profile)
     
     db.commit()
     token = f"token_{user_id}"
     return AuthResponse(
         success=True,
         token=token,
-        user=UserResponse(id=new_user.id, username=new_user.username, full_name=new_user.full_name),
+        user=UserResponse(
+            id=new_user.id,
+            username=new_user.username,
+            full_name=new_user.full_name,
+            email=new_user.email or "",
+        ),
         message=f"Account created successfully for {new_user.full_name}!",
     )
 
@@ -184,4 +251,9 @@ def get_current_user(
     if not user:
         raise HTTPException(status_code=404, detail="User not found.")
     
-    return UserResponse(id=user.id, username=user.username, full_name=user.full_name)
+    return UserResponse(
+        id=user.id,
+        username=user.username,
+        full_name=user.full_name,
+        email=user.email or "",
+    )

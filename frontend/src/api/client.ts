@@ -12,6 +12,7 @@ import {
   AuthResponse,
   AuthUser,
   UserPreset,
+  RegisterData,
 } from '../types/job';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
@@ -42,8 +43,17 @@ export const login = async (username: string, password: string): Promise<AuthRes
   return res.data;
 };
 
-export const register = async (username: string, password: string, fullName?: string): Promise<AuthResponse> => {
-  const res = await api.post<AuthResponse>('/auth/register', { username, password, full_name: fullName });
+export const register = async (
+  dataOrUsername: string | RegisterData,
+  password?: string,
+  fullName?: string
+): Promise<AuthResponse> => {
+  const payload =
+    typeof dataOrUsername === 'string'
+      ? { username: dataOrUsername, password, full_name: fullName }
+      : dataOrUsername;
+
+  const res = await api.post<AuthResponse>('/auth/register', payload);
   if (res.data.token) {
     localStorage.setItem('internscrap_auth_token', res.data.token);
     setActiveUserId(res.data.user.id);

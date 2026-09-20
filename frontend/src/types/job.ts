@@ -227,6 +227,17 @@ export interface AuthUser {
   id: string;
   username: string;
   full_name?: string;
+  email?: string;
+}
+
+export interface RegisterData {
+  username: string;
+  password: string;
+  full_name: string;
+  email: string;
+  primary_role?: string;
+  desired_work_mode?: string;
+  years_of_experience?: number;
 }
 
 export interface AuthResponse {

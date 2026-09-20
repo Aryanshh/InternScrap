@@ -59,6 +59,7 @@ def _migrate_table_columns(eng):
         ("user_profiles", "eeo_disability", "VARCHAR(60) DEFAULT 'No, I do not have a disability'"),
         ("user_profiles", "custom_answers", "JSON DEFAULT '{}'"),
         ("user_profiles", "skills_with_years", "JSON DEFAULT '[]'"),
+        ("users", "email", "VARCHAR(150)"),
     ]
     try:
         with eng.connect() as conn:
