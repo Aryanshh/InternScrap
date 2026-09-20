@@ -1,6 +1,6 @@
-# 🚀 InternScrap: Remote Talent Aggregator & AI Career Suite
+# InternScrap: Remote Talent Aggregator & Career Suite
 
-> **An honest, Terms-of-Service safe job/internship aggregator, AI-driven candidate profile manager, and ATS-optimized resume tailor.**
+> **An honest, Terms-of-Service safe job/internship aggregator, Wellfound-modeled candidate dossier, ATS-optimized resume tailor, and zero-fabrication auto applier.**
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18.3-61DAFB.svg?logo=react&logoColor=black)](https://react.dev)
@@ -11,15 +11,15 @@
 
 ---
 
-## 🌟 Overview & Capabilities
+## Overview & Capabilities
 
 **InternScrap** aggregates verified software engineering, AI alignment, data science, and internship listings across modern remote talent platforms and free, ToS-compliant APIs. 
 
-Unlike traditional inflated scrapers, **InternScrap** enforces strict zero-fabrication guardrails, transparent compensation metadata ($30–$120/hr), and factual gap analysis against your verified resume.
+Unlike traditional inflated scrapers, **InternScrap** enforces strict zero-fabrication guardrails, transparent compensation metadata (-/hr), authentic candidate dossier management modeled after Wellfound (AngelList Talent), and factual gap analysis against your verified resume.
 
-### 🖼️ Live Platform Preview
+### Platform Preview
 
-| Dedicated Authentication Page (Login ID & Pwd) | Unified Home Command Center Dashboard |
+| Dedicated Authentication Page (Login ID/Email & Pwd) | Unified Home Command Center Dashboard |
 | :---: | :---: |
 | ![Login Page](docs/images/login_page.png) | ![Home Command Center](docs/images/home_dashboard_aryanshh.png) |
 
@@ -33,103 +33,100 @@ Unlike traditional inflated scrapers, **InternScrap** enforces strict zero-fabri
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### 1. 🔐 ID & Password Authentication & Self-Setup Profiles
-- **Dedicated Authentication Portal**: Secure sign-in and account registration (`POST /api/auth/login`, `POST /api/auth/register`) with password hashing and session token persistence.
-- **Zero Mock Data for Aryanshh & Nishtha**: Profiles start completely clean (no mock experience, no mock degrees, no mock skills) so candidates can configure their authentic career details from scratch or click "Sync from Resume".
-- **Demo Account with Pre-filled Data**: `demo` (`demo123`) contains full mock engineering internship data for immediate testing.
-- **One-Click Quick Presets**: Quick-fill login buttons for `demo`, `Aryanshh`, and `Nishtha`.
+### 1. Authentication & Candidate Dossier Onboarding
+- **Create Account Flow**: Structured candidate onboarding capturing Full Name, Email, Username, Password with real-time strength meter, Primary Target Role, Desired Work Mode, and Years of Experience.
+- **Dual Sign-In**: Login using either Username OR Email address with secure password verification.
+- **Dedicated Authentication Portal**: Secure sign-in and account registration (POST /api/auth/login, POST /api/auth/register) with session token persistence.
+- **Quick Demo Presets**: Instant one-click test logins (demo, Aryanshh, Nishtha).
 
-### 2. 🏠 Unified Home Command Center
-- **Clubbed Feature Hub**: Declutters the navigation bar by centralizing key platform modules into one executive dashboard:
-  - **Job Market Pulse (Job Count)**: Live statistics (`265 Total Listings`, remote roles, internships, active feeds) with 1-click navigation to Explore Listings.
-  - **Candidate Profile Setup**: Real-time setup status indicator, personal info, skills taxonomy count, and direct edit/DOCX download buttons.
-  - **Application Tracker**: 5-stage pipeline breakdown (`Saved`, `Applied`, `Interviewing`, `Offer`, `Rejected`) and Kanban launch action.
-  - **Resume & Matching Hub**: Synced resume metadata, skills detected, and one-click resume upload modal.
-  - **Paste Job (Manual Intake)**: Offline job intake portal for LinkedIn/Indeed/Unstop listings.
+### 2. Auto Applier & Wellfound Candidate Vault
+- **Wellfound Profile Architecture**: Complete candidate vault modeled on AngelList Talent / Wellfound candidate profiles:
+  - Identity & Socials (GitHub, LinkedIn, Portfolio, Wellfound, Twitter/X).
+  - Work Preferences (Primary Role, Work Mode, Notice Period, Relocation, Minimum Annual Base, Hourly Minimum).
+  - Skills with Tenure (structured {skill, years} records to accurately satisfy ATS tenure questions).
+  - 100% Zero-Fabrication Personal Pitch and Proudest Achievement highlights.
+  - Compliance & EEO standard defaults (decline-to-self-identify defaults).
+- **Multi-Platform ATS Form Filler**: Pre-fills application forms for Greenhouse, Lever, Ashby, Workday, and standard custom job boards.
+- **1-Click Job Board Queuing**: Queue jobs directly from Explore Listings cards or import saved jobs into the Auto-Applier launcher.
+
+### 3. IIM 1-Page Resume Engine
+- **3 Distinct Executive Themes**:
+  - **Classic IIM Benchmark**: Pure black-and-white academic typography, single-column density, dense qualifications tables.
+  - **Executive Modern**: Deep navy corporate headers, refined typography, elegant dividers.
+  - **Technical Elite**: Technical monospace accents, clean slate borders, highlighted technical proficiencies.
+- **1-Page Density Guarantee**: Strict single-page layout designed to pass top-tier recruitment screenings and ATS parsers.
+
+### 4. Unified Home Command Center
+- **Feature Hub**: Declutters the navigation bar by centralizing key platform modules into one executive dashboard:
+  - **Job Market Pulse**: Live statistics across listings, remote roles, internships, and active platform feeds.
+  - **Candidate Profile Setup**: Real-time setup status indicator, personal info, skills taxonomy, and direct DOCX export.
+  - **Application Tracker**: 5-stage pipeline breakdown (Saved, Applied, Interviewing, Offer, Rejected).
+  - **Resume & Matching Hub**: Synced resume metadata, detected skills, and one-click resume upload.
+  - **Paste Job (Manual Intake)**: Offline job intake portal for LinkedIn, Indeed, or Unstop listings.
   - **Email Digest Alerts**: APScheduler daemon status, frequency, and newsletter viewer.
 
-### 3. 🧭 Streamlined Navigation & Dedicated Explore Listings
-- **Clean Two-Pillar Header**: Reduced clutter from 8 separate buttons down to **`Home`**, **`Explore Listings`**, Candidate Account dropdown, and `Sync APIs`.
-- **Explore Listings View**: Fast, dedicated workspace featuring instant platform filter pills (Wellfound, Outlier AI, Mercor, Alignerr, Mindrift, Remotive, Arbeitnow), dual-factor non-inflated match scores, and ATS tailoring actions.
-
-### 4. 🌐 Multi-Source Remote Platform Ingestion
+### 5. Multi-Source Remote Platform Ingestion
 - **Wellfound (formerly AngelList Talent)**: Seed, Series A, and Y-Combinator startup engineering roles.
-- **Outlier AI**: Frontier LLM training, data science, and reasoning evaluation ($40–$100/hr).
-- **Mercor**: Vetted AI contracts and full-stack software development ($60–$120/hr).
-- **Alignerr**: AI alignment, RLHF evaluation, and code correctness ($45–$90/hr).
-- **Mindrift**: Generative AI code reviewing and prompt engineering ($35–$75/hr).
+- **Outlier AI**: Frontier LLM training, data science, and reasoning evaluation (-/hr).
+- **Mercor**: Vetted AI contracts and full-stack software development (-/hr).
+- **Alignerr**: AI alignment, RLHF evaluation, and code correctness (-/hr).
+- **Mindrift**: Generative AI code reviewing and prompt engineering (-/hr).
 - **Free ToS-Safe APIs**: Remotive, Arbeitnow, Jobicy, RemoteOK.
-- **Manual Intake Portal**: Paste job descriptions from LinkedIn, Indeed, or Unstop for offline matching without violating anti-scraping terms.
+- **Manual Intake Portal**: Paste job descriptions from external sources for offline matching without violating anti-scraping terms.
 
-### 2. 👤 Candidate Profile & Skills Taxonomy
-- **Unified Profile Hub**: Contact info, headline, primary location, bio, GitHub, LinkedIn, and personal portfolio site.
-- **Interactive Platform Badges**: Multi-select target platforms with 1-click `"View →"` filter shortcuts.
-- **Skills Taxonomy**: Tag cloud with removable chips, custom skill adder, and quick-add pills for trending technologies (`Vector DB`, `LLM Evaluation`, `LangChain`, `Docker`).
-- **Work Experience & Education**: Card-based career timeline with inline creation forms and bullet point management.
-- **Resume Synchronization**: One-click sync from active uploaded PDF/DOCX resumes (`POST /api/profile/sync-from-resume`).
-- **ATS DOCX Resume Export**: Generates compliant `.docx` resumes with standard 0.75" margins and executive typography (`GET /api/profile/export-docx`).
-
-### 3. 🎯 Honest Dual-Factor Matching Engine
-- **Non-Inflated Scoring**: Blended composite of semantic similarity ($55\%$) and exact technical keyword coverage ($45\%$).
+### 6. Honest Dual-Factor Matching Engine
+- **Non-Inflated Scoring**: Blended composite of semantic similarity (55%) and exact technical keyword coverage (45%).
 - **Factual Gap Analysis**: Explicitly highlights missing JD requirements without hallucinating candidate qualifications.
-- **Algorithmic Transparency Disclaimer**: Clarifies scores as algorithmic estimates, not guaranteed outcomes.
-
-### 4. 📄 ATS Resume Tailoring & Visual Audit Diff
-- Reorganizes real bullet points and promotes matching skills to the top.
-- **Zero-Fabrication Guardrail**: Never invents skills, credentials, or metrics. Unmatched JD requirements are explicitly surfaced in an audit diff.
-- Instant `.docx` download formatted for ATS scanners.
-
-### 5. 📋 Kanban Application Tracker & Scheduled Email Digest
-- **5-Stage Pipeline**: Track applications across `Saved`, `Applied`, `Interviewing`, `Offer`, and `Rejected`.
-- **APScheduler Service**: Automated background digest evaluating high-match opportunities and generating responsive HTML emails.
+- **Algorithmic Transparency**: Clarifies scores as algorithmic estimates, not guaranteed outcomes.
 
 ---
 
-## 🛠️ Architecture & Tech Stack
+## Architecture & Tech Stack
 
-```
+`
 InternScrap/
 ├── backend/                  # FastAPI Application
-│   ├── models/               # SQLAlchemy Models (Job, Resume, Application, UserProfile, TailoredResume)
-│   ├── routes/               # API Endpoints (jobs, profile, resumes, tailoring, tracker, scheduler)
+│   ├── models/               # SQLAlchemy Models (Job, Resume, Application, UserProfile, User)
+│   ├── routes/               # API Endpoints (auth, jobs, profile, resumes, tailoring, tracker, auto_apply)
 │   ├── services/
+│   │   ├── auto_applier.py   # Multi-Platform ATS Autofill Engine
+│   │   ├── iim_resume_service.py # 1-Page IIM Resume Generator (Classic, Executive, Tech)
 │   │   ├── ingestion/        # Feed Parsers (RemoteTalent, Remotive, Arbeitnow, Jobicy, RemoteOK)
 │   │   ├── matching_engine.py# Semantic & Keyword Matching (SentenceTransformers)
 │   │   ├── resume_parser.py  # PDF/DOCX Parser (pdfplumber & python-docx)
-│   │   ├── resume_generator.py# ATS-Optimized Word Docx Builder
 │   │   └── scheduler_service.py # APScheduler Background Task
-│   └── database.py           # SQLite & PostgreSQL (Supabase/Railway) Engine
+│   └── database.py           # SQLite & PostgreSQL (Supabase/Railway/Render) Engine
 ├── frontend/                 # React 18 + Vite + TypeScript
 │   ├── src/
-│   │   ├── components/       # CandidateProfile, FilterBar, JobCard, ApplicationTracker, Header, Modals
+│   │   ├── components/       # AutoApplierModal, LoginPage, CandidateProfile, JobCard, Header
 │   │   ├── api/              # Axios API Client
 │   │   └── types/            # TypeScript Interface Definitions
 │   └── tailwind.config.js    # Modern SaaS Design System
 └── tests/                    # Backend Automated Verification Suite
-```
+`
 
 ---
 
-## ⚡ Quickstart Guide
+## Quickstart Guide
 
 ### Prerequisites
 - **Python 3.11+**
 - **Node.js 18+** and **npm**
 
 ### 1. Clone the Repository
-```bash
+`ash
 git clone https://github.com/Aryanshh/InternScrap.git
 cd InternScrap
-```
+`
 
 ### 2. Backend Setup
-```bash
+`ash
 # Create and activate virtual environment
 python -m venv venv
 # Windows:
-.\venv\Scripts\activate
+.env\Scriptsctivate
 # macOS / Linux:
 source venv/bin/activate
 
@@ -138,10 +135,10 @@ pip install -r backend/requirements.txt
 
 # Start FastAPI backend (runs on http://127.0.0.1:8000)
 uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
-```
+`
 
 ### 3. Frontend Setup
-```bash
+`ash
 cd frontend
 
 # Install npm packages
@@ -149,27 +146,27 @@ npm install
 
 # Start Vite dev server (runs on http://127.0.0.1:5173)
 npm run dev
-```
+`
 
-Visit **`http://127.0.0.1:5173`** in your browser to start exploring!
+Visit **http://127.0.0.1:5173** in your browser to start exploring.
 
 ---
 
-## 🧪 Testing
+## Testing
 
 Run backend tests:
-```bash
+`ash
 pytest tests/ -v
-```
+`
 
 Test remote platforms and profile endpoints:
-```bash
+`ash
 python tests/test_phase2.py
 python tests/test_phase3.py
-```
+`
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the [MIT License](LICENSE).
