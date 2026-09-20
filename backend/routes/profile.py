@@ -33,8 +33,24 @@ class ProfileUpdateRequest(BaseModel):
     min_hourly_rate: Optional[float] = None
     target_platforms: Optional[List[str]] = None
     skills: Optional[List[str]] = None
+    skills_with_years: Optional[List[Dict[str, Any]]] = None
     experience: Optional[List[Dict[str, Any]]] = None
     education: Optional[List[Dict[str, Any]]] = None
+    primary_role: Optional[str] = None
+    years_of_experience: Optional[int] = None
+    notice_period: Optional[str] = None
+    relocation_open: Optional[bool] = None
+    work_authorization: Optional[str] = None
+    require_sponsorship: Optional[str] = None
+    citizenship_country: Optional[str] = None
+    wellfound_url: Optional[str] = None
+    twitter_url: Optional[str] = None
+    personal_pitch: Optional[str] = None
+    proudest_project_highlight: Optional[str] = None
+    eeo_gender: Optional[str] = None
+    eeo_race: Optional[str] = None
+    eeo_veteran: Optional[str] = None
+    eeo_disability: Optional[str] = None
     digest_enabled: Optional[bool] = None
     digest_frequency: Optional[str] = None
     digest_min_score: Optional[float] = None
@@ -162,8 +178,15 @@ def seed_all_profiles(db: Session, force_reset_blanks: bool = True):
                             setattr(existing, k, v)
     db.commit()
 
-def resolve_target_user_id(user_id: Optional[str], x_user_id: Optional[str]) -> str:
-    chosen = (user_id or x_user_id or "Aryanshh").strip()
+def resolve_target_user_id(user_id: Optional[str], x_user_id: Optional[str], authorization: Optional[str] = None) -> str:
+    auth_user = None
+    if authorization:
+        token = authorization.replace("Bearer", "").strip()
+        if token.startswith("token_"):
+            auth_user = token.replace("token_", "").strip()
+        elif token:
+            auth_user = token
+    chosen = (user_id or x_user_id or auth_user or "Aryanshh").strip()
     if not chosen or chosen == "default_user":
         chosen = "Aryanshh"
     return chosen
@@ -233,10 +256,11 @@ def switch_profile(payload: SwitchProfileRequest, db: Session = Depends(get_db))
 def get_profile(
     user_id: Optional[str] = Query(None),
     x_user_id: Optional[str] = Header(None, alias="X-User-Id"),
+    authorization: Optional[str] = Header(None, alias="Authorization"),
     db: Session = Depends(get_db)
 ):
     """Retrieve candidate profile with active resume status."""
-    target_id = resolve_target_user_id(user_id, x_user_id)
+    target_id = resolve_target_user_id(user_id, x_user_id, authorization)
     profile = get_or_create_profile(db, target_id)
     active_resume = db.query(Resume).filter(Resume.is_active == True).first()
 
@@ -252,12 +276,28 @@ def get_profile(
         "linkedin_url": profile.linkedin_url,
         "portfolio_url": profile.portfolio_url,
         "desired_work_mode": profile.desired_work_mode,
+        "primary_role": profile.primary_role,
+        "years_of_experience": profile.years_of_experience,
+        "notice_period": profile.notice_period,
+        "relocation_open": profile.relocation_open,
+        "work_authorization": profile.work_authorization,
+        "require_sponsorship": profile.require_sponsorship,
+        "citizenship_country": profile.citizenship_country,
+        "wellfound_url": profile.wellfound_url,
+        "twitter_url": profile.twitter_url,
+        "personal_pitch": profile.personal_pitch,
+        "proudest_project_highlight": profile.proudest_project_highlight,
         "min_salary": profile.min_salary,
         "min_hourly_rate": profile.min_hourly_rate,
         "target_platforms": profile.target_platforms or [],
         "skills": profile.skills or [],
+        "skills_with_years": profile.skills_with_years or [],
         "experience": profile.experience or [],
         "education": profile.education or [],
+        "eeo_gender": profile.eeo_gender,
+        "eeo_race": profile.eeo_race,
+        "eeo_veteran": profile.eeo_veteran,
+        "eeo_disability": profile.eeo_disability,
         "digest_enabled": profile.digest_enabled,
         "digest_frequency": profile.digest_frequency,
         "digest_min_score": profile.digest_min_score,

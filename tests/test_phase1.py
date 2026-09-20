@@ -43,47 +43,54 @@ def test_dedup_logic():
     print(f"Similarity Score: {score:.1f}%", flush=True)
     assert score >= 85.0, f"Expected score >= 85, got {score}"
 
-    print(" Deduplication logic unit tests PASSED!\n", flush=True)
+    print("Deduplication logic unit tests PASSED!\n", flush=True)
 
-async def test_sources_individually():
+def test_sources_individually():
     print("--- 2. Testing Sources Individually ---", flush=True)
 
-    print("Testing Remotive...", flush=True)
-    remotive = RemotiveSource()
-    r_jobs = await remotive.fetch_jobs(limit=3)
-    print(f" Remotive returned: {len(r_jobs)} jobs", flush=True)
+    async def _test():
+        print("Testing Remotive...", flush=True)
+        remotive = RemotiveSource()
+        r_jobs = await remotive.fetch_jobs(limit=3)
+        print(f"Remotive returned: {len(r_jobs)} jobs", flush=True)
 
-    print("Testing Arbeitnow...", flush=True)
-    arbeit = ArbeitnowSource()
-    a_jobs = await arbeit.fetch_jobs(limit=3)
-    print(f" Arbeitnow returned: {len(a_jobs)} jobs", flush=True)
+        print("Testing Arbeitnow...", flush=True)
+        arbeit = ArbeitnowSource()
+        a_jobs = await arbeit.fetch_jobs(limit=3)
+        print(f"Arbeitnow returned: {len(a_jobs)} jobs", flush=True)
 
-    print("Testing RemoteOK...", flush=True)
-    rok = RemoteOKSource()
-    rok_jobs = await rok.fetch_jobs(limit=3)
-    print(f" RemoteOK returned: {len(rok_jobs)} jobs", flush=True)
+        print("Testing RemoteOK...", flush=True)
+        rok = RemoteOKSource()
+        rok_jobs = await rok.fetch_jobs(limit=3)
+        print(f"RemoteOK returned: {len(rok_jobs)} jobs", flush=True)
 
-async def test_aggregator():
+    asyncio.run(_test())
+
+def test_aggregator():
     print("\n--- 3. Testing Aggregator and Database Persistence ---", flush=True)
-    Base.metadata.create_all(bind=engine)
-    db = SessionLocal()
-    try:
-        aggregator = IngestionAggregator(db)
-        print("Running IngestionAggregator.run(limit_per_source=10)...", flush=True)
-        summary = await aggregator.run(limit_per_source=10)
-        print(f" Aggregator result: {summary}", flush=True)
 
-        count = db.query(Job).count()
-        print(f" Total jobs stored in DB: {count}", flush=True)
-        assert count > 0, "No jobs saved in database"
+    async def _test():
+        Base.metadata.create_all(bind=engine)
+        db = SessionLocal()
+        try:
+            aggregator = IngestionAggregator(db)
+            print("Running IngestionAggregator.run(limit_per_source=10)...", flush=True)
+            summary = await aggregator.run(limit_per_source=10)
+            print(f"Aggregator result: {summary}", flush=True)
 
-        sample = db.query(Job).first()
-        print(f" Sample Job: '{sample.title}' at '{sample.company}' | Sources: {sample.sources} | ApplyURLs: {sample.apply_urls}", flush=True)
-        print("\n ALL VERIFICATIONS PASSED!", flush=True)
-    finally:
-        db.close()
+            count = db.query(Job).count()
+            print(f"Total jobs stored in DB: {count}", flush=True)
+            assert count > 0, "No jobs saved in database"
+
+            sample = db.query(Job).first()
+            print(f"Sample Job: '{sample.title}' at '{sample.company}' | Sources: {sample.sources} | ApplyURLs: {sample.apply_urls}", flush=True)
+            print("\nALL VERIFICATIONS PASSED!", flush=True)
+        finally:
+            db.close()
+
+    asyncio.run(_test())
 
 if __name__ == "__main__":
     test_dedup_logic()
-    asyncio.run(test_sources_individually())
-    asyncio.run(test_aggregator())
+    test_sources_individually()
+    test_aggregator()

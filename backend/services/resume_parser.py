@@ -105,6 +105,7 @@ def extract_sections(text: str) -> Dict[str, Any]:
     
     current_section = "summary"
     for line in lines:
+        lower_line = line.lower()
         if is_section_header(line, ["work experience", "professional experience", "experience", "employment"]):
             current_section = "experience"
             continue
