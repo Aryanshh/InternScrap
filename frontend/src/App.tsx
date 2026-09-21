@@ -260,8 +260,8 @@ export const App: React.FC = () => {
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 selection:bg-indigo-500 selection:text-white">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center space-x-2 text-sm border border-slate-700 animate-in fade-in slide-in-from-bottom-5">
-          <Sparkles className="w-4 h-4 text-amber-400" />
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900/95 backdrop-blur-md text-slate-100 px-4 py-2.5 rounded-xl shadow-xl flex items-center space-x-2.5 text-xs font-medium border border-slate-800 animate-in fade-in slide-in-from-bottom-3 duration-200">
+          <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -327,53 +327,57 @@ export const App: React.FC = () => {
           /* Explore Listings View */
           <>
             {/* Banner Section */}
-            <div className="mb-6 p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-indigo-900 via-indigo-800 to-violet-900 text-white shadow-lg relative overflow-hidden">
+            <div className="mb-6 p-6 sm:p-8 rounded-2xl bg-slate-900 text-white border border-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.1)] relative overflow-hidden">
               <div className="relative z-10 max-w-3xl">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-indigo-200 backdrop-blur-md mb-3">
-                  Remote Platforms & AI Candidate Profile • Wellfound, Outlier, Mercor, Alignerr, Mindrift
-                </span>
-                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                  Explore Remote Listings
+                <div className="flex items-center gap-2 mb-3 flex-wrap">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-mono font-medium bg-slate-800 text-slate-300 border border-slate-700/80">
+                    Enterprise Remote Feed
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-medium">
+                    Wellfound • Outlier • Mercor • Alignerr • Mindrift • Remotive
+                  </span>
+                </div>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+                  Explore Verified Remote Listings
                 </h1>
-                <p className="mt-2 text-indigo-100/80 text-sm leading-relaxed">
-                  Direct listings with transparent hourly rates ($30–$120/hr) across Outlier, Mercor, Wellfound, Alignerr, and Mindrift. Filter by platform, match against your resume, and tailor ATS resumes.
+                <p className="mt-2 text-slate-400 text-xs sm:text-sm leading-relaxed">
+                  Vetted roles with transparent compensation ($30–$120/hr) across modern AI and tech platforms. Filter by work mode, verify live link vitality, and auto-queue for 1-click application submissions.
                 </p>
 
                 {/* Live Stats Cards */}
                 {stats && (
-                  <div className="mt-6 pt-5 border-t border-white/15 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                    <div className="flex items-center space-x-2.5 bg-white/10 backdrop-blur-sm px-3.5 py-2.5 rounded-2xl border border-white/10">
-                      <Layers className="w-5 h-5 text-indigo-300 shrink-0" />
+                  <div className="mt-5 pt-4 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                    <div className="flex items-center space-x-2.5 bg-slate-800/60 px-3.5 py-2 rounded-xl border border-slate-700/60">
+                      <Layers className="w-4 h-4 text-slate-400 shrink-0" />
                       <div>
-                        <div className="font-bold text-white text-base leading-none">{stats.total_jobs}</div>
-                        <div className="text-indigo-200 text-[11px] mt-1">Total Jobs</div>
+                        <div className="font-bold text-white text-sm font-mono leading-none">{stats.total_jobs}</div>
+                        <div className="text-slate-400 text-[10px] mt-0.5 uppercase tracking-wider">Total Listings</div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2.5 bg-white/10 backdrop-blur-sm px-3.5 py-2.5 rounded-2xl border border-white/10">
-                      <Globe className="w-5 h-5 text-emerald-300 shrink-0" />
+                    <div className="flex items-center space-x-2.5 bg-slate-800/60 px-3.5 py-2 rounded-xl border border-slate-700/60">
+                      <Globe className="w-4 h-4 text-emerald-400 shrink-0" />
                       <div>
-                        <div className="font-bold text-white text-base leading-none">{stats.remote_jobs}</div>
-                        <div className="text-indigo-200 text-[11px] mt-1">Remote</div>
+                        <div className="font-bold text-white text-sm font-mono leading-none">{stats.remote_jobs}</div>
+                        <div className="text-slate-400 text-[10px] mt-0.5 uppercase tracking-wider">Remote Roles</div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2.5 bg-white/10 backdrop-blur-sm px-3.5 py-2.5 rounded-2xl border border-white/10">
-                      <GraduationCap className="w-5 h-5 text-amber-300 shrink-0" />
+                    <div className="flex items-center space-x-2.5 bg-slate-800/60 px-3.5 py-2 rounded-xl border border-slate-700/60">
+                      <GraduationCap className="w-4 h-4 text-amber-400 shrink-0" />
                       <div>
-                        <div className="font-bold text-white text-base leading-none">{stats.internship_jobs}</div>
-                        <div className="text-indigo-200 text-[11px] mt-1">Internships</div>
+                        <div className="font-bold text-white text-sm font-mono leading-none">{stats.internship_jobs}</div>
+                        <div className="text-slate-400 text-[10px] mt-0.5 uppercase tracking-wider">Internships</div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2.5 bg-white/10 backdrop-blur-sm px-3.5 py-2.5 rounded-2xl border border-white/10">
-                      <span className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                    <div className="flex items-center space-x-2.5 bg-slate-800/60 px-3.5 py-2 rounded-xl border border-slate-700/60">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
                       <div>
-                        <div className="font-bold text-white text-base leading-none">{availableSources.length} Feeds</div>
-                        <div className="text-indigo-200 text-[11px] mt-1">Live Sources</div>
+                        <div className="font-bold text-white text-sm font-mono leading-none">{availableSources.length} Feeds</div>
+                        <div className="text-slate-400 text-[10px] mt-0.5 uppercase tracking-wider">Active Feeds</div>
                       </div>
                     </div>
                   </div>
                 )}
               </div>
-              <div className="absolute right-0 bottom-0 translate-x-12 translate-y-12 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
             </div>
 
             {/* Filters */}
@@ -469,10 +473,20 @@ export const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
-        <p className="font-medium text-slate-500">
-          Made with love with AI
-        </p>
+      <footer className="bg-white border-t border-slate-200/80 py-6 text-xs text-slate-500">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+            <span className="font-semibold text-slate-800">InternScrap Enterprise Platform</span>
+            <span className="text-slate-300">•</span>
+            <span className="text-slate-500">Zero AI Plagiarism Job Automation Engine</span>
+          </div>
+          <div className="flex items-center gap-4 text-slate-400">
+            <span>Wellfound Dossier Sync</span>
+            <span>•</span>
+            <span>ATS Resume Standard</span>
+          </div>
+        </div>
       </footer>
 
       {/* Modals */}
@@ -520,18 +534,18 @@ export const App: React.FC = () => {
 
       {/* Floating Auto-Apply Queue Bar */}
       {queuedJobs.size > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900/95 backdrop-blur-md text-white px-5 py-3 rounded-2xl shadow-2xl border border-indigo-500/40 flex items-center gap-4 animate-in slide-in-from-bottom duration-300">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-950/90 backdrop-blur-md text-white px-5 py-2.5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.35)] border border-slate-800 flex items-center gap-4 animate-in slide-in-from-bottom duration-200">
           <div className="flex items-center gap-2 text-xs">
-            <span className="w-2.5 h-2.5 rounded-full bg-violet-400 animate-pulse" />
-            <span className="font-bold">
-              {queuedJobs.size} Job{queuedJobs.size > 1 ? 's' : ''} in Auto-Apply Queue
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="font-semibold text-slate-200">
+              {queuedJobs.size} Job{queuedJobs.size > 1 ? 's' : ''} queued
             </span>
           </div>
-          <div className="h-4 w-px bg-slate-700" />
+          <div className="h-4 w-px bg-slate-800" />
           <div className="flex items-center gap-2">
             <button
               onClick={handleLaunchQueuedAutoApply}
-              className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+              className="interactive-button px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <Send className="w-3.5 h-3.5" />
               <span>Launch Auto-Applier</span>
@@ -541,7 +555,7 @@ export const App: React.FC = () => {
                 setQueuedJobs(new Map());
                 showToast('Auto-Apply queue cleared.');
               }}
-              className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition-all cursor-pointer"
+              className="interactive-button px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium transition-all cursor-pointer"
             >
               Clear
             </button>

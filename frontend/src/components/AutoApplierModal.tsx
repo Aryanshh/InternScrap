@@ -237,70 +237,70 @@ export const AutoApplierModal: React.FC<AutoApplierModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto animate-in fade-in">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200/90 w-full max-w-5xl my-8 overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-5xl my-8 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Modal Header */}
-        <div className="px-6 sm:px-8 py-5 border-b border-slate-200 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white flex items-center justify-between">
+        <div className="px-6 sm:px-8 py-4.5 border-b border-slate-800 bg-slate-900 text-white flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-2xl bg-indigo-600/40 border border-indigo-400/30 flex items-center justify-center text-indigo-300">
-              <Send className="w-5 h-5 text-indigo-300" />
+            <div className="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300">
+              <Send className="w-4 h-4 text-slate-300" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold tracking-tight text-white">
-                  Auto Applier &amp; Wellfound Dossier
+                <h2 className="text-lg font-bold tracking-tight text-white">
+                  Auto Applier &amp; Candidate Vault
                 </h2>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-medium uppercase tracking-wider bg-slate-800 text-slate-300 border border-slate-700">
                   Zero AI Plagiarism
                 </span>
               </div>
-              <p className="text-xs text-slate-300">
+              <p className="text-xs text-slate-400">
                 1-Click multi-link job applications backed by authentic Wellfound candidate profiling &amp; 1-page IIM resumes
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer border border-slate-700"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="px-6 sm:px-8 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+        <div className="px-6 sm:px-8 bg-slate-50/80 border-b border-slate-200 flex items-center gap-1.5 py-2">
           <button
             onClick={() => setActiveTab('applier')}
-            className={`py-3.5 px-4 text-xs font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
+            className={`interactive-button py-2 px-3.5 text-xs flex items-center gap-2 rounded-lg transition-all cursor-pointer ${
               activeTab === 'applier'
-                ? 'border-indigo-600 text-indigo-600 bg-white/70 rounded-t-xl'
-                : 'border-transparent text-slate-500 hover:text-slate-900'
+                ? 'bg-white text-slate-900 font-semibold shadow-2xs border border-slate-200/80'
+                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 font-medium'
             }`}
           >
-            <Play className="w-3.5 h-3.5" />
+            <Play className="w-3.5 h-3.5 text-slate-600" />
             <span>Multi-Link Auto Applier</span>
           </button>
 
           <button
             onClick={() => setActiveTab('resume')}
-            className={`py-3.5 px-4 text-xs font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
+            className={`interactive-button py-2 px-3.5 text-xs flex items-center gap-2 rounded-lg transition-all cursor-pointer ${
               activeTab === 'resume'
-                ? 'border-indigo-600 text-indigo-600 bg-white/70 rounded-t-xl'
-                : 'border-transparent text-slate-500 hover:text-slate-900'
+                ? 'bg-white text-slate-900 font-semibold shadow-2xs border border-slate-200/80'
+                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 font-medium'
             }`}
           >
-            <FileText className="w-3.5 h-3.5" />
+            <FileText className="w-3.5 h-3.5 text-slate-600" />
             <span>IIM Resume &amp; Themes</span>
           </button>
 
           <button
             onClick={() => setActiveTab('vault')}
-            className={`py-3.5 px-4 text-xs font-bold flex items-center gap-2 border-b-2 transition-all cursor-pointer ${
+            className={`interactive-button py-2 px-3.5 text-xs flex items-center gap-2 rounded-lg transition-all cursor-pointer ${
               activeTab === 'vault'
-                ? 'border-indigo-600 text-indigo-600 bg-white/70 rounded-t-xl'
-                : 'border-transparent text-slate-500 hover:text-slate-900'
+                ? 'bg-white text-slate-900 font-semibold shadow-2xs border border-slate-200/80'
+                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 font-medium'
             }`}
           >
-            <ShieldCheck className="w-3.5 h-3.5" />
+            <ShieldCheck className="w-3.5 h-3.5 text-slate-600" />
             <span>Wellfound Candidate Vault</span>
           </button>
         </div>
@@ -423,11 +423,11 @@ export const AutoApplierModal: React.FC<AutoApplierModalProps> = ({
                 <button
                   onClick={handleRun}
                   disabled={isRunning || !urlInput.trim()}
-                  className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-700 hover:from-indigo-700 hover:to-violet-800 text-white font-bold text-sm shadow-md shadow-indigo-200 transition-all flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
+                  className="interactive-button w-full py-3 px-6 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs sm:text-sm shadow-xs transition-all flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
                 >
                   {isRunning ? (
                     <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                       <span>Applying via Playwright ATS Engine...</span>
                     </>
                   ) : (
