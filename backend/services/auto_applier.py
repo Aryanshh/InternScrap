@@ -40,14 +40,165 @@ class AutoApplierEngine:
             return parts[0], ""
         return parts[0], " ".join(parts[1:])
 
+    def _has_application_form(self, target: Any) -> bool:
+        """Checks whether the given page or frame already contains visible application form inputs."""
+        try:
+            form_selectors = [
+                'input[name*="first_name" i]',
+                'input[name*="last_name" i]',
+                'input[type="email"]',
+                'input[name*="email" i]',
+                '#email',
+                'input[type="file"]',
+                'input[name*="phone" i]',
+                'input[type="tel"]',
+                'textarea[name*="cover" i]',
+            ]
+            visible_count = 0
+            for sel in form_selectors:
+                try:
+                    locator = target.locator(sel).first
+                    if locator.count() > 0 and locator.is_visible(timeout=200):
+                        visible_count += 1
+                        if visible_count >= 2:
+                            return True
+                except Exception:
+                    continue
+        except Exception:
+            pass
+        return False
+
+    def _find_form_frame(self, page: Page) -> Any:
+        """Finds the main page or embedded iframe containing the application form."""
+        try:
+            if self._has_application_form(page):
+                return page
+
+            for frame in page.frames:
+                if frame == page.main_frame:
+                    continue
+                if self._has_application_form(frame):
+                    return frame
+        except Exception:
+            pass
+        return page
+
+    def _resolve_application_page(self, context: Any, page: Page, logs: List[str]) -> tuple[Page, str]:
+        """
+        Detects if current page is a Job Description without an immediate form.
+        If so, identifies and triggers the 'Apply' action, follows redirects or new tabs,
+        and returns the active Page containing the application form.
+        """
+        try:
+            # 1. Check if the current page or an embedded iframe already has form inputs
+            if self._has_application_form(page):
+                return page, page.url
+
+            for frame in page.frames:
+                if frame != page.main_frame and self._has_application_form(frame):
+                    logs.append("Application form already visible inside embedded iframe.")
+                    return page, page.url
+
+            logs.append("Initial page is a Job Description without visible form fields. Searching for 'Apply' CTA...")
+
+            # 2. Candidate apply selectors ordered by specificity
+            apply_selectors = [
+                'a:has-text("Apply for this job")',
+                'button:has-text("Apply for this job")',
+                'a:has-text("Apply for this position")',
+                'button:has-text("Apply for this position")',
+                'a:has-text("Apply Now")',
+                'button:has-text("Apply Now")',
+                'a:has-text("Apply on Company Website")',
+                'button:has-text("Apply on Company Website")',
+                'a:has-text("Apply on company site")',
+                'button:has-text("Apply on company site")',
+                'a:has-text("Apply Online")',
+                'button:has-text("Apply Online")',
+                'a:has-text("Apply Directly")',
+                'button:has-text("Apply Directly")',
+                'a:has-text("Submit Application")',
+                'button:has-text("Submit Application")',
+                'a[href*="/apply" i]',
+                'a[href*="greenhouse.io" i]',
+                'a[href*="lever.co" i]',
+                'a[href*="ashbyhq.com" i]',
+                'a[href*="workday" i]',
+                'a[id*="apply" i]',
+                'button[id*="apply" i]',
+                'button:has-text("Apply")',
+                'a:has-text("Apply")',
+            ]
+
+            target_elem = None
+            for sel in apply_selectors:
+                try:
+                    locator = page.locator(sel).first
+                    if locator.count() > 0 and locator.is_visible(timeout=400):
+                        target_elem = locator
+                        logs.append(f"Located primary application action element matching '{sel}'.")
+                        break
+                except Exception:
+                    continue
+
+            if not target_elem:
+                logs.append("No distinct 'Apply' CTA found. Proceeding with current page.")
+                return page, page.url
+
+            # Extract any direct external apply href if present
+            raw_href = None
+            try:
+                raw_href = target_elem.get_attribute("href")
+            except Exception:
+                pass
+
+            # 3. Attempt to trigger the action (handling new tabs, redirects, and anchor scrolls)
+            new_page = None
+            try:
+                with context.expect_page(timeout=4000) as new_page_info:
+                    target_elem.click()
+                new_page = new_page_info.value
+            except PlaywrightTimeoutError:
+                pass
+            except Exception as e:
+                logs.append(f"Click notice: {e}")
+
+            # If a new tab/window was opened
+            if new_page:
+                try:
+                    new_page.wait_for_load_state("domcontentloaded", timeout=15000)
+                    time.sleep(1.5)
+                    logs.append(f"Followed external apply CTA to new tab: {new_page.url}")
+                    return new_page, new_page.url
+                except Exception:
+                    return new_page, new_page.url
+
+            # If clicked within the same page
+            time.sleep(1.5)
+            if self._has_application_form(page):
+                logs.append(f"Application form now active on page ({page.url}).")
+                return page, page.url
+
+            # If direct external href exists and clicking didn't navigate
+            if raw_href and (raw_href.startswith("http://") or raw_href.startswith("https://")) and raw_href != page.url:
+                logs.append(f"Directing browser to external apply URL from CTA: {raw_href}")
+                page.goto(raw_href, wait_until="domcontentloaded", timeout=20000)
+                time.sleep(1.5)
+                return page, page.url
+
+        except Exception as ex:
+            logs.append(f"Smart entry resolution notice: {ex}")
+
+        return page, page.url
+
     def _fill_input_if_exists(
-        self, page: Page, selectors: List[str], value: str, label_hint: str, filled_list: List[str]
+        self, target: Any, selectors: List[str], value: str, label_hint: str, filled_list: List[str]
     ) -> bool:
         if not value:
             return False
         for sel in selectors:
             try:
-                locator = page.locator(sel).first
+                locator = target.locator(sel).first
                 if locator.is_visible(timeout=600):
                     locator.fill(str(value))
                     filled_list.append(label_hint)
@@ -57,13 +208,13 @@ class AutoApplierEngine:
         return False
 
     def _select_dropdown_by_text(
-        self, page: Page, selectors: List[str], target_text: str, label_hint: str, filled_list: List[str]
+        self, target: Any, selectors: List[str], target_text: str, label_hint: str, filled_list: List[str]
     ) -> bool:
         if not target_text:
             return False
         for sel in selectors:
             try:
-                locator = page.locator(sel).first
+                locator = target.locator(sel).first
                 if locator.is_visible(timeout=600):
                     # Check if it is a native select
                     tag = locator.evaluate("el => el.tagName.toLowerCase()")
@@ -81,11 +232,11 @@ class AutoApplierEngine:
         return False
 
     def _select_radio_or_checkbox(
-        self, page: Page, question_regex: str, target_option_regex: str, filled_list: List[str], label_hint: str
+        self, target: Any, question_regex: str, target_option_regex: str, filled_list: List[str], label_hint: str
     ) -> bool:
         """Finds labels or question containers matching question_regex and checks matching radio/checkbox."""
         try:
-            labels = page.locator("label, div.field, fieldset, div[class*='question']").all()
+            labels = target.locator("label, div.field, fieldset, div[class*='question']").all()
             for container in labels:
                 txt = container.inner_text().lower()
                 if re.search(question_regex, txt):
@@ -104,7 +255,7 @@ class AutoApplierEngine:
             pass
         return False
 
-    def _upload_resume(self, page: Page, resume_path: str, filled_list: List[str]) -> bool:
+    def _upload_resume(self, target: Any, resume_path: str, filled_list: List[str]) -> bool:
         if not resume_path or not os.path.exists(resume_path):
             return False
         selectors = [
@@ -116,7 +267,7 @@ class AutoApplierEngine:
         ]
         for sel in selectors:
             try:
-                file_input = page.locator(sel).first
+                file_input = target.locator(sel).first
                 if file_input.count() > 0:
                     file_input.set_input_files(resume_path)
                     filled_list.append("Resume Upload (1-Page IIM PDF)")
@@ -156,7 +307,7 @@ class AutoApplierEngine:
         return statement
 
     def _handle_wellfound_custom_questions(
-        self, page: Page, profile_data: Dict[str, Any], fields_filled: List[str], logs: List[str]
+        self, target: Any, profile_data: Dict[str, Any], fields_filled: List[str], logs: List[str]
     ) -> None:
         """
         Evaluates open text inputs, textareas, and selects using the candidate's verified Wellfound dossier.
@@ -171,11 +322,11 @@ class AutoApplierEngine:
 
         # 1. Work Authorization & Sponsorship
         self._select_radio_or_checkbox(
-            page, r"authorized to work|legal.*work|eligible.*work", r"yes", fields_filled, "Work Authorization: Yes"
+            target, r"authorized to work|legal.*work|eligible.*work", r"yes", fields_filled, "Work Authorization: Yes"
         )
         sponsorship_target = "yes" if sponsorship == "yes" else "no"
         self._select_radio_or_checkbox(
-            page, r"require.*sponsorship|visa.*sponsorship", sponsorship_target, fields_filled, f"Visa Sponsorship: {sponsorship_target.upper()}"
+            target, r"require.*sponsorship|visa.*sponsorship", sponsorship_target, fields_filled, f"Visa Sponsorship: {sponsorship_target.upper()}"
         )
 
         # 2. Equal Employment Opportunity (EEO) Defaults
@@ -184,14 +335,14 @@ class AutoApplierEngine:
         eeo_veteran = profile_data.get("eeo_veteran") or "I am not a protected veteran"
         eeo_disability = profile_data.get("eeo_disability") or "No, I do not have a disability"
 
-        self._select_dropdown_by_text(page, ['select[name*="gender" i]', '#gender', 'select[id*="gender" i]'], eeo_gender, f"EEO Gender: {eeo_gender}", fields_filled)
-        self._select_dropdown_by_text(page, ['select[name*="race" i]', 'select[name*="ethnicity" i]', '#race', '#ethnicity'], eeo_race, f"EEO Ethnicity: {eeo_race}", fields_filled)
-        self._select_dropdown_by_text(page, ['select[name*="veteran" i]', '#veteran_status'], eeo_veteran, f"EEO Veteran: {eeo_veteran}", fields_filled)
-        self._select_dropdown_by_text(page, ['select[name*="disability" i]', '#disability_status'], eeo_disability, f"EEO Disability: {eeo_disability}", fields_filled)
+        self._select_dropdown_by_text(target, ['select[name*="gender" i]', '#gender', 'select[id*="gender" i]'], eeo_gender, f"EEO Gender: {eeo_gender}", fields_filled)
+        self._select_dropdown_by_text(target, ['select[name*="race" i]', 'select[name*="ethnicity" i]', '#race', '#ethnicity'], eeo_race, f"EEO Ethnicity: {eeo_race}", fields_filled)
+        self._select_dropdown_by_text(target, ['select[name*="veteran" i]', '#veteran_status'], eeo_veteran, f"EEO Veteran: {eeo_veteran}", fields_filled)
+        self._select_dropdown_by_text(target, ['select[name*="disability" i]', '#disability_status'], eeo_disability, f"EEO Disability: {eeo_disability}", fields_filled)
 
         # 3. Custom Questions via Labels and Textareas
         try:
-            fields = page.locator("div.field, div.form-group, div[class*='question'], div[data-qa]").all()
+            fields = target.locator("div.field, div.form-group, div[class*='question'], div[data-qa]").all()
             for fld in fields[:12]:
                 text = fld.inner_text().lower()
 
@@ -307,20 +458,39 @@ class AutoApplierEngine:
             page = context.new_page()
 
             try:
-                logs.append("Navigating to application link...")
+                logs.append("Navigating to target posting link...")
                 page.goto(url, wait_until="domcontentloaded", timeout=25000)
                 time.sleep(1.5)
 
+                # Smart Entry: Resolve from Job Description to actual Application Form
+                page, active_url = self._resolve_application_page(context, page, logs)
+
+                # Re-detect platform from active_url
+                if "greenhouse.io" in active_url:
+                    platform = "Greenhouse"
+                elif "lever.co" in active_url:
+                    platform = "Lever"
+                elif "ashbyhq.com" in active_url:
+                    platform = "Ashby"
+                elif "workday" in active_url:
+                    platform = "Workday"
+                logs.append(f"Active Application Form URL: {active_url} (Platform: {platform})")
+
+                # Target frame resolution (detect embedded iframes like Greenhouse/Lever widgets)
+                target = self._find_form_frame(page)
+                if target != page:
+                    logs.append("Application form detected inside embedded iframe. Targeting iframe DOM for autofill.")
+
                 # 1. Fill Name
                 filled_first = self._fill_input_if_exists(
-                    page,
+                    target,
                     ['#first_name', 'input[name*="first_name" i]', 'input[name="firstName"]', 'input[autocomplete="given-name"]'],
                     first_name,
                     "First Name",
                     fields_filled,
                 )
                 filled_last = self._fill_input_if_exists(
-                    page,
+                    target,
                     ['#last_name', 'input[name*="last_name" i]', 'input[name="lastName"]', 'input[autocomplete="family-name"]'],
                     last_name,
                     "Last Name",
@@ -328,7 +498,7 @@ class AutoApplierEngine:
                 )
                 if not (filled_first and filled_last):
                     self._fill_input_if_exists(
-                        page,
+                        target,
                         ['#name', 'input[name="name"]', 'input[name*="full_name" i]', 'input[placeholder*="full name" i]'],
                         full_name,
                         "Full Name",
@@ -337,7 +507,7 @@ class AutoApplierEngine:
 
                 # 2. Fill Email
                 self._fill_input_if_exists(
-                    page,
+                    target,
                     ['#email', 'input[type="email"]', 'input[name*="email" i]'],
                     email,
                     "Email Address",
@@ -346,7 +516,7 @@ class AutoApplierEngine:
 
                 # 3. Fill Phone
                 self._fill_input_if_exists(
-                    page,
+                    target,
                     ['#phone', 'input[type="tel"]', 'input[name*="phone" i]'],
                     phone,
                     "Phone Number",
@@ -355,7 +525,7 @@ class AutoApplierEngine:
 
                 # 4. Fill Location
                 self._fill_input_if_exists(
-                    page,
+                    target,
                     ['#location', '#job_application_location', 'input[name*="location" i]', 'input[name*="city" i]'],
                     location,
                     "Location",
@@ -364,21 +534,21 @@ class AutoApplierEngine:
 
                 # 5. Fill Socials & Verified Links
                 self._fill_input_if_exists(
-                    page,
+                    target,
                     ['input[name*="linkedin" i]', 'input[placeholder*="linkedin" i]', 'input[name*="urls[LinkedIn]"]'],
                     linkedin,
                     "LinkedIn Profile",
                     fields_filled,
                 )
                 self._fill_input_if_exists(
-                    page,
+                    target,
                     ['input[name*="github" i]', 'input[placeholder*="github" i]', 'input[name*="urls[GitHub]"]'],
                     github,
                     "GitHub Profile",
                     fields_filled,
                 )
                 self._fill_input_if_exists(
-                    page,
+                    target,
                     ['input[name*="portfolio" i]', 'input[name*="website" i]', 'input[name*="urls[Portfolio]"]'],
                     portfolio,
                     "Portfolio Website",
@@ -386,7 +556,7 @@ class AutoApplierEngine:
                 )
                 if twitter:
                     self._fill_input_if_exists(
-                        page,
+                        target,
                         ['input[name*="twitter" i]', 'input[name*="urls[Twitter]"]'],
                         twitter,
                         "Twitter / X Profile",
@@ -394,7 +564,7 @@ class AutoApplierEngine:
                     )
                 if wellfound:
                     self._fill_input_if_exists(
-                        page,
+                        target,
                         ['input[name*="wellfound" i]', 'input[name*="angellist" i]'],
                         wellfound,
                         "Wellfound Profile",
@@ -402,16 +572,16 @@ class AutoApplierEngine:
                     )
 
                 # 6. Evaluate Wellfound Factual Custom Questions (Zero-Fabrication)
-                self._handle_wellfound_custom_questions(page, profile_data, fields_filled, logs)
+                self._handle_wellfound_custom_questions(target, profile_data, fields_filled, logs)
 
                 # 7. Upload Compiled 1-Page IIM Resume (PDF)
-                uploaded = self._upload_resume(page, resume_pdf_path, fields_filled)
+                uploaded = self._upload_resume(target, resume_pdf_path, fields_filled)
                 if uploaded:
                     logs.append(f"Successfully attached compiled 1-Page IIM Resume: {os.path.basename(resume_pdf_path)}")
                 else:
                     logs.append("No file upload input detected or resume already pre-populated.")
 
-                # Wait for any dynamic DOM adjustments
+                # Wait for dynamic DOM adjustments
                 time.sleep(1)
 
                 # 8. Capture Verification Screenshot
@@ -421,9 +591,14 @@ class AutoApplierEngine:
                 # 9. Handle Submit if in submit mode
                 if mode == "submit":
                     logs.append("Triggering final submission...")
-                    submit_btn = page.locator(
+                    submit_btn = target.locator(
                         'button[type="submit"], input[type="submit"], button:has-text("Submit Application"), button:has-text("Submit")'
                     ).first
+                    if not submit_btn.is_visible(timeout=1000):
+                        submit_btn = page.locator(
+                            'button[type="submit"], input[type="submit"], button:has-text("Submit Application"), button:has-text("Submit")'
+                        ).first
+
                     if submit_btn.is_visible(timeout=2000):
                         submit_btn.click()
                         time.sleep(3)
@@ -461,6 +636,7 @@ class AutoApplierEngine:
         return {
             "run_id": run_id,
             "url": url,
+            "final_url": active_url if 'active_url' in locals() else url,
             "platform": platform,
             "status": status,
             "mode": mode,
