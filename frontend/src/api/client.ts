@@ -318,5 +318,106 @@ export const getIimDocxUrl = (userId?: string): string => {
   return `${API_BASE}/resumes/iim-download-docx?user_id=${encodeURIComponent(uid)}`;
 };
 
+// =====================================================================
+// DAILY 21 REMOTE DROPS & 1-CLICK BATCH APPLIER
+// =====================================================================
 
+export interface Daily21Job {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  remote_type: string;
+  apply_url: string;
+  apply_urls: string[];
+  salary_range?: string;
+  category: string;
+  primary_source: string;
+  posted_date?: string;
+  is_internship: boolean;
+  match_score: number;
+  skills: string[];
+  description: string;
+  application_status: string; // 'queued' | 'saved' | 'applied'
+}
 
+export interface Daily21Response {
+  success: boolean;
+  date: string;
+  user_id: string;
+  total: number;
+  completed_today: number;
+  jobs: Daily21Job[];
+}
+
+export interface Daily21ProgressResult {
+  job_id?: string;
+  title?: string;
+  company?: string;
+  url?: string;
+  platform: string;
+  status: string;
+  fields_filled: string[];
+  fields_count: number;
+  screenshot_url?: string;
+  error?: string;
+  logs: string[];
+  timestamp?: string;
+}
+
+export interface Daily21ProgressResponse {
+  success: boolean;
+  batch_id: string;
+  status: 'running' | 'completed' | 'failed';
+  mode: 'review' | 'submit';
+  theme: string;
+  total: number;
+  completed_count: number;
+  current_index: number;
+  current_job?: {
+    id?: string;
+    title?: string;
+    company?: string;
+    url?: string;
+  };
+  resume_attached?: string;
+  results: Daily21ProgressResult[];
+  logs: string[];
+  started_at: string;
+  finished_at?: string;
+  error?: string;
+}
+
+export const getDaily21Drops = async (
+  userId?: string,
+  forceRefresh: boolean = false
+): Promise<Daily21Response> => {
+  const uid = userId || getActiveUserId();
+  const res = await api.get<Daily21Response>('/daily-21', {
+    params: { user_id: uid, force_refresh: forceRefresh },
+  });
+  return res.data;
+};
+
+export const triggerDaily21ApplyAll = async (
+  payload: {
+    mode?: 'review' | 'submit';
+    theme?: string;
+    custom_answers?: Record<string, string>;
+    job_ids?: string[];
+  },
+  userId?: string
+): Promise<{ success: boolean; message: string; batch_id: string; total: number; mode: string }> => {
+  const uid = userId || getActiveUserId();
+  const res = await api.post('/daily-21/apply-all', payload, {
+    params: { user_id: uid },
+  });
+  return res.data;
+};
+
+export const getDaily21Progress = async (
+  batchId: string
+): Promise<Daily21ProgressResponse> => {
+  const res = await api.get<Daily21ProgressResponse>(`/daily-21/progress/${batchId}`);
+  return res.data;
+};

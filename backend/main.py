@@ -11,6 +11,7 @@ from backend.routes.tracker import router as tracker_router
 from backend.routes.scheduler import router as scheduler_router
 from backend.routes.profile import router as profile_router
 from backend.routes.auto_apply import router as auto_apply_router
+from backend.routes.daily_apply import router as daily_apply_router
 from backend.routes.auth import router as auth_router, seed_default_users
 from backend.services.scheduler import start_scheduler, shutdown_scheduler
 import backend.models # Ensure models are loaded
@@ -69,6 +70,7 @@ app.include_router(tracker_router)
 app.include_router(scheduler_router)
 app.include_router(profile_router)
 app.include_router(auto_apply_router)
+app.include_router(daily_apply_router)
 app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 
 @app.get("/")

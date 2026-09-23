@@ -9,16 +9,17 @@ import {
   LogOut,
   FolderKanban,
   Send,
+  Sparkles,
 } from 'lucide-react';
 import { LoginProfileSummary } from '../types/job';
 
 interface HeaderProps {
-  activeView: 'home' | 'listings' | 'tracker' | 'profile';
+  activeView: 'home' | 'daily21' | 'listings' | 'tracker' | 'profile';
   trackedCount: number;
   activeUserId: string;
   loginProfiles: LoginProfileSummary[];
   isSyncing: boolean;
-  onViewChange: (view: 'home' | 'listings' | 'tracker' | 'profile') => void;
+  onViewChange: (view: 'home' | 'daily21' | 'listings' | 'tracker' | 'profile') => void;
   onLogout: () => void;
   onSync: () => void;
   onOpenAutoApplier?: () => void;
@@ -85,6 +86,21 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <Home className="w-3.5 h-3.5" />
               <span>Home</span>
+            </button>
+
+            <button
+              onClick={() => onViewChange('daily21')}
+              className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer interactive-button ${
+                activeView === 'daily21'
+                  ? 'bg-white text-slate-900 shadow-xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+              <span>Daily 21</span>
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-bold tabular-nums">
+                21
+              </span>
             </button>
 
             <button

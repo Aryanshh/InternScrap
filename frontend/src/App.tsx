@@ -11,6 +11,7 @@ import { CandidateProfile } from './components/CandidateProfile';
 import { HomePage } from './components/HomePage';
 import { LoginPage } from './components/LoginPage';
 import { AutoApplierModal } from './components/AutoApplierModal';
+import { Daily21View } from './components/Daily21View';
 import {
   getJobs,
   getStats,
@@ -67,7 +68,7 @@ export const App: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
 
   // Modals & Navigation
-  const [activeView, setActiveView] = useState<'home' | 'listings' | 'tracker' | 'profile'>('home');
+  const [activeView, setActiveView] = useState<'home' | 'daily21' | 'listings' | 'tracker' | 'profile'>('home');
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
   const [isDigestModalOpen, setIsDigestModalOpen] = useState(false);
@@ -299,7 +300,15 @@ export const App: React.FC = () => {
             onOpenManualModal={() => setIsManualModalOpen(true)}
             onOpenDigestModal={() => setIsDigestModalOpen(true)}
             onOpenAutoApplier={() => handleOpenAutoApplier()}
+            onNavigateToDaily21={() => setActiveView('daily21')}
             queuedCount={queuedJobs.size}
+          />
+        ) : activeView === 'daily21' ? (
+          <Daily21View
+            activeUserId={activeUserId}
+            onNavigateToTracker={() => setActiveView('tracker')}
+            onOpenAutoApplierModal={(url) => handleOpenAutoApplier(url)}
+            showToast={showToast}
           />
         ) : activeView === 'profile' ? (
           <CandidateProfile

@@ -32,6 +32,7 @@ interface HomePageProps {
   onOpenManualModal: () => void;
   onOpenDigestModal: () => void;
   onOpenAutoApplier?: () => void;
+  onNavigateToDaily21?: () => void;
   queuedCount?: number;
 }
 
@@ -49,6 +50,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   onOpenManualModal,
   onOpenDigestModal,
   onOpenAutoApplier,
+  onNavigateToDaily21,
   queuedCount = 0,
 }) => {
   const isProfileEmpty =
@@ -149,6 +151,39 @@ export const HomePage: React.FC<HomePageProps> = ({
           )}
         </div>
       </div>
+
+      {/* Daily 21 Remote Drops Highlight Card */}
+      {onNavigateToDaily21 && (
+        <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-5 sm:p-6 shadow-sm border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1.5 max-w-2xl">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 text-[10px] font-mono font-bold border border-emerald-500/30">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                DAILY 21 DROPS READY
+              </span>
+              <span className="text-[11px] text-slate-300 font-medium">
+                1-Click Batch Apply Active
+              </span>
+            </div>
+            <h3 className="text-lg font-bold text-white tracking-tight">
+              Today's 21 Curated Remote Jobs
+            </h3>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Exactly 21 high-matching, verified remote roles selected for today. Click to auto-fill all 21 applications with your Candidate Vault and attach your authentic 1-page IIM resume.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2.5 shrink-0">
+            <button
+              onClick={onNavigateToDaily21}
+              className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs inline-flex items-center gap-2 transition-all cursor-pointer shadow-md hover:shadow-lg interactive-button"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-slate-950" />
+              <span>Open Daily 21 & Apply All</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 2. Top Tier Cards: 2 Columns (Job Market Pulse & Application Tracker) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">

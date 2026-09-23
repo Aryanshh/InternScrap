@@ -655,20 +655,35 @@ class AutoApplierEngine:
         resume_pdf_path: str,
         mode: str = "review",
         user_id: str = "default_user",
+        on_item_start: Optional[Any] = None,
+        on_item_complete: Optional[Any] = None,
     ) -> List[Dict[str, Any]]:
         """
         Processes a batch of URLs sequentially and records results into the Application Tracker.
+        Supports optional callbacks for real-time progress updates.
         """
         results = []
         db = SessionLocal()
         try:
-            for url in urls:
+            for idx, url in enumerate(urls):
                 clean_url = (url or "").strip()
                 if not clean_url or not (clean_url.startswith("http://") or clean_url.startswith("https://")):
                     continue
 
+                if on_item_start:
+                    try:
+                        on_item_start(idx, clean_url)
+                    except Exception as cb_err:
+                        logger.warning(f"on_item_start callback notice: {cb_err}")
+
                 res = self.apply_single(clean_url, profile_data, resume_pdf_path, mode=mode)
                 results.append(res)
+
+                if on_item_complete:
+                    try:
+                        on_item_complete(idx, clean_url, res)
+                    except Exception as cb_err:
+                        logger.warning(f"on_item_complete callback notice: {cb_err}")
 
                 # Automatically link/sync into Application Tracker
                 try:
