@@ -10,16 +10,17 @@ import {
   FolderKanban,
   Send,
   Sparkles,
+  ClipboardCheck,
 } from 'lucide-react';
 import { LoginProfileSummary } from '../types/job';
 
 interface HeaderProps {
-  activeView: 'home' | 'daily21' | 'listings' | 'tracker' | 'profile';
+  activeView: 'home' | 'daily21' | 'google_forms' | 'listings' | 'tracker' | 'profile';
   trackedCount: number;
   activeUserId: string;
   loginProfiles: LoginProfileSummary[];
   isSyncing: boolean;
-  onViewChange: (view: 'home' | 'daily21' | 'listings' | 'tracker' | 'profile') => void;
+  onViewChange: (view: 'home' | 'daily21' | 'google_forms' | 'listings' | 'tracker' | 'profile') => void;
   onLogout: () => void;
   onSync: () => void;
   onOpenAutoApplier?: () => void;
@@ -101,6 +102,18 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-bold tabular-nums">
                 21
               </span>
+            </button>
+
+            <button
+              onClick={() => onViewChange('google_forms')}
+              className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer interactive-button ${
+                activeView === 'google_forms'
+                  ? 'bg-white text-slate-900 shadow-xs font-bold'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <ClipboardCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Google Forms</span>
             </button>
 
             <button

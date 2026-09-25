@@ -12,6 +12,7 @@ import { HomePage } from './components/HomePage';
 import { LoginPage } from './components/LoginPage';
 import { AutoApplierModal } from './components/AutoApplierModal';
 import { Daily21View } from './components/Daily21View';
+import { GoogleFormsScraperView } from './components/GoogleFormsScraperView';
 import {
   getJobs,
   getStats,
@@ -68,7 +69,7 @@ export const App: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
 
   // Modals & Navigation
-  const [activeView, setActiveView] = useState<'home' | 'daily21' | 'listings' | 'tracker' | 'profile'>('home');
+  const [activeView, setActiveView] = useState<'home' | 'daily21' | 'google_forms' | 'listings' | 'tracker' | 'profile'>('home');
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
   const [isDigestModalOpen, setIsDigestModalOpen] = useState(false);
@@ -308,6 +309,12 @@ export const App: React.FC = () => {
             activeUserId={activeUserId}
             onNavigateToTracker={() => setActiveView('tracker')}
             onOpenAutoApplierModal={(url) => handleOpenAutoApplier(url)}
+            showToast={showToast}
+          />
+        ) : activeView === 'google_forms' ? (
+          <GoogleFormsScraperView
+            activeUserId={activeUserId}
+            onNavigateToTracker={() => setActiveView('tracker')}
             showToast={showToast}
           />
         ) : activeView === 'profile' ? (

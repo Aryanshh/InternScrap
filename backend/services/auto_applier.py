@@ -435,7 +435,13 @@ class AutoApplierEngine:
         logs.append(f"Candidate Dossier: {full_name} ({email}) | Role: {primary_role}")
 
         # Detect platform from URL
-        if "greenhouse.io" in url:
+        if "docs.google.com/forms" in url or "forms.gle" in url:
+            platform = "Google Forms"
+            logs.append(f"Detected Platform: {platform}. Delegating to GoogleFormRegistrant.")
+            from backend.services.google_form_registrant import GoogleFormRegistrant
+            registrant = GoogleFormRegistrant(headless=self.headless)
+            return registrant.register(url, profile_data, mode=mode)
+        elif "greenhouse.io" in url:
             platform = "Greenhouse"
         elif "lever.co" in url:
             platform = "Lever"
@@ -464,6 +470,14 @@ class AutoApplierEngine:
 
                 # Smart Entry: Resolve from Job Description to actual Application Form
                 page, active_url = self._resolve_application_page(context, page, logs)
+
+                if "docs.google.com/forms" in active_url or "forms.gle" in active_url:
+                    logs.append("Resolved page is a Google Form. Handing off to GoogleFormRegistrant.")
+                    context.close()
+                    browser.close()
+                    from backend.services.google_form_registrant import GoogleFormRegistrant
+                    registrant = GoogleFormRegistrant(headless=self.headless)
+                    return registrant.register(active_url, profile_data, mode=mode)
 
                 # Re-detect platform from active_url
                 if "greenhouse.io" in active_url:

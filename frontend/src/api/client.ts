@@ -421,3 +421,68 @@ export const getDaily21Progress = async (
   const res = await api.get<Daily21ProgressResponse>(`/daily-21/progress/${batchId}`);
   return res.data;
 };
+
+// =====================================================================
+// GOOGLE FORMS SCRAPER & AUTO-REGISTRANT
+// =====================================================================
+
+export interface GoogleFormRegistrationResult {
+  run_id: string;
+  url: string;
+  form_title: string;
+  platform: string;
+  status: string;
+  mode: string;
+  fields_filled: string[];
+  fields_count: number;
+  screenshot?: string;
+  timestamp: string;
+  logs: string[];
+}
+
+export const getGoogleFormJobs = async (): Promise<{ count: number; jobs: Job[] }> => {
+  const res = await api.get<{ count: number; jobs: Job[] }>('/google-forms/jobs');
+  return res.data;
+};
+
+export const scrapeGoogleForms = async (): Promise<{ success: boolean; newly_added: number; total_scraped: number }> => {
+  const res = await api.post<{ success: boolean; newly_added: number; total_scraped: number }>('/google-forms/scrape');
+  return res.data;
+};
+
+export const parseGoogleFormUrl = async (url: string): Promise<{ success: boolean; action: string; job: Job }> => {
+  const res = await api.post<{ success: boolean; action: string; job: Job }>('/google-forms/parse-url', { url });
+  return res.data;
+};
+
+export const registerOnGoogleForm = async (payload: {
+  url: string;
+  mode?: 'review' | 'submit';
+  user_id?: string;
+  custom_answers?: Record<string, string>;
+}): Promise<{ success: boolean; result: GoogleFormRegistrationResult }> => {
+  const uid = payload.user_id || getActiveUserId();
+  const res = await api.post<{ success: boolean; result: GoogleFormRegistrationResult }>('/google-forms/register', {
+    ...payload,
+    user_id: uid,
+  });
+  return res.data;
+};
+
+export const registerBatchGoogleForms = async (payload: {
+  urls: string[];
+  mode?: 'review' | 'submit';
+  user_id?: string;
+  custom_answers?: Record<string, string>;
+}): Promise<{ success: boolean; total_requested: number; total_processed: number; results: GoogleFormRegistrationResult[] }> => {
+  const uid = payload.user_id || getActiveUserId();
+  const res = await api.post<{ success: boolean; total_requested: number; total_processed: number; results: GoogleFormRegistrationResult[] }>(
+    '/google-forms/register-batch',
+    {
+      ...payload,
+      user_id: uid,
+    }
+  );
+  return res.data;
+};
+
