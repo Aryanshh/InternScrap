@@ -43,8 +43,14 @@ uploads/
 
 # Environment variables & secrets
 .env
-.env.local
+.env*
 *.env
+**/.env*
+*.pem
+*.key
+*.cert
+scripts/
+docs/evidence/
 
 # Node / Frontend
 node_modules/
