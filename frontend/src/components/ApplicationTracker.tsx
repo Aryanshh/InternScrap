@@ -104,7 +104,7 @@ export const ApplicationTracker: React.FC<ApplicationTrackerProps> = ({ onTailor
         <div className="flex items-center justify-between">
           <button
             onClick={onBackToHome}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl border border-indigo-200 transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 font-mono uppercase tracking-[0.2em] text-[10px] font-medium text-[#0f172a] bg-white hover:border-[#4338ca] hover:text-[#4338ca] px-4 py-2 rounded-full border border-[#d4dcf0] transition-all cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Home</span>
@@ -113,9 +113,9 @@ export const ApplicationTracker: React.FC<ApplicationTrackerProps> = ({ onTailor
       )}
 
       {/* Top Controls & Metrics */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-white border border-[#d4dcf0] rounded-3xl p-6 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Application Tracker</h2>
+          <h2 className="font-serif text-2xl sm:text-3xl font-normal text-[#0f172a] tracking-tight">Application <span className="italic text-[#4338ca]">Tracker</span></h2>
           <p className="text-xs text-slate-500 mt-0.5">
             Organize your job search pipeline, track interview stages, and access role-specific tailored resumes.
           </p>
@@ -129,14 +129,14 @@ export const ApplicationTracker: React.FC<ApplicationTrackerProps> = ({ onTailor
               placeholder="Search tracked roles..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+              className="w-full pl-9 pr-3 py-2 rounded-full border border-[#d4dcf0] bg-white text-xs text-[#0f172a] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#4338ca]/20 focus:border-[#4338ca] transition-all"
             />
           </div>
 
           <button
             onClick={fetchApplications}
             disabled={loading}
-            className="p-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+            className="p-2.5 rounded-full border border-[#d4dcf0] bg-white text-[#0f172a] hover:border-[#4338ca] hover:text-[#4338ca] transition-colors cursor-pointer"
             title="Refresh application status"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -153,11 +153,11 @@ export const ApplicationTracker: React.FC<ApplicationTrackerProps> = ({ onTailor
           return (
             <div
               key={col.id}
-              className="flex flex-col rounded-2xl bg-slate-50/80 border border-slate-200/80 p-3 min-h-[500px]"
+              className="flex flex-col rounded-3xl bg-white border border-[#d4dcf0] p-3.5 min-h-[500px]"
             >
               {/* Column Header */}
-              <div className="flex items-center justify-between px-2 py-2 mb-3 border-b border-slate-200/60">
-                <div className="flex items-center gap-1.5 font-bold text-xs text-slate-700">
+              <div className="flex items-center justify-between px-2 py-2 mb-3 border-b border-[#d4dcf0]">
+                <div className="flex items-center gap-1.5 font-mono uppercase tracking-[0.2em] text-[11px] font-medium text-[#0f172a]">
                   <Icon className="w-4 h-4 text-slate-500" />
                   <span>{col.label}</span>
                 </div>
@@ -169,19 +169,19 @@ export const ApplicationTracker: React.FC<ApplicationTrackerProps> = ({ onTailor
               {/* Cards Container */}
               <div className="space-y-3 flex-1 overflow-y-auto">
                 {colApps.length === 0 ? (
-                  <div className="h-32 flex items-center justify-center border-2 border-dashed border-slate-200 rounded-xl text-xs text-slate-400">
+                  <div className="h-32 flex items-center justify-center border border-dashed border-[#d4dcf0] rounded-2xl font-mono text-[10px] uppercase tracking-[0.2em] text-slate-400">
                     No roles in {col.label}
                   </div>
                 ) : (
                   colApps.map((app) => (
                     <div
                       key={app.id}
-                      className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-2xs hover:shadow-xs transition-shadow space-y-2.5"
+                      className="bg-[#f6f8fe] border border-[#d4dcf0] hover:border-[#4338ca]/40 rounded-2xl p-3.5 transition-all duration-300 ease-premium space-y-2.5"
                     >
                       {/* Job Title & Company */}
                       <div>
                         <div className="flex items-start justify-between gap-1">
-                          <h4 className="text-xs font-bold text-slate-900 leading-snug line-clamp-2">
+                          <h4 className="font-serif text-sm font-normal text-[#0f172a] leading-snug line-clamp-2">
                             {app.job?.title || 'Job Listing'}
                           </h4>
                           <button
@@ -272,7 +272,7 @@ export const ApplicationTracker: React.FC<ApplicationTrackerProps> = ({ onTailor
                               </button>
                               <button
                                 onClick={() => handleSaveNotes(app.id)}
-                                className="px-2 py-0.5 rounded text-[10px] bg-indigo-600 text-white font-medium hover:bg-indigo-700"
+                                className="px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-[0.15em] bg-[#4338ca] text-white font-medium hover:bg-indigo-700"
                               >
                                 Save
                               </button>
@@ -300,7 +300,7 @@ export const ApplicationTracker: React.FC<ApplicationTrackerProps> = ({ onTailor
                         <select
                           value={app.status}
                           onChange={(e) => handleStatusChange(app.id, e.target.value)}
-                          className="w-full text-[11px] font-medium py-1 px-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                          className="w-full text-[11px] font-medium py-1.5 px-2.5 rounded-full border border-[#d4dcf0] bg-white text-[#0f172a] focus:outline-none focus:ring-1 focus:ring-[#4338ca]"
                         >
                           <option value="saved">Move to: Saved</option>
                           <option value="applied">Move to: Applied</option>

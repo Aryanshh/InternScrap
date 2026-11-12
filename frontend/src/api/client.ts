@@ -26,7 +26,7 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('internscrap_auth_token');
-  const userId = localStorage.getItem('internscrap_user_id') || 'Aryanshh';
+  const userId = getActiveUserId();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -72,7 +72,13 @@ export const getCurrentAuthUser = async (): Promise<AuthUser> => {
 };
 
 export const getAuthToken = (): string | null => {
-  return localStorage.getItem('internscrap_auth_token');
+  const token = localStorage.getItem('internscrap_auth_token');
+  const uid = localStorage.getItem('internscrap_user_id');
+  if (uid?.toLowerCase() === 'demo' || token === 'token_demo') {
+    clearAuth();
+    return null;
+  }
+  return token;
 };
 
 export const clearAuth = (): void => {
@@ -202,7 +208,12 @@ export const getDigestHtmlUrl = (): string => {
 };
 
 export const getActiveUserId = (): string => {
-  return localStorage.getItem('internscrap_user_id') || 'Aryanshh';
+  const uid = localStorage.getItem('internscrap_user_id');
+  if (!uid || uid.toLowerCase() === 'demo') {
+    localStorage.removeItem('internscrap_user_id');
+    return 'Aryanshh';
+  }
+  return uid;
 };
 
 export const setActiveUserId = (userId: string): void => {
@@ -423,6 +434,128 @@ export const getDaily21Progress = async (
 };
 
 // =====================================================================
+// =====================================================================
+// THREADS OPPORTUNITY RADAR (GRAPHIC, TECH, PROJECT)
+// =====================================================================
+
+export type ThreadsVertical = 'all' | 'graphic' | 'tech' | 'project';
+
+export interface ThreadsOpportunityItem extends Job {
+  vertical: string;
+}
+
+export interface ThreadsScannerConfig {
+  enabled_verticals: string[];
+  keywords: Record<string, string[]>;
+  scan_interval_minutes: number;
+  auto_demo_fallback: boolean;
+  send_email_alerts: boolean;
+  providers: {
+    meta_api_configured: boolean;
+    meta_api_token_preview: string;
+    apify_configured: boolean;
+    apify_actor_id: string;
+    webhook_configured: boolean;
+    webhook_preview: string;
+    telegram_configured: boolean;
+  };
+  last_scan_at: string | null;
+  last_scan_report: {
+    active_adapter?: string;
+    adapter_statuses?: Array<{
+      adapter: string;
+      status: string;
+      fetched?: number;
+      detail?: string;
+    }>;
+    queries_used?: string[];
+    raw_posts_inspected?: number;
+    opportunities_matched?: number;
+    self_promo_filtered_count?: number;
+    vertical_breakdown?: Record<string, number>;
+  } | null;
+  recent_alerts?: Array<{
+    timestamp: string;
+    opportunities_count: number;
+    titles: string[];
+  }>;
+}
+
+export interface ThreadsOpportunitiesResponse {
+  count: number;
+  vertical_counts: Record<'all' | 'graphic' | 'tech' | 'project', number>;
+  opportunities: ThreadsOpportunityItem[];
+  scanner_status: ThreadsScannerConfig;
+}
+
+export interface ThreadsScanResponse {
+  success: boolean;
+  newly_added: number;
+  merged_existing: number;
+  total_scanned_opportunities: number;
+  scan_report: ThreadsScannerConfig['last_scan_report'];
+  alert_summary?: {
+    sent_count: number;
+    channels?: Record<string, unknown>;
+  } | null;
+}
+
+export const getThreadsOpportunities = async (
+  vertical: ThreadsVertical = 'all',
+  search: string = ''
+): Promise<ThreadsOpportunitiesResponse> => {
+  const res = await api.get<ThreadsOpportunitiesResponse>('/threads/opportunities', {
+    params: { vertical, search: search || undefined },
+  });
+  return res.data;
+};
+
+export const triggerThreadsScan = async (payload?: {
+  verticals?: string[];
+  mode?: 'auto' | 'meta_api' | 'apify' | 'fediverse';
+  send_alerts?: boolean;
+}): Promise<ThreadsScanResponse> => {
+  const res = await api.post<ThreadsScanResponse>('/threads/scan', payload || { mode: 'auto', send_alerts: true });
+  return res.data;
+};
+
+export const parseThreadsPostUrl = async (
+  url: string
+): Promise<{ success: boolean; action: string; job: ThreadsOpportunityItem }> => {
+  const res = await api.post<{ success: boolean; action: string; job: ThreadsOpportunityItem }>(
+    '/threads/parse-url',
+    { url }
+  );
+  return res.data;
+};
+
+export const getThreadsConfig = async (): Promise<ThreadsScannerConfig> => {
+  const res = await api.get<ThreadsScannerConfig>('/threads/config');
+  return res.data;
+};
+
+export const updateThreadsConfig = async (payload: {
+  enabled_verticals?: string[];
+  keywords?: Record<string, string[]>;
+  scan_interval_minutes?: number;
+  auto_demo_fallback?: boolean;
+  send_email_alerts?: boolean;
+  access_token?: string;
+  apify_token?: string;
+  apify_actor_id?: string;
+  webhook_url?: string;
+  telegram_bot_token?: string;
+  telegram_chat_id?: string;
+}): Promise<{ success: boolean; config: ThreadsScannerConfig }> => {
+  const res = await api.put<{ success: boolean; config: ThreadsScannerConfig }>('/threads/config', payload);
+  return res.data;
+};
+
+export const triggerTestThreadsAlert = async (): Promise<{ success: boolean; delivery: any }> => {
+  const res = await api.post<{ success: boolean; delivery: any }>('/threads/test-alert');
+  return res.data;
+};
+
 // GOOGLE FORMS SCRAPER & AUTO-REGISTRANT
 // =====================================================================
 

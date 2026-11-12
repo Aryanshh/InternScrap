@@ -1,26 +1,21 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  Briefcase,
-  RefreshCw,
-  User,
   ChevronDown,
-  Home,
-  Compass,
-  LogOut,
   FolderKanban,
+  LogOut,
+  RefreshCw,
   Send,
-  Sparkles,
-  ClipboardCheck,
+  User,
 } from 'lucide-react';
 import { LoginProfileSummary } from '../types/job';
 
 interface HeaderProps {
-  activeView: 'home' | 'daily21' | 'google_forms' | 'listings' | 'tracker' | 'profile';
+  activeView: 'home' | 'daily21' | 'threads' | 'google_forms' | 'listings' | 'tracker' | 'profile';
   trackedCount: number;
   activeUserId: string;
   loginProfiles: LoginProfileSummary[];
   isSyncing: boolean;
-  onViewChange: (view: 'home' | 'daily21' | 'google_forms' | 'listings' | 'tracker' | 'profile') => void;
+  onViewChange: (view: 'home' | 'daily21' | 'threads' | 'google_forms' | 'listings' | 'tracker' | 'profile') => void;
   onLogout: () => void;
   onSync: () => void;
   onOpenAutoApplier?: () => void;
@@ -39,10 +34,17 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(target) &&
+        triggerRef.current &&
+        !triggerRef.current.contains(target)
+      ) {
         setIsProfileMenuOpen(false);
       }
     };
@@ -52,214 +54,189 @@ export const Header: React.FC<HeaderProps> = ({
 
   const currentProfile = loginProfiles.find((p) => p.id === activeUserId);
 
+  const navItems: Array<{
+    id: HeaderProps['activeView'];
+    label: string;
+    badge?: string | number;
+  }> = [
+    { id: 'home', label: 'Home' },
+    { id: 'daily21', label: 'Daily 21', badge: 21 },
+    { id: 'google_forms', label: 'Forms' },
+    { id: 'listings', label: 'Listings' },
+    { id: 'tracker', label: 'Tracker', badge: trackedCount > 0 ? trackedCount : undefined },
+    { id: 'threads', label: 'Threads' },
+  ];
+
   return (
-    <header className="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-slate-200/80 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-4">
-          {/* 1. Logo & Brand Mark */}
-          <div
-            className="flex items-center space-x-2.5 shrink-0 cursor-pointer group select-none"
+    <>
+      <header className="fixed top-0 inset-x-0 z-40 h-20 mix-blend-difference text-white">
+        <div className="max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+          {/* 1. Far Left: Italic Serif Brand Logo */}
+          <button
+            type="button"
             onClick={() => onViewChange('home')}
+            className="flex items-baseline gap-2.5 shrink-0 cursor-pointer group focus-visible:outline focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-4"
             title="InternScrap Home"
           >
-            <div className="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-xs group-hover:bg-indigo-600 transition-colors duration-200">
-              <Briefcase className="w-4 h-4 text-white" />
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-lg tracking-tight text-slate-900 group-hover:text-indigo-600 transition-colors">
-                InternScrap
-              </span>
-              <span className="hidden md:inline-flex text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500 border border-slate-200/70">
-                PRO
-              </span>
-            </div>
-          </div>
+            <span className="font-serif italic font-bold text-xl sm:text-2xl tracking-tight text-white">
+              InternScrap
+            </span>
+          </button>
 
-          {/* 2. Streamlined Navigation Pill Switcher */}
-          <nav className="flex items-center bg-slate-100/90 p-1 rounded-xl border border-slate-200/70 text-xs font-semibold shrink-0 shadow-2xs">
-            <button
-              onClick={() => onViewChange('home')}
-              className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer interactive-button ${
-                activeView === 'home'
-                  ? 'bg-white text-slate-900 shadow-xs font-bold'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Home className="w-3.5 h-3.5" />
-              <span>Home</span>
-            </button>
-
-            <button
-              onClick={() => onViewChange('daily21')}
-              className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer interactive-button ${
-                activeView === 'daily21'
-                  ? 'bg-white text-slate-900 shadow-xs font-bold'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
-              <span>Daily 21</span>
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-100 text-emerald-800 font-bold tabular-nums">
-                21
-              </span>
-            </button>
-
-            <button
-              onClick={() => onViewChange('google_forms')}
-              className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer interactive-button ${
-                activeView === 'google_forms'
-                  ? 'bg-white text-slate-900 shadow-xs font-bold'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <ClipboardCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Google Forms</span>
-            </button>
-
-            <button
-              onClick={() => onViewChange('listings')}
-              className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer interactive-button ${
-                activeView === 'listings'
-                  ? 'bg-white text-slate-900 shadow-xs font-bold'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Compass className="w-3.5 h-3.5" />
-              <span>Explore Listings</span>
-            </button>
-
-            <button
-              onClick={() => onViewChange('tracker')}
-              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer interactive-button ${
-                activeView === 'tracker'
-                  ? 'bg-white text-slate-900 shadow-xs font-bold'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <FolderKanban className="w-3.5 h-3.5" />
-              <span>Tracker</span>
-              {trackedCount > 0 && (
-                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-200/80 text-slate-700 font-bold tabular-nums">
-                  {trackedCount}
-                </span>
-              )}
-            </button>
+          {/* 2. Center: Monospace Navigation Links with 1px Growing Underline */}
+          <nav
+            aria-label="Primary"
+            className="flex flex-nowrap items-center gap-3 sm:gap-5 overflow-x-auto scrollbar-none py-1 shrink min-w-0"
+          >
+            {navItems.map((item) => {
+              const isActive = activeView === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => onViewChange(item.id)}
+                  data-active={isActive ? 'true' : 'false'}
+                  className={`oi-link-underline flex-none font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.16em] whitespace-nowrap cursor-pointer transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-4 ${
+                    isActive ? 'opacity-100 font-bold' : 'opacity-70 hover:opacity-100 font-medium'
+                  }`}
+                >
+                  <span>{item.label}</span>
+                  {item.badge !== undefined && (
+                    <span className="ml-1.5 text-[10px] opacity-80 tabular-nums">
+                      [{item.badge}]
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </nav>
 
-          {/* 3. Right Header Actions */}
-          <div className="flex items-center space-x-2 shrink-0">
-            {/* Auto Applier Action Button */}
+          {/* 3. Right: Pill CTA ('System Online') + Actions */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {onOpenAutoApplier && (
               <button
+                type="button"
                 onClick={onOpenAutoApplier}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-xs hover:shadow-sm interactive-button whitespace-nowrap cursor-pointer"
+                className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-white/40 hover:border-white text-white font-mono text-[10px] uppercase tracking-[0.22em] transition-all duration-300 ease-premium cursor-pointer"
                 title="Launch Auto Applier & IIM Resume Engine"
               >
-                <Send className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline font-medium">Auto Applier</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+                <span>Auto-Apply</span>
+                <Send className="w-3 h-3 ml-1 opacity-80" aria-hidden="true" />
               </button>
             )}
 
-            {/* Sync APIs Action Button */}
             <button
+              type="button"
               onClick={onSync}
               disabled={isSyncing}
-              className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 transition-all shadow-2xs interactive-button disabled:opacity-60 whitespace-nowrap cursor-pointer"
+              aria-label={isSyncing ? 'Syncing remote job feeds' : 'Sync remote job feeds'}
+              className="inline-flex items-center p-2 rounded-full border border-white/30 hover:border-white text-white transition-all duration-300 ease-premium disabled:opacity-50 cursor-pointer"
               title="Sync latest jobs from all remote sources"
             >
-              <RefreshCw className={`w-3.5 h-3.5 sm:mr-1.5 text-slate-500 ${isSyncing ? 'animate-spin text-indigo-600' : ''}`} />
-              <span className="hidden md:inline">{isSyncing ? 'Syncing...' : 'Sync Feeds'}</span>
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} aria-hidden="true" />
             </button>
 
-            {/* User Profile Dropdown Menu */}
-            <div className="relative shrink-0" ref={menuRef}>
-              <button
-                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                className="inline-flex items-center gap-2 pl-1.5 pr-2.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-800 transition-all cursor-pointer shadow-2xs interactive-button"
-                title="Account menu"
-              >
-                <div className="relative">
-                  <div className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold text-xs">
-                    {currentProfile?.avatar || activeUserId.charAt(0).toUpperCase()}
-                  </div>
-                  <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white" />
-                </div>
-                <div className="text-left hidden lg:block">
-                  <span className="text-xs font-bold text-slate-900 leading-tight block truncate max-w-[100px]">
-                    {currentProfile?.id || activeUserId}
-                  </span>
-                </div>
-                <ChevronDown
-                  className={`w-3.5 h-3.5 text-slate-400 transition-transform ${
-                    isProfileMenuOpen ? 'rotate-180 text-slate-600' : ''
-                  }`}
-                />
-              </button>
-
-              {isProfileMenuOpen && (
-                <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl border border-slate-200 shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2">
-                  <div className="px-4 py-3 border-b border-slate-100">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                      Active Account
-                    </span>
-                    <div className="flex items-center justify-between gap-2 mt-1">
-                      <span className="text-sm font-bold text-slate-900 truncate">
-                        {currentProfile?.full_name || activeUserId}
-                      </span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-semibold border border-slate-200/80 shrink-0">
-                        @{activeUserId}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Sub-view shortcuts */}
-                  <div className="py-1.5 border-b border-slate-100">
-                    <button
-                      onClick={() => {
-                        onViewChange('profile');
-                        setIsProfileMenuOpen(false);
-                      }}
-                      className="w-full px-4 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 flex items-center space-x-2.5 transition-colors cursor-pointer"
-                    >
-                      <User className="w-4 h-4 text-slate-400" />
-                      <span>Candidate Dossier &amp; Profile</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        onViewChange('tracker');
-                        setIsProfileMenuOpen(false);
-                      }}
-                      className="w-full px-4 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 flex items-center justify-between transition-colors cursor-pointer"
-                    >
-                      <div className="flex items-center space-x-2.5">
-                        <FolderKanban className="w-4 h-4 text-slate-400" />
-                        <span>Application Tracker</span>
-                      </div>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold tabular-nums">
-                        {trackedCount}
-                      </span>
-                    </button>
-                  </div>
-
-                  {/* Sign Out */}
-                  <div className="pt-1.5">
-                    <button
-                      onClick={() => {
-                        setIsProfileMenuOpen(false);
-                        onLogout();
-                      }}
-                      className="w-full px-4 py-2 text-left text-xs font-bold text-rose-600 hover:bg-rose-50 flex items-center space-x-2.5 transition-colors cursor-pointer"
-                    >
-                      <LogOut className="w-4 h-4 text-rose-500" />
-                      <span>Sign Out</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+            <button
+              ref={triggerRef}
+              type="button"
+              onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+              aria-expanded={isProfileMenuOpen}
+              aria-label="Account menu"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-white/35 hover:border-white font-mono text-[10px] uppercase tracking-[0.2em] text-white transition-all duration-300 ease-premium cursor-pointer"
+            >
+              <span className="font-bold">
+                {(currentProfile?.id || activeUserId).slice(0, 10)}
+              </span>
+              <ChevronDown
+                className={`w-3 h-3 transition-transform duration-300 ease-premium ${
+                  isProfileMenuOpen ? 'rotate-180' : ''
+                }`}
+                aria-hidden="true"
+              />
+            </button>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      {/* Account Dropdown Popover rendered outside mix-blend-difference layer for crisp legibility */}
+      {isProfileMenuOpen && (
+        <div
+          ref={menuRef}
+          className="fixed top-20 right-4 sm:right-8 z-50 w-72 bg-[#f6f8fe] text-[#0f172a] rounded-2xl border border-[#d4dcf0] shadow-[0_20px_50px_rgba(67,56,202,0.12)] py-2 animate-in fade-in"
+        >
+          <div className="px-4 py-3 border-b border-[#d4dcf0]">
+            <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-slate-500 block">
+              Active Account
+            </span>
+            <div className="flex items-center justify-between gap-2 mt-1">
+              <span className="font-serif italic text-base font-bold text-[#0f172a] truncate">
+                {currentProfile?.full_name || activeUserId}
+              </span>
+              <span className="font-mono text-[10px] px-2 py-0.5 rounded-full bg-indigo-50 text-[#4338ca] border border-indigo-200/70 shrink-0">
+                @{activeUserId}
+              </span>
+            </div>
+          </div>
+
+          <div className="py-1.5 border-b border-[#d4dcf0]">
+            {onOpenAutoApplier && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsProfileMenuOpen(false);
+                  onOpenAutoApplier();
+                }}
+                className="w-full px-4 py-2 text-left text-xs font-medium text-[#0f172a] hover:bg-indigo-50/70 flex items-center space-x-2.5 transition-colors cursor-pointer"
+              >
+                <Send className="w-4 h-4 text-[#4338ca]" aria-hidden="true" />
+                <span>Auto Applier &amp; IIM Resume</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => {
+                onViewChange('profile');
+                setIsProfileMenuOpen(false);
+              }}
+              className="w-full px-4 py-2 text-left text-xs font-medium text-[#0f172a] hover:bg-indigo-50/70 flex items-center space-x-2.5 transition-colors cursor-pointer"
+            >
+              <User className="w-4 h-4 text-slate-500" aria-hidden="true" />
+              <span>Candidate Profile</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onViewChange('tracker');
+                setIsProfileMenuOpen(false);
+              }}
+              className="w-full px-4 py-2 text-left text-xs font-medium text-[#0f172a] hover:bg-indigo-50/70 flex items-center justify-between transition-colors cursor-pointer"
+            >
+              <div className="flex items-center space-x-2.5">
+                <FolderKanban className="w-4 h-4 text-slate-500" aria-hidden="true" />
+                <span>Application Tracker</span>
+              </div>
+              <span className="font-mono text-[10px] px-2 py-0.5 rounded-full bg-neutral-100 text-[#0f172a] font-bold tabular-nums">
+                {trackedCount}
+              </span>
+            </button>
+          </div>
+
+          <div className="pt-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                setIsProfileMenuOpen(false);
+                onLogout();
+              }}
+              className="w-full px-4 py-2 text-left text-xs font-bold text-rose-700 hover:bg-rose-50 flex items-center space-x-2.5 transition-colors cursor-pointer"
+            >
+              <LogOut className="w-4 h-4 text-rose-600" aria-hidden="true" />
+              <span>Sign Out</span>
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 };

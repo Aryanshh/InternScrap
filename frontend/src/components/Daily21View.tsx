@@ -16,7 +16,7 @@ import {
   ChevronUp,
   Layers,
   Globe,
-  Sparkles,
+
   ArrowRight,
   Eye,
   SlidersHorizontal,
@@ -194,43 +194,44 @@ export const Daily21View: React.FC<Daily21ViewProps> = ({
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* 1. Executive Dark Slate Header Banner */}
-      <div className="relative rounded-2xl bg-slate-900 text-white p-6 sm:p-8 shadow-sm overflow-hidden border border-slate-800">
+      <div className="relative rounded-3xl bg-gradient-to-br from-[#070b19] via-[#0d1633] to-[#1e1b4b] text-[#f8faff] p-7 sm:p-10 overflow-hidden border border-indigo-400/20">
+        <div className="pointer-events-none absolute -top-24 -right-16 w-80 h-80 rounded-full bg-indigo-500/20 blur-3xl oi-mesh-drift" aria-hidden="true" />
         <div className="relative z-10 max-w-4xl">
           <div className="flex items-center gap-2 mb-3 flex-wrap">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/15 text-emerald-400 text-[11px] font-mono font-bold border border-emerald-500/25">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[#c7d2fe] text-[10px] font-mono uppercase tracking-[0.25em] font-medium border border-white/15">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
               Daily 21 Remote Drops
             </span>
             <span className="text-[11px] font-mono text-slate-400">
               Curated for {activeUserId} • {dateStr || 'Today'}
             </span>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold bg-slate-800 text-slate-300 border border-slate-700">
-              Zero AI Fabrication
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-[0.2em] bg-white/5 text-slate-300 border border-white/10">
+              Profile-Only Fill
             </span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-            Daily 21 Remote Jobs
+          <h1 className="font-serif text-3xl sm:text-5xl font-normal tracking-tight leading-[1.05] text-[#f6f8fe]">
+            Daily <span className="italic text-[#7dd3fc]">21</span> Remote Jobs
           </h1>
           <p className="mt-2 text-slate-400 text-xs sm:text-sm leading-relaxed max-w-2xl">
             21 verified remote engineering and AI roles selected daily against your profile. Click 1-Click Apply to automatically navigate from job postings to application forms and fill all your verified details.
           </p>
 
           {/* Quick Metrics Bar */}
-          <div className="mt-6 pt-5 border-t border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-            <div className="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60">
+          <div className="mt-6 pt-5 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div className="bg-white/[0.04] p-3.5 rounded-2xl border border-white/10">
               <div className="text-white font-mono text-lg font-bold">21</div>
               <div className="text-slate-400 text-[11px] uppercase tracking-wider mt-0.5">Verified Drops</div>
             </div>
-            <div className="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60">
+            <div className="bg-white/[0.04] p-3.5 rounded-2xl border border-white/10">
               <div className="text-emerald-400 font-mono text-lg font-bold">{completedCount} / 21</div>
               <div className="text-slate-400 text-[11px] uppercase tracking-wider mt-0.5">Applied / Ready</div>
             </div>
-            <div className="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60">
+            <div className="bg-white/[0.04] p-3.5 rounded-2xl border border-white/10">
               <div className="text-white font-mono text-lg font-bold">100%</div>
               <div className="text-slate-400 text-[11px] uppercase tracking-wider mt-0.5">Remote Worldwide</div>
             </div>
-            <div className="bg-slate-800/60 p-3 rounded-xl border border-slate-700/60">
+            <div className="bg-white/[0.04] p-3.5 rounded-2xl border border-white/10">
               <div className="text-amber-400 font-mono text-lg font-bold">$35 - $120/hr</div>
               <div className="text-slate-400 text-[11px] uppercase tracking-wider mt-0.5">Rate Range</div>
             </div>
@@ -239,7 +240,7 @@ export const Daily21View: React.FC<Daily21ViewProps> = ({
       </div>
 
       {/* 2. Command Center & 1-Click Apply Controls */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-sm">
+      <div className="bg-white rounded-3xl border border-[#d4dcf0] p-6 sm:p-7">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
           {/* Left: Primary 1-Click Action */}
           <div className="space-y-2">
@@ -247,7 +248,7 @@ export const Daily21View: React.FC<Daily21ViewProps> = ({
               <button
                 onClick={handleApplyAll}
                 disabled={isBatchRunning || isTriggering || isLoading || jobs.length === 0}
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold text-sm text-white bg-slate-900 hover:bg-slate-800 active:scale-[0.98] transition-all shadow-md hover:shadow-lg disabled:opacity-60 cursor-pointer interactive-button"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full font-mono uppercase tracking-[0.2em] text-xs font-medium text-[#f6f8fe] bg-[#4338ca] hover:bg-indigo-700 active:scale-[0.98] transition-all duration-300 ease-premium disabled:opacity-60 cursor-pointer interactive-button oi-btn-pulse"
               >
                 {isBatchRunning ? (
                   <>
@@ -265,7 +266,7 @@ export const Daily21View: React.FC<Daily21ViewProps> = ({
               <button
                 onClick={() => loadDailyJobs(true)}
                 disabled={isRefreshing || isBatchRunning}
-                className="inline-flex items-center gap-1.5 px-3.5 py-3 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors border border-slate-200 cursor-pointer interactive-button"
+                className="inline-flex items-center gap-1.5 px-4 py-3 rounded-full font-mono uppercase tracking-[0.18em] text-[10px] font-medium text-[#0f172a] bg-[#f6f8fe] hover:border-[#4f46e5] transition-colors border border-[#d4dcf0] cursor-pointer interactive-button"
                 title="Refresh today's 21 drop selection"
               >
                 <RefreshCw className={`w-3.5 h-3.5 text-slate-500 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -273,21 +274,21 @@ export const Daily21View: React.FC<Daily21ViewProps> = ({
               </button>
             </div>
             <p className="text-xs text-slate-500">
-              Zero AI Plagiarism: Fills only authentic details from your Candidate Vault and generates your 1-page IIM PDF resume.
+              Fills only saved details from your Candidate Vault and attaches your 1-page IIM PDF resume.
             </p>
           </div>
 
           {/* Right: Mode & Resume Theme Selectors */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 text-xs">
             {/* Mode Selector */}
-            <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 font-semibold">
+            <div className="flex items-center bg-[#e8eefc] p-1 rounded-full border border-[#d4dcf0] font-medium">
               <button
                 type="button"
                 onClick={() => setMode('review')}
                 disabled={isBatchRunning}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-full font-mono text-[10px] uppercase tracking-[0.12em] whitespace-nowrap transition-all cursor-pointer ${
                   mode === 'review'
-                    ? 'bg-white text-slate-900 shadow-xs font-bold'
+                    ? 'bg-[#1e1b4b] text-[#f6f8fe] font-medium'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -297,9 +298,9 @@ export const Daily21View: React.FC<Daily21ViewProps> = ({
                 type="button"
                 onClick={() => setMode('submit')}
                 disabled={isBatchRunning}
-                className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-full font-mono text-[10px] uppercase tracking-[0.12em] whitespace-nowrap transition-all cursor-pointer ${
                   mode === 'submit'
-                    ? 'bg-white text-slate-900 shadow-xs font-bold'
+                    ? 'bg-[#1e1b4b] text-[#f6f8fe] font-medium'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -309,12 +310,12 @@ export const Daily21View: React.FC<Daily21ViewProps> = ({
 
             {/* Resume Theme Selector */}
             <div className="flex items-center gap-1.5">
-              <span className="text-slate-500 font-medium">IIM Resume:</span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-slate-500 whitespace-nowrap">IIM Resume:</span>
               <select
                 value={theme}
                 onChange={(e) => setTheme(e.target.value as IimResumeTheme)}
                 disabled={isBatchRunning}
-                className="px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-800 shadow-2xs focus:ring-1 focus:ring-slate-900"
+                className="px-3.5 py-2 rounded-full border border-[#d4dcf0] bg-[#f6f8fe] text-xs font-medium text-[#0f172a] focus:ring-2 focus:ring-[#4338ca]/20 focus:border-[#4338ca] focus:outline-none"
               >
                 <option value="classic">Classic (Crimson)</option>
                 <option value="executive">Executive (Navy)</option>
@@ -410,7 +411,7 @@ export const Daily21View: React.FC<Daily21ViewProps> = ({
         <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-slate-200">
           <Loader2 className="w-8 h-8 text-slate-900 animate-spin mb-3" />
           <p className="text-sm font-semibold text-slate-700">Curating your Daily 21 Remote Drops...</p>
-          <p className="text-xs text-slate-400 mt-1">Ranking verified remote roles matching your Wellfound dossier</p>
+          <p className="text-xs text-slate-400 mt-1">Ranking verified remote roles matching your saved profile</p>
         </div>
       ) : filteredJobs.length === 0 ? (
         <div className="p-12 text-center bg-white rounded-2xl border border-slate-200">
@@ -429,13 +430,13 @@ export const Daily21View: React.FC<Daily21ViewProps> = ({
             return (
               <div
                 key={job.id}
-                className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs hover:shadow-sm transition-all flex flex-col justify-between group"
+                className="bg-white rounded-3xl border border-[#d4dcf0] hover:border-[#4338ca]/40 p-6 oi-card-subtle transition-all duration-500 ease-premium flex flex-col justify-between group"
               >
                 <div>
                   {/* Top Row: Index, Company monogram, Match Score */}
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-lg bg-slate-900 text-white font-mono font-bold text-xs flex items-center justify-center shrink-0">
+                      <div className="w-8 h-8 rounded-2xl bg-[#f6f8fe] border border-[#d4dcf0] text-[#0f172a] font-serif italic font-bold text-sm flex items-center justify-center shrink-0 group-hover:border-[#4338ca] group-hover:text-[#4338ca] transition-colors">
                         {initial}
                       </div>
                       <div>
@@ -454,7 +455,7 @@ export const Daily21View: React.FC<Daily21ViewProps> = ({
                   </div>
 
                   {/* Role Title */}
-                  <h3 className="font-bold text-sm text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-2 leading-snug mb-2">
+                  <h3 className="font-serif text-base font-normal text-[#0f172a] group-hover:text-[#4338ca] transition-colors line-clamp-2 leading-snug mb-2">
                     {job.title}
                   </h3>
 
@@ -483,7 +484,7 @@ export const Daily21View: React.FC<Daily21ViewProps> = ({
                 </div>
 
                 {/* Bottom Row: Status Badge & Actions */}
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                <div className="pt-4 border-t border-[#d4dcf0] flex items-center justify-between gap-2">
                   <div>
                     {isApplied ? (
                       <span className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-200">
@@ -526,7 +527,7 @@ export const Daily21View: React.FC<Daily21ViewProps> = ({
                     <button
                       onClick={() => handleApplySingle(job)}
                       disabled={isBatchRunning}
-                      className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 transition-colors border border-slate-200/80 cursor-pointer disabled:opacity-50 interactive-button"
+                      className="px-3.5 py-1.5 font-mono uppercase tracking-[0.18em] text-[10px] font-medium rounded-full bg-[#f6f8fe] hover:border-[#4338ca] hover:text-[#4338ca] text-[#0f172a] transition-colors border border-[#d4dcf0] cursor-pointer disabled:opacity-50 interactive-button"
                       title="Autofill this application now"
                     >
                       Apply
@@ -542,7 +543,7 @@ export const Daily21View: React.FC<Daily21ViewProps> = ({
       {/* Proof Screenshot Inspection Modal */}
       {selectedScreenshot && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-4xl w-full p-4 overflow-hidden border border-slate-200 shadow-2xl flex flex-col max-h-[90vh]">
+          <div className="bg-[#f6f8fe] rounded-3xl max-w-4xl w-full p-5 overflow-hidden border border-[#d4dcf0] shadow-2xl flex flex-col max-h-[90vh]">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-600" />

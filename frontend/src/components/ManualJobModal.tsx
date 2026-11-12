@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Sparkles, Check, PlusCircle } from 'lucide-react';
+import { X, FileText, Check, PlusCircle } from 'lucide-react';
 import { createManualJob } from '../api/client';
 import { Job } from '../types/job';
 
@@ -92,7 +92,7 @@ export const ManualJobModal: React.FC<ManualJobModalProps> = ({
 
         {/* Manual Intake Info Banner */}
         <div className="mt-4 p-3 bg-indigo-50/70 border border-indigo-200 rounded-xl flex items-start gap-2.5 text-xs text-indigo-900">
-          <Sparkles className="w-4 h-4 text-indigo-600 flex-shrink-0 mt-0.5" />
+          <FileText className="w-4 h-4 text-indigo-600 flex-shrink-0 mt-0.5" />
           <div>
             <strong>Private Manual Intake:</strong> Add external listings from LinkedIn, Indeed, or Unstop to privately match, evaluate skills, and tailor your resume against those roles.
           </div>

@@ -13,6 +13,7 @@ from backend.models.match import Match
 from backend.services.ingestion.aggregator import IngestionAggregator
 from backend.services.matching_engine import evaluate_job_match
 from backend.services.email_digest import render_digest_html, send_email_digest, save_digest_record
+from backend.routes.threads_radar import THREADS_RADAR_CONFIG, execute_threads_scan
 
 logger = logging.getLogger(__name__)
 
@@ -133,6 +134,23 @@ async def execute_sync_and_digest(min_score: float = 60.0, skip_ingest: bool = F
     finally:
         db.close()
 
+async def execute_scheduled_threads_scan() -> Dict[str, Any]:
+    """Periodic background task scanning Meta Threads for Graphic, Tech, and Project leads."""
+    logger.info("Scheduler: Starting periodic Threads Opportunity Radar scan...")
+    db = SessionLocal()
+    try:
+        return await execute_threads_scan(
+            db,
+            scan_mode="auto",
+            limit=25,
+            send_alerts=True,
+        )
+    except Exception as exc:
+        logger.exception(f"Scheduler error during Threads scan: {exc}")
+        return {"success": False, "error": str(exc)}
+    finally:
+        db.close()
+
 def start_scheduler():
     """Starts the APScheduler background thread."""
     if not scheduler.running:
@@ -141,6 +159,13 @@ def start_scheduler():
             trigger=IntervalTrigger(hours=scheduler_state["interval_hours"]),
             id="periodic_job_sync",
             name="Periodic Ingestion & Email Digest Alert",
+            replace_existing=True
+        )
+        scheduler.add_job(
+            execute_scheduled_threads_scan,
+            trigger=IntervalTrigger(minutes=THREADS_RADAR_CONFIG["scan_interval_minutes"]),
+            id="periodic_threads_scan",
+            name="Periodic Threads Opportunity Radar (Graphic, Tech, Project)",
             replace_existing=True
         )
         scheduler.start()

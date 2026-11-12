@@ -110,18 +110,18 @@ export const JobCard: React.FC<JobCardProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 hover:border-slate-300 hover:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06),0_2px_6px_-2px_rgba(0,0,0,0.04)] transition-all duration-200 p-5 sm:p-6 mb-4 group">
+    <div className="bg-white rounded-3xl border border-[#d4dcf0] hover:border-[#4338ca]/40 oi-card-subtle transition-all duration-500 ease-premium p-6 sm:p-7 mb-5 group">
       {/* Top Header: Monogram, Title, Badges, Company */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div className="flex items-start gap-3.5 flex-1 min-w-0">
           {/* Company Monogram Avatar */}
-          <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200/80 flex items-center justify-center font-bold text-sm text-slate-700 shrink-0 select-none shadow-2xs group-hover:border-slate-300 group-hover:bg-slate-50 transition-colors">
+          <div className="w-11 h-11 rounded-2xl bg-[#f6f8fe] border border-[#d4dcf0] flex items-center justify-center font-serif italic font-bold text-base text-[#0f172a] shrink-0 select-none group-hover:border-[#4338ca] group-hover:text-[#4338ca] transition-colors duration-300">
             {companyInitial}
           </div>
 
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
-              <h3 className="text-base sm:text-lg font-semibold tracking-tight text-slate-900 group-hover:text-slate-950 transition-colors">
+              <h3 className="font-serif text-lg sm:text-xl font-normal tracking-tight text-[#0f172a] group-hover:text-[#4338ca] transition-colors duration-300">
                 {job.title}
               </h3>
 
@@ -228,14 +228,14 @@ export const JobCard: React.FC<JobCardProps> = ({
 
       {/* Factual Gap Analysis Panel */}
       {job.match && (
-        <div className="mt-3.5 p-3 rounded-xl bg-slate-50/70 border border-slate-200/70 text-xs">
+        <div className="mt-4 p-3.5 rounded-2xl bg-[#f6f8fe] border border-[#d4dcf0] text-xs">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5 font-semibold text-slate-800">
-              <span>Factual Gap Analysis</span>
+              <span>Skill Gap Check</span>
             </div>
             <div className="flex items-center text-[10px] text-slate-400 gap-1">
               <HelpCircle className="w-3 h-3" />
-              <span>Algorithmic estimate, not a guarantee</span>
+              <span>Estimated from resume keyword overlap</span>
             </div>
           </div>
 
@@ -281,7 +281,7 @@ export const JobCard: React.FC<JobCardProps> = ({
       </div>
 
       {/* Actions Footer */}
-      <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+      <div className="mt-5 pt-4 border-t border-[#d4dcf0] flex flex-wrap items-center justify-between gap-3">
         {/* Left Action: Expand description & verify link */}
         <div className="flex items-center space-x-3 text-xs font-medium">
           <button
@@ -305,10 +305,10 @@ export const JobCard: React.FC<JobCardProps> = ({
             onClick={handleVerifyLink}
             disabled={verifying}
             className="interactive-button inline-flex items-center text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-            title="Check if destination apply URLs are still active and reachable"
+            title="Check if apply URLs are still live"
           >
             <ShieldCheck className={`w-3.5 h-3.5 mr-1 ${verifying ? 'animate-spin' : ''}`} />
-            <span>{verifying ? 'Checking...' : 'Check Link Vitality'}</span>
+            <span>{verifying ? 'Checking...' : 'Check Link Status'}</span>
           </button>
         </div>
 
@@ -332,7 +332,7 @@ export const JobCard: React.FC<JobCardProps> = ({
           {onTailor && (
             <button
               onClick={() => onTailor(job)}
-              className="interactive-button inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all shadow-2xs cursor-pointer"
+              className="interactive-button inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-medium text-[#0f172a] bg-[#f6f8fe] border border-[#d4dcf0] hover:border-[#4f46e5] transition-all duration-300 cursor-pointer"
               title="Tailor candidate resume specifically for this role"
             >
               <FileText className="w-3.5 h-3.5 mr-1.5 text-slate-500" />
@@ -343,7 +343,7 @@ export const JobCard: React.FC<JobCardProps> = ({
           {onAutoApply && (
             <button
               onClick={() => onAutoApply(job)}
-              className="interactive-button inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100/80 border border-indigo-200/80 transition-all shadow-2xs cursor-pointer"
+              className="interactive-button inline-flex items-center px-3.5 py-1.5 rounded-full font-mono uppercase tracking-[0.15em] text-[10px] font-medium text-[#f6f8fe] bg-[#4338ca] hover:bg-indigo-700 transition-all duration-300 ease-premium cursor-pointer"
               title="Launch 1-Click Auto Applier with IIM Resume"
             >
               <Send className="w-3.5 h-3.5 mr-1.5 text-indigo-600" />

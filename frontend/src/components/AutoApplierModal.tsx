@@ -16,7 +16,6 @@ import {
   Copy,
   Check,
   RefreshCw,
-  Sparkles,
   Plus,
   Trash2,
   User,
@@ -250,7 +249,7 @@ export const AutoApplierModal: React.FC<AutoApplierModalProps> = ({
                   Auto Applier &amp; Candidate Vault
                 </h2>
                 <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-medium uppercase tracking-wider bg-slate-800 text-slate-300 border border-slate-700">
-                  Zero AI Plagiarism
+                  Profile-Only Fill
                 </span>
               </div>
               <p className="text-xs text-slate-400">
@@ -477,7 +476,7 @@ export const AutoApplierModal: React.FC<AutoApplierModalProps> = ({
                         </span>
                       </div>
                       <div>
-                        <span className="text-slate-400 block text-[10px] uppercase">Skills Dossier</span>
+                        <span className="text-slate-400 block text-[10px] uppercase">Saved Skills</span>
                         <div className="flex flex-wrap gap-1 mt-1 max-h-20 overflow-y-auto">
                           {(vaultData.skills_with_years || []).slice(0, 8).map((s, idx) => (
                             <span
@@ -503,7 +502,7 @@ export const AutoApplierModal: React.FC<AutoApplierModalProps> = ({
                 <div className="pt-3 border-t border-slate-200/70 text-[11px] text-slate-500 space-y-1">
                   <div className="flex items-center gap-1.5 text-emerald-700 font-semibold">
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>Zero AI Plagiarism Guarantee</span>
+                    <span>Profile-Only Form Fill</span>
                   </div>
                   <p>All form fields and essays are populated exclusively from your verified profile and authentic personal pitch.</p>
                 </div>
@@ -701,9 +700,9 @@ export const AutoApplierModal: React.FC<AutoApplierModalProps> = ({
               <div className="flex items-start gap-2.5">
                 <ShieldCheck className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold">Wellfound (AngelList) Profile Dossier: </span>
+                  <span className="font-bold">Wellfound (AngelList) Saved Profile: </span>
                   <span>
-                    The Auto Applier strictly injects these genuine parameters into job forms. Zero AI plagiarism or synthetic hallucinated claims are ever generated.
+                    The Auto Applier enters only these saved details into job forms without inventing or rewriting experience.
                   </span>
                 </div>
               </div>
@@ -1081,7 +1080,7 @@ export const AutoApplierModal: React.FC<AutoApplierModalProps> = ({
                             Authentic Personal Pitch (Why should we hire you?)
                           </label>
                           <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                            Zero AI Plagiarism
+                            Profile-Only Fill
                           </span>
                         </div>
                         <p className="text-[11px] text-slate-500 mb-2">

@@ -80,7 +80,7 @@ export const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ job, isOpe
             </svg>
           </div>
           <div>
-            <span className="font-semibold text-emerald-200">Zero-Fabrication Guarantee:</span> Only your verified experience and real skills are reordered & highlighted. Unmatched job requirements are strictly omitted from the resume.
+            <span className="font-semibold text-emerald-200">Profile-Only Formatting:</span> Only your recorded experience and skills are reordered and highlighted. Unmatched job requirements are omitted from the resume.
           </div>
         </div>
 
@@ -159,7 +159,7 @@ export const TailorResumeModal: React.FC<TailorResumeModalProps> = ({ job, isOpe
                   <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-3.5">
                     <p className="text-xs text-slate-400 font-medium">Fabricated Skills</p>
                     <p className="text-2xl font-bold text-emerald-400 mt-1">0</p>
-                    <p className="text-[11px] text-emerald-500 font-medium mt-0.5">Strict Zero-Fabrication</p>
+                    <p className="text-[11px] text-emerald-500 font-medium mt-0.5">Profile-Only Check</p>
                   </div>
                 </div>
 

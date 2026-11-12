@@ -223,9 +223,8 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
 @router.get("/presets")
 def get_presets():
     return [
-        {"id": "demo", "name": "Demo Candidate", "role": "Full mock profile for testing", "preset_pwd": "demo123"},
-        {"id": "Aryanshh", "name": "Aryanshh Srivastava", "role": "Blank profile (Setup your own)", "preset_pwd": "Aryanshh123"},
-        {"id": "Nishtha", "name": "Nishtha Maheshwari", "role": "Blank profile (Setup your own)", "preset_pwd": "Nishtha123"},
+        {"id": "Aryanshh", "name": "Aryanshh Srivastava", "role": "Candidate Profile", "preset_pwd": "Aryanshh123"},
+        {"id": "Nishtha", "name": "Nishtha Maheshwari", "role": "Candidate Profile", "preset_pwd": "Nishtha123"},
     ]
 
 @router.get("/me", response_model=UserResponse)

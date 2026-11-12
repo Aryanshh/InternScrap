@@ -35,7 +35,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     (filters.min_match_score !== undefined && filters.min_match_score > 0);
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-4 sm:p-5 mb-6">
+    <div className="bg-white rounded-3xl border border-[#d4dcf0] p-5 sm:p-6 mb-6">
       {/* Top row: Search input & Internships toggle */}
       <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between mb-4">
         {/* Search Box */}
@@ -48,7 +48,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             value={filters.search}
             onChange={(e) => onFilterChange({ search: e.target.value, page: 1 })}
             placeholder="Search roles, skills, companies, or locations..."
-            className="w-full pl-10 pr-16 py-2.5 bg-slate-50/70 border border-slate-200/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 focus:bg-white transition-all text-slate-800 placeholder-slate-400 font-normal"
+            className="w-full pl-10 pr-16 py-2.5 bg-[#f6f8fe] border border-[#d4dcf0] rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-[#4338ca]/20 focus:border-[#4338ca] focus:bg-white transition-all text-[#0f172a] placeholder-slate-400 font-normal"
           />
           {filters.search ? (
             <button
@@ -75,10 +75,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 page: 1,
               })
             }
-            className={`interactive-button inline-flex items-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-2xs cursor-pointer ${
+            className={`interactive-button inline-flex items-center px-4 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all cursor-pointer ${
               filters.is_internship
-                ? 'bg-amber-500 text-white shadow-xs ring-2 ring-amber-300'
-                : 'bg-amber-50/80 text-amber-900 hover:bg-amber-100/80 border border-amber-200/80'
+                ? 'bg-[#1e1b4b] text-[#f6f8fe] ring-2 ring-[#4338ca]/30'
+                : 'bg-[#f6f8fe] text-[#0f172a] hover:border-[#4338ca] border border-[#d4dcf0]'
             }`}
           >
             <GraduationCap className="w-4 h-4 mr-1.5 text-amber-600" />
@@ -88,7 +88,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           {hasActiveFilters && (
             <button
               onClick={onReset}
-              className="interactive-button inline-flex items-center px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200/60 transition-colors cursor-pointer"
+              className="interactive-button inline-flex items-center px-4 py-2.5 rounded-full text-xs sm:text-sm font-medium text-slate-600 hover:text-[#0f172a] hover:border-[#4f46e5] border border-[#d4dcf0] transition-colors cursor-pointer"
               title="Reset all filters"
             >
               <X className="w-3.5 h-3.5 mr-1" />
@@ -100,7 +100,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
       {/* Remote Platform Quick Filter Badges */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-2.5 mb-2 text-xs scrollbar-none">
-        <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] shrink-0 mr-1.5 select-none">
+        <span className="text-slate-500 font-mono font-medium uppercase tracking-[0.25em] text-[10px] shrink-0 mr-1.5 select-none">
           Platform:
         </span>
         {[
@@ -118,10 +118,10 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             <button
               key={p.value}
               onClick={() => onFilterChange({ source: p.value, page: 1 })}
-              className={`interactive-button px-2.5 py-1 rounded-lg text-xs transition-all shrink-0 cursor-pointer ${
+              className={`interactive-button px-3 py-1 rounded-full font-mono text-[10px] uppercase tracking-[0.15em] transition-all shrink-0 cursor-pointer ${
                 active
-                  ? 'bg-slate-900 text-white font-semibold shadow-2xs'
-                  : 'bg-slate-100/80 hover:bg-slate-200/70 text-slate-600 font-medium border border-slate-200/50'
+                  ? 'bg-[#1e1b4b] text-[#f6f8fe] font-medium'
+                  : 'bg-[#f6f8fe] hover:border-[#4338ca] text-slate-600 font-medium border border-[#d4dcf0]'
               }`}
             >
               {p.label}
@@ -131,22 +131,22 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       </div>
 
       {/* Bottom row: Filter Controls */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-3 border-t border-slate-100">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-4 border-t border-[#d4dcf0]">
         {/* Remote Type Pills */}
         <div>
-          <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+          <label className="block text-[10px] font-mono font-medium text-slate-500 uppercase tracking-[0.25em] mb-1.5">
             Work Mode
           </label>
-          <div className="flex bg-slate-100/90 p-1 rounded-xl border border-slate-200/50">
+          <div className="flex bg-[#e8eefc] p-1 rounded-full border border-[#d4dcf0]">
             {remoteTypes.map((t) => {
               const active = filters.remote_type === t.value;
               return (
                 <button
                   key={t.value}
                   onClick={() => onFilterChange({ remote_type: t.value, page: 1 })}
-                  className={`interactive-button flex-1 text-xs py-1.5 font-medium rounded-lg transition-all cursor-pointer ${
+                  className={`interactive-button flex-1 text-xs py-1.5 font-medium rounded-full transition-all cursor-pointer ${
                     active
-                      ? 'bg-white text-slate-900 shadow-2xs font-semibold'
+                      ? 'bg-[#1e1b4b] text-[#f6f8fe] font-medium'
                       : 'text-slate-500 hover:text-slate-800'
                   }`}
                 >
@@ -159,13 +159,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
         {/* Category Dropdown */}
         <div>
-          <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+          <label className="block text-[10px] font-mono font-medium text-slate-500 uppercase tracking-[0.25em] mb-1.5">
             Category
           </label>
           <select
             value={filters.category}
             onChange={(e) => onFilterChange({ category: e.target.value, page: 1 })}
-            className="w-full py-2 px-3 bg-slate-50/70 border border-slate-200/80 rounded-xl text-xs sm:text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 focus:bg-white transition-colors cursor-pointer"
+            className="w-full py-2 px-3.5 bg-[#f6f8fe] border border-[#d4dcf0] rounded-full text-xs sm:text-sm text-[#0f172a] font-medium focus:outline-none focus:ring-2 focus:ring-[#4338ca]/20 focus:border-[#4338ca] focus:bg-white transition-colors cursor-pointer"
           >
             <option value="all">All Categories</option>
             {categories.map((c) => (
@@ -178,13 +178,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
         {/* Source Dropdown */}
         <div>
-          <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+          <label className="block text-[10px] font-mono font-medium text-slate-500 uppercase tracking-[0.25em] mb-1.5">
             Source Platform
           </label>
           <select
             value={filters.source}
             onChange={(e) => onFilterChange({ source: e.target.value, page: 1 })}
-            className="w-full py-2 px-3 bg-slate-50/70 border border-slate-200/80 rounded-xl text-xs sm:text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 focus:bg-white transition-colors cursor-pointer"
+            className="w-full py-2 px-3.5 bg-[#f6f8fe] border border-[#d4dcf0] rounded-full text-xs sm:text-sm text-[#0f172a] font-medium focus:outline-none focus:ring-2 focus:ring-[#4338ca]/20 focus:border-[#4338ca] focus:bg-white transition-colors cursor-pointer"
           >
             <option value="all">All Sources</option>
             {Array.from(
@@ -208,7 +208,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
         {/* Match Score Threshold Filter */}
         <div>
-          <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+          <label className="block text-[10px] font-mono font-medium text-slate-500 uppercase tracking-[0.25em] mb-1.5">
             Match Score
           </label>
           <select
@@ -220,7 +220,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 page: 1,
               })
             }
-            className="w-full py-2 px-3 bg-slate-50/70 border border-slate-200/80 rounded-xl text-xs sm:text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 focus:bg-white transition-colors cursor-pointer disabled:opacity-50"
+            className="w-full py-2 px-3.5 bg-[#f6f8fe] border border-[#d4dcf0] rounded-full text-xs sm:text-sm text-[#0f172a] font-medium focus:outline-none focus:ring-2 focus:ring-[#4338ca]/20 focus:border-[#4338ca] focus:bg-white transition-colors cursor-pointer disabled:opacity-50"
           >
             <option value="all">{hasActiveResume ? 'All Scores' : 'Upload Resume First'}</option>
             <option value="70">High Match (70%+)</option>
@@ -231,13 +231,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
         {/* Sort Selector */}
         <div>
-          <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+          <label className="block text-[10px] font-mono font-medium text-slate-500 uppercase tracking-[0.25em] mb-1.5">
             Sort Order
           </label>
           <select
             value={filters.sort_by}
             onChange={(e) => onFilterChange({ sort_by: e.target.value, page: 1 })}
-            className="w-full py-2 px-3 bg-slate-50/70 border border-slate-200/80 rounded-xl text-xs sm:text-sm text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 focus:bg-white transition-colors cursor-pointer"
+            className="w-full py-2 px-3.5 bg-[#f6f8fe] border border-[#d4dcf0] rounded-full text-xs sm:text-sm text-[#0f172a] font-medium focus:outline-none focus:ring-2 focus:ring-[#4338ca]/20 focus:border-[#4338ca] focus:bg-white transition-colors cursor-pointer"
           >
             {hasActiveResume && <option value="match_score_desc">Match Score (Highest First)</option>}
             <option value="posted_date_desc">Newest First</option>

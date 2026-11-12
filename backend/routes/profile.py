@@ -211,8 +211,8 @@ def list_profiles(db: Session = Depends(get_db)):
     seed_all_profiles(db)
     profiles = db.query(UserProfile).all()
     
-    order = ["demo", "Aryanshh", "Nishtha"]
-    allowed = {"demo", "Aryanshh", "Nishtha"}
+    order = ["Aryanshh", "Nishtha"]
+    allowed = {"Aryanshh", "Nishtha"}
     filtered = [p for p in profiles if p.id in allowed]
     ordered = sorted(filtered, key=lambda p: order.index(p.id))
     

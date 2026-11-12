@@ -13,6 +13,7 @@ import { LoginPage } from './components/LoginPage';
 import { AutoApplierModal } from './components/AutoApplierModal';
 import { Daily21View } from './components/Daily21View';
 import { GoogleFormsScraperView } from './components/GoogleFormsScraperView';
+import { ThreadsRadarView } from './components/ThreadsRadarView';
 import {
   getJobs,
   getStats,
@@ -37,7 +38,7 @@ import {
   ApplicationItem,
   AuthUser,
 } from './types/job';
-import { Loader2, Sparkles, ChevronLeft, ChevronRight, Inbox, Layers, Globe, GraduationCap, Send } from 'lucide-react';
+import { Loader2, CheckCircle2, ChevronLeft, ChevronRight, Inbox, Layers, Globe, GraduationCap, Send } from 'lucide-react';
 
 const initialFilters: FilterState = {
   search: '',
@@ -69,7 +70,7 @@ export const App: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
 
   // Modals & Navigation
-  const [activeView, setActiveView] = useState<'home' | 'daily21' | 'google_forms' | 'listings' | 'tracker' | 'profile'>('home');
+  const [activeView, setActiveView] = useState<'home' | 'daily21' | 'threads' | 'google_forms' | 'listings' | 'tracker' | 'profile'>('home');
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
   const [isDigestModalOpen, setIsDigestModalOpen] = useState(false);
@@ -259,11 +260,11 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-[#f6f8fe] flex flex-col font-sans text-[#0f172a] selection:bg-[#4f46e5] selection:text-white">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900/95 backdrop-blur-md text-slate-100 px-4 py-2.5 rounded-xl shadow-xl flex items-center space-x-2.5 text-xs font-medium border border-slate-800 animate-in fade-in slide-in-from-bottom-3 duration-200">
-          <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div className="fixed bottom-6 right-6 z-50 bg-[#0d1633]/95 backdrop-blur-md text-white px-5 py-3 rounded-full shadow-lg shadow-indigo-500/20 flex items-center space-x-2.5 text-xs font-medium border border-indigo-400/25 oi-reveal">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -282,7 +283,7 @@ export const App: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+      <main className={activeView === 'home' ? 'flex-1 w-full' : 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12 flex-1 w-full'}>
         {activeView === 'home' ? (
           <HomePage
             activeUserId={activeUserId}
@@ -302,12 +303,21 @@ export const App: React.FC = () => {
             onOpenDigestModal={() => setIsDigestModalOpen(true)}
             onOpenAutoApplier={() => handleOpenAutoApplier()}
             onNavigateToDaily21={() => setActiveView('daily21')}
+            onNavigateToThreads={() => setActiveView('threads')}
+            onNavigateToGoogleForms={() => setActiveView('google_forms')}
             queuedCount={queuedJobs.size}
           />
         ) : activeView === 'daily21' ? (
           <Daily21View
             activeUserId={activeUserId}
             onNavigateToTracker={() => setActiveView('tracker')}
+            onOpenAutoApplierModal={(url) => handleOpenAutoApplier(url)}
+            showToast={showToast}
+          />
+        ) : activeView === 'threads' ? (
+          <ThreadsRadarView
+            trackedJobIds={trackedJobIds}
+            onTrackJob={handleTrackJob}
             onOpenAutoApplierModal={(url) => handleOpenAutoApplier(url)}
             showToast={showToast}
           />
@@ -343,48 +353,49 @@ export const App: React.FC = () => {
           /* Explore Listings View */
           <>
             {/* Banner Section */}
-            <div className="mb-6 p-6 sm:p-8 rounded-2xl bg-slate-900 text-white border border-slate-800 shadow-[0_1px_3px_rgba(0,0,0,0.1)] relative overflow-hidden">
+            <div className="mb-8 p-7 sm:p-10 rounded-3xl bg-gradient-to-br from-[#070b19] via-[#0d1633] to-[#1e1b4b] text-[#f8faff] border border-indigo-400/20 relative overflow-hidden">
+              <div className="pointer-events-none absolute -top-24 -right-16 w-80 h-80 rounded-full bg-indigo-500/20 blur-3xl oi-mesh-drift" aria-hidden="true" />
               <div className="relative z-10 max-w-3xl">
                 <div className="flex items-center gap-2 mb-3 flex-wrap">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-mono font-medium bg-slate-800 text-slate-300 border border-slate-700/80">
-                    Enterprise Remote Feed
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-[0.28em] font-medium bg-white/10 text-[#c7d2fe] border border-white/15">
+                    Remote Job Feed
                   </span>
-                  <span className="text-[11px] text-slate-400 font-medium">
+                  <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-slate-400">
                     Wellfound • Outlier • Mercor • Alignerr • Mindrift • Remotive
                   </span>
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-                  Explore Verified Remote Listings
+                <h1 className="font-serif text-3xl sm:text-5xl font-normal tracking-tight leading-[1.05] text-[#f6f8fe]">
+                  Explore <span className="italic text-[#7dd3fc]">Verified</span> Remote Listings
                 </h1>
-                <p className="mt-2 text-slate-400 text-xs sm:text-sm leading-relaxed">
-                  Vetted roles with transparent compensation ($30–$120/hr) across modern AI and tech platforms. Filter by work mode, verify live link vitality, and auto-queue for 1-click application submissions.
+                <p className="mt-3 text-slate-300 text-sm leading-relaxed max-w-2xl">
+                  Remote roles with posted pay ($30–$120/hr) across AI and software platforms. Filter by work mode, check if apply links are live, and queue roles for 1-click apply.
                 </p>
 
                 {/* Live Stats Cards */}
                 {stats && (
-                  <div className="mt-5 pt-4 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                    <div className="flex items-center space-x-2.5 bg-slate-800/60 px-3.5 py-2 rounded-xl border border-slate-700/60">
+                  <div className="mt-6 pt-5 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                    <div className="flex items-center space-x-2.5 bg-white/[0.04] px-4 py-2.5 rounded-2xl border border-white/10">
                       <Layers className="w-4 h-4 text-slate-400 shrink-0" />
                       <div>
                         <div className="font-bold text-white text-sm font-mono leading-none">{stats.total_jobs}</div>
                         <div className="text-slate-400 text-[10px] mt-0.5 uppercase tracking-wider">Total Listings</div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2.5 bg-slate-800/60 px-3.5 py-2 rounded-xl border border-slate-700/60">
+                    <div className="flex items-center space-x-2.5 bg-white/[0.04] px-4 py-2.5 rounded-2xl border border-white/10">
                       <Globe className="w-4 h-4 text-emerald-400 shrink-0" />
                       <div>
                         <div className="font-bold text-white text-sm font-mono leading-none">{stats.remote_jobs}</div>
                         <div className="text-slate-400 text-[10px] mt-0.5 uppercase tracking-wider">Remote Roles</div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2.5 bg-slate-800/60 px-3.5 py-2 rounded-xl border border-slate-700/60">
+                    <div className="flex items-center space-x-2.5 bg-white/[0.04] px-4 py-2.5 rounded-2xl border border-white/10">
                       <GraduationCap className="w-4 h-4 text-amber-400 shrink-0" />
                       <div>
                         <div className="font-bold text-white text-sm font-mono leading-none">{stats.internship_jobs}</div>
                         <div className="text-slate-400 text-[10px] mt-0.5 uppercase tracking-wider">Internships</div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2.5 bg-slate-800/60 px-3.5 py-2 rounded-xl border border-slate-700/60">
+                    <div className="flex items-center space-x-2.5 bg-white/[0.04] px-4 py-2.5 rounded-2xl border border-white/10">
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
                       <div>
                         <div className="font-bold text-white text-sm font-mono leading-none">{availableSources.length} Feeds</div>
@@ -422,15 +433,15 @@ export const App: React.FC = () => {
             {/* Content Area */}
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-20">
-                <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mb-3" />
+                <Loader2 className="w-10 h-10 text-[#4338ca] animate-spin mb-3" />
                 <p className="text-sm font-medium text-slate-500">Evaluating listings against your profile...</p>
               </div>
             ) : jobs.length === 0 ? (
-              <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center max-w-xl mx-auto my-8 shadow-sm">
-                <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <div className="bg-white rounded-3xl border border-[#d4dcf0] p-12 text-center max-w-xl mx-auto my-8">
+                <div className="w-14 h-14 bg-indigo-50 text-[#4338ca] border border-[#d4dcf0] rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Inbox className="w-7 h-7" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-800 mb-1">No Listings Found</h3>
+                <h3 className="font-serif text-2xl font-normal text-[#0f172a] mb-1">No Listings Found</h3>
                 <p className="text-sm text-slate-500 mb-6">
                   No listings match your current filters. Try resetting the filters or lowering the match score threshold.
                 </p>
@@ -466,7 +477,7 @@ export const App: React.FC = () => {
                 <button
                   onClick={() => handleFilterChange({ page: Math.max(1, filters.page - 1) })}
                   disabled={filters.page <= 1}
-                  className="p-2 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer"
+                  className="p-2.5 rounded-full border border-[#d4dcf0] bg-white text-[#0f172a] hover:border-[#4338ca] hover:text-[#4338ca] disabled:opacity-40 disabled:pointer-events-none transition-all duration-300 ease-premium cursor-pointer"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
@@ -478,7 +489,7 @@ export const App: React.FC = () => {
                 <button
                   onClick={() => handleFilterChange({ page: Math.min(totalPages, filters.page + 1) })}
                   disabled={filters.page >= totalPages}
-                  className="p-2 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none transition-all cursor-pointer"
+                  className="p-2.5 rounded-full border border-[#d4dcf0] bg-white text-[#0f172a] hover:border-[#4338ca] hover:text-[#4338ca] disabled:opacity-40 disabled:pointer-events-none transition-all duration-300 ease-premium cursor-pointer"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
@@ -489,19 +500,126 @@ export const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200/80 py-6 text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <footer className="relative bg-gradient-to-b from-[#090d1f] via-[#0c1430] to-[#111838] text-[#f8faff] rounded-t-[3rem] sm:rounded-t-[5rem] overflow-hidden pt-20 pb-10 mt-16 border-t border-indigo-400/20">
+        <div
+          className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[min(92vw,760px)] h-72 rounded-full blur-[120px] opacity-35"
+          style={{
+            background:
+              'radial-gradient(circle, rgba(67, 56, 202, 0.85) 0%, rgba(23, 23, 23, 0) 70%)',
+          }}
+          aria-hidden="true"
+        />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mb-14">
+            <p className="font-mono text-[10px] sm:text-xs uppercase tracking-[0.35em] text-[#a5b4fc] mb-4">
+              InternScrap Engine
+            </p>
+            <p className="font-serif text-3xl sm:text-5xl font-normal tracking-tight leading-[1.08] text-[#f6f8fe]">
+              Scans remote boards, Threads posts, and live recruitment forms using only the{' '}
+              <span className="italic text-[#7dd3fc]">verified</span> details in your profile.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 pb-12 mb-8 border-b border-white/10 text-sm">
+            <div>
+              <h3 className="font-mono text-[10px] uppercase tracking-[0.35em] text-slate-400 mb-4">
+                Job Tools
+              </h3>
+              <ul className="space-y-2.5 text-slate-300">
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => setActiveView('daily21')}
+                    className="oi-link-underline hover:text-white transition-colors duration-300 cursor-pointer"
+                  >
+                    Daily 21 Curated Feed
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => setActiveView('threads')}
+                    className="oi-link-underline hover:text-white transition-colors duration-300 cursor-pointer"
+                  >
+                    Threads Opportunity Radar
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => setActiveView('google_forms')}
+                    className="oi-link-underline hover:text-white transition-colors duration-300 cursor-pointer"
+                  >
+                    Google Forms Extractor
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-mono text-[10px] uppercase tracking-[0.35em] text-slate-400 mb-4">
+                Workspace
+              </h3>
+              <ul className="space-y-2.5 text-slate-300">
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => setActiveView('listings')}
+                    className="oi-link-underline hover:text-white transition-colors duration-300 cursor-pointer"
+                  >
+                    Verified Remote Listings
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => setActiveView('tracker')}
+                    className="oi-link-underline hover:text-white transition-colors duration-300 cursor-pointer"
+                  >
+                    Application Kanban Tracker
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => setActiveView('profile')}
+                    className="oi-link-underline hover:text-white transition-colors duration-300 cursor-pointer"
+                  >
+                    Candidate Profile &amp; Resume
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-mono text-[10px] uppercase tracking-[0.35em] text-slate-400 mb-4">
+                Local Setup
+              </h3>
+              <p className="text-slate-300 leading-relaxed mb-4">
+                Runs locally with your Wellfound profile and keeps tailored resumes grounded in your saved history.
+              </p>
+              <button
+                type="button"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#c7d2fe] hover:text-white transition-colors cursor-pointer"
+              >
+                Return to Top
+              </button>
+            </div>
+          </div>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 font-mono text-[10px] uppercase tracking-[0.3em] text-slate-400">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
-            <span className="font-semibold text-slate-800">InternScrap Enterprise Platform</span>
+            <span className="font-medium text-[#f6f8fe]">InternScrap Platform</span>
             <span className="text-slate-300">•</span>
-            <span className="text-slate-500">Zero AI Plagiarism Job Automation Engine</span>
+            <span className="text-slate-400">Profile-Only Resume Fill</span>
           </div>
           <div className="flex items-center gap-4 text-slate-400">
-            <span>Wellfound Dossier Sync</span>
+            <span>Wellfound Profile Sync</span>
             <span>•</span>
             <span>ATS Resume Standard</span>
           </div>
+        </div>
         </div>
       </footer>
 
@@ -550,7 +668,7 @@ export const App: React.FC = () => {
 
       {/* Floating Auto-Apply Queue Bar */}
       {queuedJobs.size > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-950/90 backdrop-blur-md text-white px-5 py-2.5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.35)] border border-slate-800 flex items-center gap-4 animate-in slide-in-from-bottom duration-200">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-[#0d1633]/95 backdrop-blur-md text-white px-5 py-2.5 rounded-full shadow-xl shadow-indigo-500/25 border border-indigo-400/25 flex items-center gap-4 oi-reveal">
           <div className="flex items-center gap-2 text-xs">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="font-semibold text-slate-200">
@@ -561,7 +679,7 @@ export const App: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={handleLaunchQueuedAutoApply}
-              className="interactive-button px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+              className="interactive-button px-4 py-1.5 rounded-full bg-[#4338ca] hover:bg-indigo-600 text-white font-mono uppercase tracking-[0.2em] text-[10px] font-medium transition-all duration-500 ease-premium flex items-center gap-1.5 cursor-pointer"
             >
               <Send className="w-3.5 h-3.5" />
               <span>Launch Auto-Applier</span>
@@ -571,7 +689,7 @@ export const App: React.FC = () => {
                 setQueuedJobs(new Map());
                 showToast('Auto-Apply queue cleared.');
               }}
-              className="interactive-button px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium transition-all cursor-pointer"
+              className="interactive-button px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white font-mono uppercase tracking-[0.2em] text-[10px] transition-all duration-300 cursor-pointer"
             >
               Clear
             </button>

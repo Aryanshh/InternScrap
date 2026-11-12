@@ -16,8 +16,8 @@ import {
   Globe,
   Check,
 } from 'lucide-react';
-import { login, register, getAuthPresets } from '../api/client';
-import { AuthUser, UserPreset } from '../types/job';
+import { login, register } from '../api/client';
+import { AuthUser } from '../types/job';
 
 interface LoginPageProps {
   onLoginSuccess: (user: AuthUser) => void;
@@ -50,19 +50,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [presets, setPresets] = useState<UserPreset[]>([
-    { id: 'demo', name: 'Demo Candidate', role: 'Full mock profile for testing', preset_pwd: 'demo123' },
-    { id: 'Aryanshh', name: 'Aryanshh Srivastava', role: 'Blank profile (Setup your own)', preset_pwd: 'Aryanshh123' },
-    { id: 'Nishtha', name: 'Nishtha Maheshwari', role: 'Blank profile (Setup your own)', preset_pwd: 'Nishtha123' },
-  ]);
-
-  useEffect(() => {
-    getAuthPresets()
-      .then((data) => {
-        if (data && data.length > 0) setPresets(data);
-      })
-      .catch(() => {});
-  }, []);
 
   const getPasswordStrength = (pass: string) => {
     if (!pass) return { score: 0, label: '', color: 'bg-slate-200', text: 'text-slate-400' };
@@ -79,23 +66,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
 
   const strength = getPasswordStrength(password);
   const passwordsMatch = password && confirmPassword && password === confirmPassword;
-
-  const handlePresetSelect = async (preset: UserPreset) => {
-    setUsername(preset.id);
-    setPassword(preset.preset_pwd);
-    setErrorMsg(null);
-    try {
-      setIsLoading(true);
-      const res = await login(preset.id, preset.preset_pwd);
-      if (res.success && res.user) {
-        onLoginSuccess(res.user);
-      }
-    } catch (err: any) {
-      setErrorMsg(err.response?.data?.detail || 'Failed to sign in with preset.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -176,39 +146,39 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col justify-center py-10 sm:px-6 lg:px-8 relative overflow-hidden selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-gradient-to-br from-[#070b19] via-[#0d1633] to-[#1e1b4b] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden selection:bg-[#4f46e5] selection:text-white">
       {/* Dynamic background decoration */}
-      <div className="absolute -top-40 -left-40 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-violet-600/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -top-40 -left-40 w-[30rem] h-[30rem] bg-indigo-500/25 rounded-full blur-3xl pointer-events-none oi-mesh-drift" aria-hidden="true" />
+      <div className="absolute -bottom-40 -right-40 w-[30rem] h-[30rem] bg-sky-500/20 rounded-full blur-3xl pointer-events-none oi-mesh-drift" aria-hidden="true" />
 
       <div className={`sm:mx-auto sm:w-full relative z-10 px-4 transition-all duration-300 ${isRegister ? 'sm:max-w-2xl' : 'sm:max-w-md'}`}>
         {/* Brand Header */}
         <div className="flex flex-col items-center text-center">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-xl shadow-indigo-500/20 mb-3 transform hover:scale-105 transition-transform duration-300">
+          <div className="w-14 h-14 rounded-2xl bg-white/[0.06] border border-white/15 flex items-center justify-center text-[#f6f8fe] mb-4 transform hover:scale-105 transition-transform duration-500 ease-premium">
             <Briefcase className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white mb-2">
-            InternScrap
+          <h1 className="font-serif text-4xl sm:text-5xl font-normal tracking-tight text-[#f6f8fe] mb-2">
+            Intern<span className="italic text-[#7dd3fc]">Scrap</span>
           </h1>
-          <p className="text-slate-400 text-xs sm:text-sm max-w-sm font-medium">
+          <p className="text-slate-300 text-xs sm:text-sm max-w-md leading-relaxed">
             Factual Remote Job Scraping, 1-Page IIM Resumes &amp; Wellfound Auto-Applier
           </p>
         </div>
 
         {/* Auth Card */}
-        <div className="mt-7 bg-white/95 backdrop-blur-md py-8 px-6 sm:px-8 rounded-3xl shadow-2xl border border-white/20">
+        <div className="mt-8 bg-[#f6f8fe] py-8 px-6 sm:px-9 rounded-3xl border border-[#dbe2f3] oi-reveal">
           {/* Mode Switch Tabs */}
-          <div className="flex bg-slate-100 p-1 rounded-2xl border border-slate-200/80 mb-6 text-xs font-semibold">
+          <div className="flex bg-[#edf1fc] p-1 rounded-full border border-[#dbe2f3] mb-6 text-xs font-medium">
             <button
               type="button"
               onClick={() => {
                 setIsRegister(false);
                 setErrorMsg(null);
               }}
-              className={`flex-1 py-2 rounded-xl transition-all cursor-pointer ${
+              className={`flex-1 py-2 rounded-full font-mono text-[11px] uppercase tracking-[0.2em] transition-all duration-300 ease-premium cursor-pointer ${
                 !isRegister
-                  ? 'bg-white text-indigo-700 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-[#4f46e5] text-white shadow-sm shadow-indigo-500/25'
+                  : 'text-slate-500 hover:text-[#0f172a]'
               }`}
             >
               Sign In
@@ -219,10 +189,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                 setIsRegister(true);
                 setErrorMsg(null);
               }}
-              className={`flex-1 py-2 rounded-xl transition-all cursor-pointer ${
+              className={`flex-1 py-2 rounded-full font-mono text-[11px] uppercase tracking-[0.2em] transition-all duration-300 ease-premium cursor-pointer ${
                 isRegister
-                  ? 'bg-white text-indigo-700 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-[#4f46e5] text-white shadow-sm shadow-indigo-500/25'
+                  : 'text-slate-500 hover:text-[#0f172a]'
               }`}
             >
               Create Account
@@ -406,7 +376,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                 {/* Section 2: Career & Auto-Applier Profile Defaults */}
                 <div className="pt-2 border-t border-slate-100">
                   <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider block mb-2">
-                    2. Career &amp; Auto-Applier Dossier
+                    2. Career &amp; Auto-Applier Profile
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     {/* Primary Role */}
@@ -478,7 +448,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                 <div className="p-3 rounded-2xl bg-indigo-50/70 border border-indigo-100 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-indigo-900">
                   <div className="flex items-center gap-1.5">
                     <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
-                    <span className="font-semibold">Zero AI Plagiarism</span>
+                    <span className="font-semibold">Profile-Only Resume</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <FileText className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
@@ -544,12 +514,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
             <button
               type="submit"
               disabled={isLoading || (isRegister && Boolean(confirmPassword && !passwordsMatch))}
-              className="w-full mt-3 py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-sm shadow-md shadow-indigo-200 transition-all flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer"
+              className="w-full mt-3 py-3.5 px-5 rounded-full bg-[#4338ca] hover:bg-indigo-700 text-[#f6f8fe] font-mono uppercase tracking-[0.25em] text-xs font-medium transition-all duration-500 ease-premium flex items-center justify-center space-x-2 disabled:opacity-50 cursor-pointer oi-btn-pulse"
             >
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>{isRegister ? 'Creating Account & Setting Dossier...' : 'Signing In...'}</span>
+                  <span>{isRegister ? 'Creating Account & Saving Profile...' : 'Signing In...'}</span>
                 </>
               ) : (
                 <>
@@ -559,32 +529,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
               )}
             </button>
           </form>
-
-          {/* Quick Demo Profiles (Available on Sign In) */}
-          {!isRegister && presets.length > 0 && (
-            <div className="mt-6 pt-5 border-t border-slate-100">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2 text-center">
-                Or Sign In with Demo Account
-              </span>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                {presets.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => handlePresetSelect(p)}
-                    className="p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-indigo-50 hover:border-indigo-300 transition-all text-left cursor-pointer group"
-                  >
-                    <span className="text-xs font-bold text-slate-800 group-hover:text-indigo-700 block truncate">
-                      {p.name}
-                    </span>
-                    <span className="text-[10px] text-slate-500 block truncate">
-                      @{p.id}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Toggle between Sign In / Create Account */}
           <div className="mt-5 text-center text-xs text-slate-500">
@@ -597,7 +541,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                     setIsRegister(false);
                     setErrorMsg(null);
                   }}
-                  className="font-bold text-indigo-600 hover:text-indigo-800 hover:underline cursor-pointer"
+                  className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#4338ca] hover:text-indigo-800 hover:underline cursor-pointer"
                 >
                   Sign In
                 </button>
@@ -611,7 +555,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                     setIsRegister(true);
                     setErrorMsg(null);
                   }}
-                  className="font-bold text-indigo-600 hover:text-indigo-800 hover:underline cursor-pointer"
+                  className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#4338ca] hover:text-indigo-800 hover:underline cursor-pointer"
                 >
                   Create Account
                 </button>
