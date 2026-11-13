@@ -2,7 +2,7 @@ import os
 import json
 from typing import List, Union
 from pydantic import field_validator
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "JobAggregator"
@@ -45,10 +45,8 @@ class Settings(BaseSettings):
     THREADS_WEBHOOK_URL: str = os.getenv("THREADS_WEBHOOK_URL", "")
     THREADS_TELEGRAM_BOT_TOKEN: str = os.getenv("THREADS_TELEGRAM_BOT_TOKEN", "")
     THREADS_TELEGRAM_CHAT_ID: str = os.getenv("THREADS_TELEGRAM_CHAT_ID", "")
-    THREADS_SCAN_INTERVAL_MINUTES: int = int(os.getenv("THREADS_SCAN_INTERVAL_MINUTES", "30"))
+    THREADS_SCAN_INTERVAL_MINUTES: int = int(os.getenv("THREADS_SCAN_INTERVAL_MINUTES", "10"))
 
-    class Config:
-        env_file = ".env"
-        extra = "ignore"
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 settings = Settings()

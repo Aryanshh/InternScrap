@@ -37,6 +37,31 @@ class Job(Base):
     created_at = Column(DateTime, default=get_utc_now)
     updated_at = Column(DateTime, default=get_utc_now, onupdate=get_utc_now)
 
+    @property
+    def apply_url(self) -> str:
+        if self.apply_urls and len(self.apply_urls) > 0:
+            return self.apply_urls[0] or ""
+        return ""
+
+    @apply_url.setter
+    def apply_url(self, value: str):
+        if value:
+            self.apply_urls = [value]
+        else:
+            self.apply_urls = []
+
+    @property
+    def source(self) -> str:
+        return self.primary_source or "unknown"
+
+    @source.setter
+    def source(self, value: str):
+        self.primary_source = value
+        if not self.sources:
+            self.sources = [value]
+        elif value not in self.sources:
+            self.sources.append(value)
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -47,9 +72,11 @@ class Job(Base):
             "category": self.category,
             "is_internship": self.is_internship,
             "description": self.description,
+            "apply_url": self.apply_url,
             "apply_urls": self.apply_urls or [],
             "sources": self.sources or [],
             "primary_source": self.primary_source,
+            "source": self.source,
             "posted_date": self.posted_date.isoformat() if self.posted_date else None,
             "salary_range": self.salary_range,
             "is_active": self.is_active,

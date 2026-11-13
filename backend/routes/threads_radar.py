@@ -28,13 +28,14 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/threads", tags=["Threads Opportunity Radar"])
 
-ALLOWED_VERTICALS = ("graphic", "tech", "project")
+ALLOWED_VERTICALS = ("all", "project", "internship", "tech", "collab", "graphic", "job")
+CORE_VERTICALS = ["project", "internship", "tech", "collab", "graphic"]
 
 THREADS_RADAR_CONFIG: Dict[str, Any] = {
-    "enabled_verticals": list(ALLOWED_VERTICALS),
+    "enabled_verticals": list(CORE_VERTICALS),
     "keywords": {k: list(v) for k, v in DEFAULT_SEARCH_QUERIES.items()},
-    "scan_interval_minutes": max(5, settings.THREADS_SCAN_INTERVAL_MINUTES),
-    "auto_demo_fallback": False,
+    "scan_interval_minutes": 10,
+    "auto_demo_fallback": True,
     "send_email_alerts": True,
     "access_token": settings.THREADS_ACCESS_TOKEN,
     "apify_token": settings.THREADS_APIFY_TOKEN,
@@ -51,7 +52,7 @@ class ThreadsScanRequest(BaseModel):
     verticals: Optional[List[str]] = None
     custom_keywords: Optional[Dict[str, List[str]]] = None
     mode: str = "auto"  # auto | meta_api | apify | fediverse | demo
-    limit: int = Field(default=30, ge=1, le=100)
+    limit: int = Field(default=80, ge=1, le=100)
     send_alerts: bool = True
 
 
@@ -83,20 +84,29 @@ def _mask_secret(value: str) -> str:
 
 
 def _derive_vertical_from_job(job: Job) -> str:
-    cat = (job.category or "").lower()
-    if "graphic" in cat:
-        return "graphic"
-    if "tech" in cat:
-        return "tech"
-    if "project" in cat:
-        return "project"
     for src in (job.sources or []):
         s_lower = str(src).lower()
         if s_lower.startswith("vertical:"):
-            val = s_lower.split(":", 1)[1]
-            if val in ALLOWED_VERTICALS:
+            val = s_lower.split(":", 1)[1].strip()
+            if val in CORE_VERTICALS:
                 return val
-    return "general"
+
+    cat = (job.category or "").lower()
+    title = (job.title or "").lower()
+    desc = (job.description or "").lower()
+
+    if job.is_internship or "intern" in cat or "intern" in title or "fellow" in cat:
+        return "internship"
+    if "collab" in cat or "collab" in title or "cofounder" in cat or "partner" in title:
+        return "collab"
+    if "graphic" in cat or "design" in cat or "ui" in cat or "ux" in cat or "figma" in cat:
+        return "graphic"
+    if "tech" in cat or "engineer" in cat or "developer" in cat or "software" in title or "tech" in title:
+        return "tech"
+    if "project" in cat or "project" in title or "freelance" in cat or "gig" in cat:
+        return "project"
+
+    return "project"
 
 
 def _serialize_threads_job(job: Job) -> Dict[str, Any]:
@@ -136,7 +146,7 @@ async def execute_threads_scan(
     verticals: Optional[List[str]] = None,
     custom_keywords: Optional[Dict[str, List[str]]] = None,
     scan_mode: str = "auto",
-    limit: int = 30,
+    limit: int = 80,
     send_alerts: bool = True,
 ) -> Dict[str, Any]:
     """
@@ -246,14 +256,38 @@ async def execute_threads_scan(
     }
 
 
+@router.get("/stats")
+def get_threads_stats(db: Session = Depends(get_db)):
+    """Returns summary statistics for Threads Opportunity Radar across all 5 sectors."""
+    jobs = (
+        db.query(Job)
+        .filter(Job.is_active == True, Job.primary_source == "Threads")
+        .all()
+    )
+    serialized = [_serialize_threads_job(j) for j in jobs]
+    return {
+        "total": len(serialized),
+        "vertical_counts": {
+            "all": len(serialized),
+            "project": sum(1 for item in serialized if item["vertical"] == "project"),
+            "internship": sum(1 for item in serialized if item["vertical"] == "internship"),
+            "tech": sum(1 for item in serialized if item["vertical"] == "tech"),
+            "collab": sum(1 for item in serialized if item["vertical"] == "collab"),
+            "graphic": sum(1 for item in serialized if item["vertical"] == "graphic"),
+        },
+        "last_scan_at": THREADS_RADAR_CONFIG.get("last_scan_at"),
+        "scan_interval_minutes": THREADS_RADAR_CONFIG.get("scan_interval_minutes"),
+    }
+
+
 @router.get("/opportunities")
 async def list_threads_opportunities(
-    vertical: str = Query("all", description="all | graphic | tech | project"),
+    vertical: str = Query("all", description="all | project | internship | tech | collab | graphic"),
     search: Optional[str] = Query(None),
     auto_seed: bool = Query(True),
     db: Session = Depends(get_db),
 ):
-    """Returns scanned Threads opportunities grouped across Graphic, Tech, and Project verticals."""
+    """Returns scanned Threads opportunities grouped across Project, Internship, Tech, Collab, and Graphic verticals."""
     jobs = (
         db.query(Job)
         .filter(Job.is_active == True, Job.primary_source == "Threads")
@@ -261,22 +295,27 @@ async def list_threads_opportunities(
         .all()
     )
 
-    if not jobs and auto_seed:
-        await execute_threads_scan(db, scan_mode="auto", limit=30, send_alerts=False)
-        jobs = (
-            db.query(Job)
-            .filter(Job.is_active == True, Job.primary_source == "Threads")
-            .order_by(Job.posted_date.desc())
-            .all()
-        )
+    if not jobs:
+        try:
+            await execute_threads_scan(db, scan_mode="auto", limit=80, send_alerts=False)
+            jobs = (
+                db.query(Job)
+                .filter(Job.is_active == True, Job.primary_source == "Threads")
+                .order_by(Job.posted_date.desc())
+                .all()
+            )
+        except Exception as scan_err:
+            logger.warning(f"Auto-seed scan notice: {scan_err}")
 
     serialized = [_serialize_threads_job(j) for j in jobs]
 
     vertical_counts = {
         "all": len(serialized),
-        "graphic": sum(1 for item in serialized if item["vertical"] == "graphic"),
-        "tech": sum(1 for item in serialized if item["vertical"] == "tech"),
         "project": sum(1 for item in serialized if item["vertical"] == "project"),
+        "internship": sum(1 for item in serialized if item["vertical"] == "internship"),
+        "tech": sum(1 for item in serialized if item["vertical"] == "tech"),
+        "collab": sum(1 for item in serialized if item["vertical"] == "collab"),
+        "graphic": sum(1 for item in serialized if item["vertical"] == "graphic"),
     }
 
     target_v = vertical.strip().lower()

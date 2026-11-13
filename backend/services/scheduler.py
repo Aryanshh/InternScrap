@@ -165,7 +165,7 @@ def start_scheduler():
             execute_scheduled_threads_scan,
             trigger=IntervalTrigger(minutes=THREADS_RADAR_CONFIG["scan_interval_minutes"]),
             id="periodic_threads_scan",
-            name="Periodic Threads Opportunity Radar (Graphic, Tech, Project)",
+            name="Periodic Threads Opportunity Radar (Project, Internship, Tech, Collab, Graphic)",
             replace_existing=True
         )
         scheduler.start()

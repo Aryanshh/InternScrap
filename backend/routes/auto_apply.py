@@ -295,10 +295,13 @@ def get_queued_jobs(
         return {"count": len(results), "mode": "saved", "jobs": results}
 
     elif mode == "top_matches":
-        # Query matches
-        matches = db.query(Match).filter(Match.score >= 70.0).order_by(Match.score.desc()).limit(15).all()
+        # Query matches using blended_score column
+        matches = db.query(Match).filter(Match.blended_score >= 70.0).order_by(Match.blended_score.desc()).limit(15).all()
         matched_job_ids = [m.job_id for m in matches]
         jobs = db.query(Job).filter(Job.id.in_(matched_job_ids)).all() if matched_job_ids else []
+        if not jobs:
+            # Fallback to active remote jobs if match cache is empty
+            jobs = db.query(Job).filter(Job.is_active == True, Job.remote_type == "remote").order_by(Job.posted_date.desc()).limit(15).all()
         results = [
             {"id": j.id, "title": j.title, "company": j.company, "apply_url": j.apply_url}
             for j in jobs

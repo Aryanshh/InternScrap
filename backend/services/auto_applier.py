@@ -701,17 +701,23 @@ class AutoApplierEngine:
 
                 # Automatically link/sync into Application Tracker
                 try:
-                    job = db.query(Job).filter(Job.apply_url == clean_url).first()
+                    job = db.query(Job).filter(Job.apply_urls.contains([clean_url])).first()
                     job_id = job.id if job else f"auto_{uuid.uuid4().hex[:12]}"
 
                     if not job:
+                        from backend.services.dedup import generate_fingerprint
+                        comp_name = res.get("platform", "Direct Company")
+                        role_title = f"Role at {comp_name}"
+                        fp = generate_fingerprint(role_title, comp_name, "Remote")
                         job = Job(
                             id=job_id,
-                            title=f"Role at {res.get('platform', 'External Job')}",
-                            company=res.get("platform", "Direct Company"),
+                            title=role_title,
+                            company=comp_name,
                             location="Remote",
-                            apply_url=clean_url,
-                            source="Auto-Applier",
+                            apply_urls=[clean_url],
+                            sources=["Auto-Applier"],
+                            primary_source="Auto-Applier",
+                            fingerprint=fp,
                             description="Auto-applied via InternScrap Wellfound-style Auto Applier.",
                         )
                         db.add(job)

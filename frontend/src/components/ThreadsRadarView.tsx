@@ -6,9 +6,11 @@ import {
   Briefcase,
   Check,
   ClipboardPaste,
+  Clock,
   Cpu,
   ExternalLink,
   Globe,
+  GraduationCap,
   Loader2,
   Palette,
   Radio,
@@ -17,6 +19,7 @@ import {
   Send,
   ShieldCheck,
   SlidersHorizontal,
+  Users,
   X,
   Zap,
 } from 'lucide-react';
@@ -45,9 +48,11 @@ const VERTICAL_TABS: Array<{
   icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
 }> = [
   { id: 'all', label: 'All Leads', icon: Radio },
-  { id: 'graphic', label: 'Graphic Design', icon: Palette },
-  { id: 'tech', label: 'Tech & Engineering', icon: Cpu },
-  { id: 'project', label: 'Projects & Freelance', icon: Briefcase },
+  { id: 'project', label: 'Projects & Gigs', icon: Briefcase },
+  { id: 'internship', label: 'Internships', icon: GraduationCap },
+  { id: 'tech', label: 'Tech & Jobs', icon: Cpu },
+  { id: 'collab', label: 'Collabs & Co-founders', icon: Users },
+  { id: 'graphic', label: 'Design & UI/UX', icon: Palette },
 ];
 
 export const ThreadsRadarView: React.FC<ThreadsRadarViewProps> = ({
@@ -57,16 +62,23 @@ export const ThreadsRadarView: React.FC<ThreadsRadarViewProps> = ({
   showToast,
 }) => {
   const [opportunities, setOpportunities] = useState<ThreadsOpportunityItem[]>([]);
-  const [verticalCounts, setVerticalCounts] = useState<Record<ThreadsVertical, number>>({
+  const [verticalCounts, setVerticalCounts] = useState<Record<string, number>>({
     all: 0,
-    graphic: 0,
-    tech: 0,
     project: 0,
+    internship: 0,
+    tech: 0,
+    collab: 0,
+    graphic: 0,
   });
   const [scannerStatus, setScannerStatus] = useState<ThreadsScannerConfig | null>(null);
   const [activeVertical, setActiveVertical] = useState<ThreadsVertical>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [scanMode, setScanMode] = useState<'auto' | 'fediverse'>('auto');
+
+  // 10-Minute Live Continuous Opportunity Scanner Timer
+  const SCAN_INTERVAL_SECONDS = 600; // 10 minutes
+  const [countdownSeconds, setCountdownSeconds] = useState<number>(600);
+  const [isAutoSyncEnabled, setIsAutoSyncEnabled] = useState<boolean>(true);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isScanning, setIsScanning] = useState<boolean>(false);
@@ -82,11 +94,19 @@ export const ThreadsRadarView: React.FC<ThreadsRadarViewProps> = ({
   const [isTestingAlert, setIsTestingAlert] = useState<boolean>(false);
 
   // Form draft fields inside Settings <dialog>
-  const [draftVerticals, setDraftVerticals] = useState<string[]>(['graphic', 'tech', 'project']);
-  const [draftGraphicKeywords, setDraftGraphicKeywords] = useState<string>('');
-  const [draftTechKeywords, setDraftTechKeywords] = useState<string>('');
+  const [draftVerticals, setDraftVerticals] = useState<string[]>([
+    'project',
+    'internship',
+    'tech',
+    'collab',
+    'graphic',
+  ]);
   const [draftProjectKeywords, setDraftProjectKeywords] = useState<string>('');
-  const [draftInterval, setDraftInterval] = useState<number>(30);
+  const [draftInternshipKeywords, setDraftInternshipKeywords] = useState<string>('');
+  const [draftTechKeywords, setDraftTechKeywords] = useState<string>('');
+  const [draftCollabKeywords, setDraftCollabKeywords] = useState<string>('');
+  const [draftGraphicKeywords, setDraftGraphicKeywords] = useState<string>('');
+  const [draftInterval, setDraftInterval] = useState<number>(10);
   const [draftAccessToken, setDraftAccessToken] = useState<string>('');
   const [draftApifyToken, setDraftApifyToken] = useState<string>('');
   const [draftWebhookUrl, setDraftWebhookUrl] = useState<string>('');
@@ -94,11 +114,15 @@ export const ThreadsRadarView: React.FC<ThreadsRadarViewProps> = ({
   const [draftTelegramChatId, setDraftTelegramChatId] = useState<string>('');
 
   const syncDraftFromConfig = (cfg: ThreadsScannerConfig) => {
-    setDraftVerticals(cfg.enabled_verticals || ['graphic', 'tech', 'project']);
-    setDraftGraphicKeywords((cfg.keywords?.graphic || []).join(', '));
-    setDraftTechKeywords((cfg.keywords?.tech || []).join(', '));
+    setDraftVerticals(
+      cfg.enabled_verticals || ['project', 'internship', 'tech', 'collab', 'graphic']
+    );
     setDraftProjectKeywords((cfg.keywords?.project || []).join(', '));
-    setDraftInterval(cfg.scan_interval_minutes || 30);
+    setDraftInternshipKeywords((cfg.keywords?.internship || []).join(', '));
+    setDraftTechKeywords((cfg.keywords?.tech || []).join(', '));
+    setDraftCollabKeywords((cfg.keywords?.collab || []).join(', '));
+    setDraftGraphicKeywords((cfg.keywords?.graphic || []).join(', '));
+    setDraftInterval(cfg.scan_interval_minutes || 10);
   };
 
   const loadOpportunities = async (
@@ -110,7 +134,14 @@ export const ThreadsRadarView: React.FC<ThreadsRadarViewProps> = ({
       const res: ThreadsOpportunitiesResponse = await getThreadsOpportunities(targetVertical, targetSearch);
       setOpportunities(res.opportunities || []);
       setVerticalCounts(
-        res.vertical_counts || { all: 0, graphic: 0, tech: 0, project: 0 }
+        res.vertical_counts || {
+          all: 0,
+          project: 0,
+          internship: 0,
+          tech: 0,
+          collab: 0,
+          graphic: 0,
+        }
       );
       if (res.scanner_status) {
         setScannerStatus(res.scanner_status);
@@ -129,6 +160,24 @@ export const ThreadsRadarView: React.FC<ThreadsRadarViewProps> = ({
     loadOpportunities(activeVertical, searchQuery);
   }, [activeVertical]);
 
+  // 10-Minute Continuous Search Timer Hook
+  useEffect(() => {
+    if (!isAutoSyncEnabled) return;
+
+    const timer = setInterval(() => {
+      setCountdownSeconds((prev) => {
+        if (prev <= 1) {
+          // Automatic 10-minute scan trigger
+          handleScanNow();
+          return SCAN_INTERVAL_SECONDS;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isAutoSyncEnabled, scanMode, activeVertical, searchQuery]);
+
   const handleScanNow = async () => {
     try {
       setIsScanning(true);
@@ -139,6 +188,7 @@ export const ThreadsRadarView: React.FC<ThreadsRadarViewProps> = ({
       const msg = `Threads scan complete via ${res.scan_report?.active_adapter || scanMode}: ${res.total_scanned_opportunities} leads matched (${res.newly_added} new, ${res.scan_report?.self_promo_filtered_count || 0} self-promo filtered).`;
       showToast(msg);
       setLiveAnnouncement(msg);
+      setCountdownSeconds(SCAN_INTERVAL_SECONDS);
       await loadOpportunities(activeVertical, searchQuery);
     } catch (err: any) {
       console.error('Threads scan failed', err);
@@ -253,9 +303,11 @@ export const ThreadsRadarView: React.FC<ThreadsRadarViewProps> = ({
       const payload: Parameters<typeof updateThreadsConfig>[0] = {
         enabled_verticals: draftVerticals,
         keywords: {
-          graphic: splitCsv(draftGraphicKeywords),
-          tech: splitCsv(draftTechKeywords),
           project: splitCsv(draftProjectKeywords),
+          internship: splitCsv(draftInternshipKeywords),
+          tech: splitCsv(draftTechKeywords),
+          collab: splitCsv(draftCollabKeywords),
+          graphic: splitCsv(draftGraphicKeywords),
         },
         scan_interval_minutes: draftInterval,
       };
@@ -307,16 +359,28 @@ export const ThreadsRadarView: React.FC<ThreadsRadarViewProps> = ({
       : 'Fediverse + oEmbed Active (Add Token for Meta API)';
 
   const getVerticalBadgeStyle = (vertical: string) => {
-    if (vertical === 'graphic') {
-      return 'bg-rose-50 text-rose-700 border-rose-200';
+    if (vertical === 'project') {
+      return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    }
+    if (vertical === 'internship') {
+      return 'bg-sky-50 text-sky-700 border-sky-200';
     }
     if (vertical === 'tech') {
       return 'bg-indigo-50 text-indigo-700 border-indigo-200';
     }
-    if (vertical === 'project') {
-      return 'bg-amber-50 text-amber-800 border-amber-200';
+    if (vertical === 'collab') {
+      return 'bg-purple-50 text-purple-700 border-purple-200';
+    }
+    if (vertical === 'graphic') {
+      return 'bg-rose-50 text-rose-700 border-rose-200';
     }
     return 'bg-slate-100 text-slate-700 border-slate-200';
+  };
+
+  const formatCountdown = (totalSec: number) => {
+    const mins = Math.floor(totalSec / 60);
+    const secs = totalSec % 60;
+    return `${mins}m ${secs < 10 ? '0' : ''}${secs}s`;
   };
 
   return (
@@ -338,35 +402,45 @@ export const ThreadsRadarView: React.FC<ThreadsRadarViewProps> = ({
             <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-[0.2em] bg-white/5 text-slate-300 border border-white/10">
               {providerBadgeLabel}
             </span>
-            <span className="text-[11px] font-mono text-slate-400">
-              Keyword &amp; Hiring Filter
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-400/10 text-emerald-300 text-[10px] font-mono uppercase tracking-[0.15em] border border-emerald-400/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+              <Clock className="w-3 h-3" aria-hidden="true" />
+              <span>Next Scan: {formatCountdown(countdownSeconds)} (Every 10m)</span>
             </span>
           </div>
 
           <h1 className="font-serif text-3xl sm:text-5xl font-normal tracking-tight leading-[1.05] text-[#f6f8fe]">
-            Threads <span className="italic text-[#7dd3fc]">Graphic, Tech &amp; Project</span> Scanner
+            Threads <span className="italic text-[#7dd3fc]">Live Opportunity</span> Radar
           </h1>
           <p className="mt-3 text-slate-300 text-xs sm:text-sm leading-relaxed max-w-2xl">
-            Monitors Meta Threads for genuine hiring, freelance design, engineering, and contract project posts while automatically filtering self-promotion noise.
+            Continuously scans Meta Threads every 10 minutes for posts regarding freelance projects, engineering internships, tech roles, startup collabs, and design work.
           </p>
 
-          {/* Metrics Grid */}
-          <div className="mt-6 pt-5 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-            <div className="bg-white/[0.04] p-3.5 rounded-2xl border border-white/10">
-              <div className="text-white font-mono text-lg font-bold tabular-nums">{verticalCounts.all}</div>
-              <div className="text-slate-400 text-[11px] uppercase tracking-wider mt-0.5">Total Matched</div>
+          {/* Metrics Grid across all 5 sectors */}
+          <div className="mt-6 pt-5 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 text-xs">
+            <div className="bg-white/[0.04] p-3 rounded-2xl border border-white/10">
+              <div className="text-white font-mono text-lg font-bold tabular-nums">{verticalCounts.all || 0}</div>
+              <div className="text-slate-400 text-[10px] uppercase tracking-wider mt-0.5">All Leads</div>
             </div>
-            <div className="bg-white/[0.04] p-3.5 rounded-2xl border border-white/10">
-              <div className="text-rose-300 font-mono text-lg font-bold tabular-nums">{verticalCounts.graphic}</div>
-              <div className="text-slate-400 text-[11px] uppercase tracking-wider mt-0.5">Graphic Design</div>
+            <div className="bg-white/[0.04] p-3 rounded-2xl border border-white/10">
+              <div className="text-emerald-300 font-mono text-lg font-bold tabular-nums">{verticalCounts.project || 0}</div>
+              <div className="text-slate-400 text-[10px] uppercase tracking-wider mt-0.5">Projects</div>
             </div>
-            <div className="bg-white/[0.04] p-3.5 rounded-2xl border border-white/10">
-              <div className="text-indigo-300 font-mono text-lg font-bold tabular-nums">{verticalCounts.tech}</div>
-              <div className="text-slate-400 text-[11px] uppercase tracking-wider mt-0.5">Tech Roles</div>
+            <div className="bg-white/[0.04] p-3 rounded-2xl border border-white/10">
+              <div className="text-sky-300 font-mono text-lg font-bold tabular-nums">{verticalCounts.internship || 0}</div>
+              <div className="text-slate-400 text-[10px] uppercase tracking-wider mt-0.5">Internships</div>
             </div>
-            <div className="bg-white/[0.04] p-3.5 rounded-2xl border border-white/10">
-              <div className="text-amber-300 font-mono text-lg font-bold tabular-nums">{verticalCounts.project}</div>
-              <div className="text-slate-400 text-[11px] uppercase tracking-wider mt-0.5">Projects &amp; Gigs</div>
+            <div className="bg-white/[0.04] p-3 rounded-2xl border border-white/10">
+              <div className="text-indigo-300 font-mono text-lg font-bold tabular-nums">{verticalCounts.tech || 0}</div>
+              <div className="text-slate-400 text-[10px] uppercase tracking-wider mt-0.5">Tech &amp; Jobs</div>
+            </div>
+            <div className="bg-white/[0.04] p-3 rounded-2xl border border-white/10">
+              <div className="text-purple-300 font-mono text-lg font-bold tabular-nums">{verticalCounts.collab || 0}</div>
+              <div className="text-slate-400 text-[10px] uppercase tracking-wider mt-0.5">Collabs</div>
+            </div>
+            <div className="bg-white/[0.04] p-3 rounded-2xl border border-white/10">
+              <div className="text-rose-300 font-mono text-lg font-bold tabular-nums">{verticalCounts.graphic || 0}</div>
+              <div className="text-slate-400 text-[10px] uppercase tracking-wider mt-0.5">Design &amp; UI/UX</div>
             </div>
           </div>
         </div>
@@ -775,19 +849,25 @@ export const ThreadsRadarView: React.FC<ThreadsRadarViewProps> = ({
                 Monitored Opportunity Verticals
               </legend>
               <div className="flex flex-wrap gap-4 pt-1">
-                {(['graphic', 'tech', 'project'] as const).map((v) => {
-                  const id = `vertical-checkbox-${v}`;
+                {[
+                  { id: 'project', label: 'Projects & Gigs' },
+                  { id: 'internship', label: 'Internships' },
+                  { id: 'tech', label: 'Tech & Jobs' },
+                  { id: 'collab', label: 'Collabs & Co-founders' },
+                  { id: 'graphic', label: 'Design & UI/UX' },
+                ].map((v) => {
+                  const inputId = `vertical-checkbox-${v.id}`;
                   return (
-                    <div key={v} className="flex items-center gap-2">
+                    <div key={v.id} className="flex items-center gap-2">
                       <input
-                        id={id}
+                        id={inputId}
                         type="checkbox"
-                        checked={draftVerticals.includes(v)}
-                        onChange={() => handleToggleDraftVertical(v)}
+                        checked={draftVerticals.includes(v.id)}
+                        onChange={() => handleToggleDraftVertical(v.id)}
                         className="w-4 h-4 accent-indigo-600 rounded border-slate-300"
                       />
-                      <label htmlFor={id} className="text-xs font-semibold text-slate-700 capitalize">
-                        {v === 'graphic' ? 'Graphic Design' : v === 'tech' ? 'Tech & Engineering' : 'Projects & Freelance'}
+                      <label htmlFor={inputId} className="text-xs font-semibold text-slate-700">
+                        {v.label}
                       </label>
                     </div>
                   );
@@ -798,22 +878,36 @@ export const ThreadsRadarView: React.FC<ThreadsRadarViewProps> = ({
             {/* Keywords per Vertical */}
             <div className="grid grid-cols-1 gap-3">
               <div>
-                <label htmlFor="kw-graphic" className="block text-xs font-bold text-slate-700 mb-1">
-                  Graphic Keywords (comma-separated)
+                <label htmlFor="kw-project" className="block text-xs font-bold text-slate-700 mb-1">
+                  Project &amp; Freelance Keywords (comma-separated)
                 </label>
                 <input
-                  id="kw-graphic"
-                  name="graphic_keywords"
+                  id="kw-project"
+                  name="project_keywords"
                   type="text"
-                  value={draftGraphicKeywords}
-                  onChange={(e) => setDraftGraphicKeywords(e.target.value)}
+                  value={draftProjectKeywords}
+                  onChange={(e) => setDraftProjectKeywords(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-800"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="kw-internship" className="block text-xs font-bold text-slate-700 mb-1">
+                  Internship Keywords (comma-separated)
+                </label>
+                <input
+                  id="kw-internship"
+                  name="internship_keywords"
+                  type="text"
+                  value={draftInternshipKeywords}
+                  onChange={(e) => setDraftInternshipKeywords(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-800"
                 />
               </div>
 
               <div>
                 <label htmlFor="kw-tech" className="block text-xs font-bold text-slate-700 mb-1">
-                  Tech Keywords (comma-separated)
+                  Tech &amp; Job Keywords (comma-separated)
                 </label>
                 <input
                   id="kw-tech"
@@ -826,15 +920,29 @@ export const ThreadsRadarView: React.FC<ThreadsRadarViewProps> = ({
               </div>
 
               <div>
-                <label htmlFor="kw-project" className="block text-xs font-bold text-slate-700 mb-1">
-                  Project Keywords (comma-separated)
+                <label htmlFor="kw-collab" className="block text-xs font-bold text-slate-700 mb-1">
+                  Collab &amp; Co-founder Keywords (comma-separated)
                 </label>
                 <input
-                  id="kw-project"
-                  name="project_keywords"
+                  id="kw-collab"
+                  name="collab_keywords"
                   type="text"
-                  value={draftProjectKeywords}
-                  onChange={(e) => setDraftProjectKeywords(e.target.value)}
+                  value={draftCollabKeywords}
+                  onChange={(e) => setDraftCollabKeywords(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-800"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="kw-graphic" className="block text-xs font-bold text-slate-700 mb-1">
+                  Design &amp; UI/UX Keywords (comma-separated)
+                </label>
+                <input
+                  id="kw-graphic"
+                  name="graphic_keywords"
+                  type="text"
+                  value={draftGraphicKeywords}
+                  onChange={(e) => setDraftGraphicKeywords(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-800"
                 />
               </div>

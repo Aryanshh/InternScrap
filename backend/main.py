@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
     # Initialize DB tables with resilience check
     init_db()
 
-    # Seed default login accounts and profiles: demo, Aryanshh, Nishtha
+    # Seed default login accounts and profiles: Aryanshh, Nishtha
     from backend.routes.profile import seed_all_profiles
     db = SessionLocal()
     try:
@@ -34,9 +34,12 @@ async def lifespan(app: FastAPI):
         logging.getLogger(__name__).warning(f"Default seeding notice: {e}")
     finally:
         db.close()
-    start_scheduler()
+    import sys
+    if "pytest" not in sys.modules:
+        start_scheduler()
     yield
-    shutdown_scheduler()
+    if "pytest" not in sys.modules:
+        shutdown_scheduler()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

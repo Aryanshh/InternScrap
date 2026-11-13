@@ -21,12 +21,6 @@ def verify_password(password: str, password_hash: str) -> bool:
 
 PRESET_USERS = [
     {
-        "id": "demo",
-        "username": "demo",
-        "password": "demo123",
-        "full_name": "Demo Candidate",
-    },
-    {
         "id": "Aryanshh",
         "username": "Aryanshh",
         "password": "Aryanshh123",

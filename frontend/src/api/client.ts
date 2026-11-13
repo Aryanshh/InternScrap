@@ -15,6 +15,8 @@ import {
   RegisterData,
 } from '../types/job';
 
+export type { Job };
+
 const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 
 const api = axios.create({
@@ -438,7 +440,7 @@ export const getDaily21Progress = async (
 // THREADS OPPORTUNITY RADAR (GRAPHIC, TECH, PROJECT)
 // =====================================================================
 
-export type ThreadsVertical = 'all' | 'graphic' | 'tech' | 'project';
+export type ThreadsVertical = 'all' | 'project' | 'internship' | 'tech' | 'collab' | 'graphic';
 
 export interface ThreadsOpportunityItem extends Job {
   vertical: string;
@@ -483,7 +485,7 @@ export interface ThreadsScannerConfig {
 
 export interface ThreadsOpportunitiesResponse {
   count: number;
-  vertical_counts: Record<'all' | 'graphic' | 'tech' | 'project', number>;
+  vertical_counts: Record<ThreadsVertical | string, number>;
   opportunities: ThreadsOpportunityItem[];
   scanner_status: ThreadsScannerConfig;
 }

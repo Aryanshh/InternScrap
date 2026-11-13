@@ -62,7 +62,7 @@ export const Daily21View: React.FC<Daily21ViewProps> = ({
   // Inspection states
   const [selectedScreenshot, setSelectedScreenshot] = useState<string | null>(null);
   const [showLogs, setShowLogs] = useState<boolean>(false);
-  const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const loadDailyJobs = async (force: boolean = false) => {
     try {

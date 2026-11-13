@@ -1,6 +1,6 @@
 from typing import List, Optional
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 class JobBase(BaseModel):
     title: str
@@ -57,8 +57,7 @@ class JobOut(BaseModel):
     updated_at: Optional[datetime]
     match: Optional[JobMatchOut] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class JobListResponse(BaseModel):
     total: int

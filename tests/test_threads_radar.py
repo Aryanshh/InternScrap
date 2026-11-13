@@ -110,7 +110,8 @@ def test_meta_api_fetcher_and_oembed_inspection_mocked():
         with patch("backend.services.ingestion.threads_scanner.httpx.AsyncClient") as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.return_value = mock_meta_resp
-            mock_client_cls.return_value.__aenter__.return_value = mock_client
+            mock_client_cls.return_value.__aenter__ = AsyncMock(return_value=mock_client)
+            mock_client_cls.return_value.__aexit__ = AsyncMock(return_value=None)
 
             posts, status_info = await fetch_via_meta_api(
                 access_token="dummy_token_123456",
@@ -131,7 +132,8 @@ def test_meta_api_fetcher_and_oembed_inspection_mocked():
         with patch("backend.services.ingestion.threads_scanner.httpx.AsyncClient") as mock_client_cls:
             mock_client = AsyncMock()
             mock_client.get.return_value = mock_oembed_resp
-            mock_client_cls.return_value.__aenter__.return_value = mock_client
+            mock_client_cls.return_value.__aenter__ = AsyncMock(return_value=mock_client)
+            mock_client_cls.return_value.__aexit__ = AsyncMock(return_value=None)
 
             inspected = await inspect_threads_url("https://www.threads.net/@design_lead/post/C9demoInspect")
             assert inspected["classification"]["is_opportunity"] is True

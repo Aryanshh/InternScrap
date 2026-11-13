@@ -21,6 +21,14 @@ class Match(Base):
     gap_list = Column(JSON, default=list) # List of missing requirements
     created_at = Column(DateTime, default=get_utc_now)
 
+    @property
+    def score(self) -> float:
+        return self.blended_score or 0.0
+
+    @score.setter
+    def score(self, value: float):
+        self.blended_score = value
+
     def to_dict(self):
         return {
             "id": self.id,
