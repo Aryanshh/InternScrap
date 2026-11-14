@@ -12,15 +12,33 @@ from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls
 
-from playwright.sync_api import sync_playwright
+import tempfile
+
+try:
+    from playwright.sync_api import sync_playwright
+    PLAYWRIGHT_AVAILABLE = True
+except (ImportError, Exception):
+    sync_playwright = None
+    PLAYWRIGHT_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
-OUTPUT_DIR = Path(__file__).resolve().parent.parent / "generated_resumes"
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+def _resolve_output_dir() -> Path:
+    base = Path(__file__).resolve().parent.parent / "generated_resumes"
+    try:
+        base.mkdir(parents=True, exist_ok=True)
+        return base
+    except Exception:
+        tmp_base = Path(tempfile.gettempdir()) / "internscrap" / "generated_resumes"
+        tmp_base.mkdir(parents=True, exist_ok=True)
+        return tmp_base
 
+OUTPUT_DIR = _resolve_output_dir()
 SCREENSHOTS_DIR = OUTPUT_DIR / "screenshots"
-SCREENSHOTS_DIR.mkdir(parents=True, exist_ok=True)
+try:
+    SCREENSHOTS_DIR.mkdir(parents=True, exist_ok=True)
+except Exception:
+    pass
 
 
 def highlight_metrics_in_text(text: str) -> str:
@@ -442,6 +460,11 @@ def generate_iim_pdf(data: Dict[str, Any], filename: Optional[str] = None, theme
 
     output_path = OUTPUT_DIR / filename
     html_content = get_iim_html_template(data, theme=theme)
+
+    if not PLAYWRIGHT_AVAILABLE or sync_playwright is None:
+        html_fallback_path = output_path.with_suffix(".html")
+        html_fallback_path.write_text(html_content, encoding="utf-8")
+        return str(html_fallback_path)
 
     with sync_playwright() as p:
         browser = p.chromium.launch(

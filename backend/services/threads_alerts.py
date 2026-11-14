@@ -40,14 +40,23 @@ def _load_alerted_keys() -> Set[str]:
 
 
 def _save_alerted_keys(keys: Set[str]) -> None:
-    DIGEST_DIR.mkdir(parents=True, exist_ok=True)
+    try:
+        DIGEST_DIR.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        pass
     # Cap stored fingerprints to avoid unbounded file growth
     trimmed = list(keys)[-1000:]
-    ALERTED_IDS_FILE.write_text(json.dumps(trimmed, indent=2), encoding="utf-8")
+    try:
+        ALERTED_IDS_FILE.write_text(json.dumps(trimmed, indent=2), encoding="utf-8")
+    except Exception:
+        pass
 
 
 def _append_alert_history(entry: Dict[str, Any]) -> None:
-    DIGEST_DIR.mkdir(parents=True, exist_ok=True)
+    try:
+        DIGEST_DIR.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        pass
     history: List[Dict[str, Any]] = []
     if ALERT_HISTORY_FILE.exists():
         try:
@@ -57,7 +66,10 @@ def _append_alert_history(entry: Dict[str, Any]) -> None:
         except (OSError, ValueError):
             history = []
     history.insert(0, entry)
-    ALERT_HISTORY_FILE.write_text(json.dumps(history[:50], indent=2), encoding="utf-8")
+    try:
+        ALERT_HISTORY_FILE.write_text(json.dumps(history[:50], indent=2), encoding="utf-8")
+    except Exception:
+        pass
 
 
 def get_alert_history(limit: int = 10) -> List[Dict[str, Any]]:

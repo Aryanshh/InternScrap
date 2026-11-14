@@ -32,7 +32,7 @@ graph TD
    - **Name**: `internscrap-db`
    - **Database Password**: Choose a secure password (save this).
    - **Region**: Choose the region closest to your backend (e.g., `US East - Ohio / N. Virginia`).
-3. Once provisioned, navigate to **Project Settings** ➔ **Database**.
+3. Once provisioned, navigate to **Project Settings** -> **Database**.
 4. Under **Connection string**, select **URI**:
    - **Transaction Pooler (Port 6543 - Recommended)**:
      ```
@@ -52,7 +52,7 @@ graph TD
 
 1. Push your repository to **GitHub**.
 2. Log in to [render.com](https://render.com).
-3. Click **New +** ➔ **Blueprint** (or **Web Service**):
+3. Click **New +** -> **Blueprint** (or **Web Service**):
    - If using **Blueprint**, select your repo. Render will automatically read `render.yaml`.
    - If creating manually as a **Web Service**:
      - **Name**: `internscrap-backend`
@@ -88,27 +88,41 @@ graph TD
 ### Option B: Deploy on Railway
 
 1. Log in to [railway.app](https://railway.app).
-2. Click **New Project** ➔ **Deploy from GitHub repo**.
+2. Click **New Project** -> **Deploy from GitHub repo**.
 3. Railway automatically detects `Dockerfile` and `railway.json`.
 4. Add the same Environment Variables listed above under **Variables**.
 5. Under **Settings**, click **Generate Domain** (e.g., `https://internscrap-backend.up.railway.app`).
 
 ---
 
-## Step 3: Frontend Deployment (Vercel)
+## Step 3: Vercel Deployment
 
-1. Log in to [vercel.com](https://vercel.com).
-2. Click **Add New...** ➔ **Project** and import your GitHub repository.
-3. Configure the project settings:
-   - **Framework Preset**: `Vite`
-   - **Root Directory**: `frontend`
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `dist`
-4. In **Environment Variables**, add:
+InternScrap supports two deployment modes on Vercel:
+
+### Mode 1: All-in-One Vercel Deployment (Frontend + Serverless FastAPI Backend)
+
+You can run the entire application directly on Vercel without creating a separate Render or Railway account:
+
+1. Import your GitHub repository into [vercel.com](https://vercel.com).
+2. Leave **Root Directory** as default (`.` / root).
+3. Do NOT override the build command; Vercel automatically uses `vercel.json`:
+   - Builds Vite frontend into `frontend/dist`.
+   - Deploys `api/index.py` as a Python Serverless Function.
+   - Automatically rewrites `/api/*` requests to the Python serverless backend.
+   - Automatically mounts seed database `jobs.db` to `/tmp/jobs.db` with all 200+ jobs, default users (`Aryanshh` and `Nishtha`), and resumes.
+4. Click **Deploy**. Both the frontend and all API endpoints (`/api/jobs`, `/api/threads`, `/api/daily-21`, `/api/auth`, `/api/resumes`) will be live on your Vercel URL!
+
+### Mode 2: Split Architecture (Vercel Frontend + Dedicated Render / Railway Backend)
+
+If you prefer a persistent background worker (e.g., continuous 24/7 background scheduled scraping via APScheduler without serverless cold starts):
+
+1. Deploy the backend to **Render** or **Railway** following Step 2 above.
+2. In your Vercel project settings, navigate to **Settings** -> **Environment Variables**.
+3. Add the following variable:
    - **Name**: `VITE_API_URL`
-   - **Value**: `https://internscrap-backend.onrender.com/api` (use your actual Render/Railway backend URL with the `/api` suffix)
-5. Click **Deploy**. Vercel will build the frontend and serve it globally on edge nodes.
-6. Copy your Vercel production URL (e.g., `https://internscrap.vercel.app`) and ensure it is included in the backend's `CORS_ORIGINS` variable.
+   - **Value**: `https://your-backend.onrender.com/api` (use your actual Render/Railway URL with `/api` suffix)
+4. Redeploy your Vercel project. The frontend will now automatically direct all API calls to your dedicated Render backend.
+5. In your Render/Railway backend environment variables, ensure `CORS_ORIGINS` includes your Vercel domain (e.g., `https://your-app.vercel.app,*`).
 
 ---
 

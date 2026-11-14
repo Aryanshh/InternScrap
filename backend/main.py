@@ -35,10 +35,12 @@ async def lifespan(app: FastAPI):
     finally:
         db.close()
     import sys
-    if "pytest" not in sys.modules:
+    import os
+    is_serverless = os.getenv("VERCEL") == "1" or os.getenv("AWS_LAMBDA_FUNCTION_NAME") is not None
+    if "pytest" not in sys.modules and not is_serverless:
         start_scheduler()
     yield
-    if "pytest" not in sys.modules:
+    if "pytest" not in sys.modules and not is_serverless:
         shutdown_scheduler()
 
 app = FastAPI(
@@ -81,6 +83,8 @@ app.include_router(threads_radar_router)
 app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 
 @app.get("/")
+@app.get("/api")
+@app.get("/api/health")
 def root():
     return {
         "app": settings.PROJECT_NAME,

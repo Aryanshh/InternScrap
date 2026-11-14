@@ -17,7 +17,28 @@ import {
 
 export type { Job };
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+const resolveApiBase = (): string => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim().length > 0) {
+    return envUrl.trim().replace(/\/+$/, '');
+  }
+  return '/api';
+};
+
+export const API_BASE = resolveApiBase();
+
+export const API_ORIGIN = API_BASE.startsWith('http')
+  ? API_BASE.replace(/\/api\/?$/, '')
+  : '';
+
+export const resolveAssetUrl = (url?: string): string => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    return url;
+  }
+  const clean = url.startsWith('/') ? url : `/${url}`;
+  return `${API_ORIGIN}${clean}`;
+};
 
 const api = axios.create({
   baseURL: API_BASE,

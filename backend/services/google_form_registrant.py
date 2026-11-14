@@ -7,7 +7,16 @@ from typing import Dict, Any, List, Optional, Tuple
 from pathlib import Path
 from datetime import datetime, timezone
 
-from playwright.sync_api import sync_playwright, Page, TimeoutError as PlaywrightTimeoutError
+import tempfile
+
+try:
+    from playwright.sync_api import sync_playwright, Page, TimeoutError as PlaywrightTimeoutError
+    PLAYWRIGHT_AVAILABLE = True
+except (ImportError, Exception):
+    sync_playwright = None
+    Page = Any
+    PlaywrightTimeoutError = TimeoutError
+    PLAYWRIGHT_AVAILABLE = False
 
 from backend.database import SessionLocal
 from backend.models.application import Application
@@ -17,9 +26,22 @@ from backend.services.iim_resume_service import generate_iim_pdf
 
 logger = logging.getLogger(__name__)
 
-OUTPUT_DIR = Path(__file__).resolve().parent.parent / "generated_resumes"
+def _resolve_output_dir() -> Path:
+    base = Path(__file__).resolve().parent.parent / "generated_resumes"
+    try:
+        base.mkdir(parents=True, exist_ok=True)
+        return base
+    except Exception:
+        tmp_base = Path(tempfile.gettempdir()) / "internscrap" / "generated_resumes"
+        tmp_base.mkdir(parents=True, exist_ok=True)
+        return tmp_base
+
+OUTPUT_DIR = _resolve_output_dir()
 SCREENSHOTS_DIR = OUTPUT_DIR / "screenshots"
-SCREENSHOTS_DIR.mkdir(parents=True, exist_ok=True)
+try:
+    SCREENSHOTS_DIR.mkdir(parents=True, exist_ok=True)
+except Exception:
+    pass
 
 
 class GoogleFormRegistrant:
@@ -263,6 +285,14 @@ class GoogleFormRegistrant:
         logs.append(f"[{timestamp}] Initiating Google Form Auto-Registrant in '{mode.upper()}' mode.")
         logs.append(f"Target Google Form: {url}")
         logs.append(f"Candidate: {full_name} ({email})")
+
+        if not PLAYWRIGHT_AVAILABLE or sync_playwright is None:
+            return {
+                "status": "failed",
+                "message": "Google Form automation requires Playwright, which is not supported in serverless hosting. Run locally for automated form submissions.",
+                "logs": logs + ["Playwright browser automation is unavailable in serverless mode."],
+                "screenshots": [],
+            }
 
         with sync_playwright() as p:
             browser = p.chromium.launch(

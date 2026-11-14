@@ -33,6 +33,7 @@ import {
   getIimPreviewUrl,
   getIimPdfUrl,
   getIimDocxUrl,
+  resolveAssetUrl,
   AutoApplyResult,
 } from '../api/client';
 import { WellfoundProfileData, SkillWithYears, IimResumeTheme } from '../types/job';
@@ -568,7 +569,7 @@ export const AutoApplierModal: React.FC<AutoApplierModalProps> = ({
                           <div className="flex items-center gap-2 shrink-0">
                             {res.screenshot_url && (
                               <button
-                                onClick={() => setSelectedScreenshot(`http://127.0.0.1:8000${res.screenshot_url}`)}
+                                onClick={() => setSelectedScreenshot(resolveAssetUrl(res.screenshot_url))}
                                 className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-xs font-semibold text-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
                               >
                                 <ImageIcon className="w-3.5 h-3.5 text-indigo-600" />

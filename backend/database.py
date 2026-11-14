@@ -5,10 +5,29 @@ from backend.config import settings
 
 logger = logging.getLogger(__name__)
 
+import os
+import shutil
+import tempfile
+from pathlib import Path
+
 # Normalize legacy postgres:// URI to postgresql:// for SQLAlchemy 2.0
 db_url = settings.DATABASE_URL
 if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+if db_url.startswith("sqlite"):
+    # On Vercel or read-only filesystems, use /tmp/jobs.db
+    is_vercel = os.getenv("VERCEL") == "1" or not os.access(".", os.W_OK)
+    if is_vercel and ("/tmp/" not in db_url and "\\tmp\\" not in db_url):
+        tmp_db = Path(tempfile.gettempdir()) / "jobs.db"
+        bundled_db = Path(__file__).resolve().parent.parent / "jobs.db"
+        if not tmp_db.exists() and bundled_db.exists():
+            try:
+                shutil.copy2(bundled_db, tmp_db)
+                logger.info(f"Copied bundled jobs.db to writable temp location: {tmp_db}")
+            except Exception as copy_err:
+                logger.warning(f"Could not copy bundled jobs.db: {copy_err}")
+        db_url = f"sqlite:///{tmp_db.as_posix()}"
 
 # Configure connection options
 connect_args = {}

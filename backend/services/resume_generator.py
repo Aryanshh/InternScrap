@@ -11,11 +11,22 @@ from docx.enum.style import WD_STYLE_TYPE
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
+import tempfile
+
 from backend.services.resume_parser import TECH_KEYWORDS, extract_skills, is_section_header
 
 # Directory for generated docx files
-OUTPUT_DIR = Path(__file__).resolve().parent.parent / "generated_resumes"
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+def _resolve_output_dir() -> Path:
+    base = Path(__file__).resolve().parent.parent / "generated_resumes"
+    try:
+        base.mkdir(parents=True, exist_ok=True)
+        return base
+    except Exception:
+        tmp_base = Path(tempfile.gettempdir()) / "internscrap" / "generated_resumes"
+        tmp_base.mkdir(parents=True, exist_ok=True)
+        return tmp_base
+
+OUTPUT_DIR = _resolve_output_dir()
 
 def clean_text(text: str) -> str:
     return re.sub(r"\s+", " ", text or "").strip()

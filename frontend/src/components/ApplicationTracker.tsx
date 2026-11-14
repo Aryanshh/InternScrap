@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ApplicationItem, Job } from '../types/job';
-import { getApplications, updateApplication, deleteApplication } from '../api/client';
+import { getApplications, updateApplication, deleteApplication, resolveAssetUrl } from '../api/client';
 import {
   Bookmark,
   Send,
@@ -221,7 +221,7 @@ export const ApplicationTracker: React.FC<ApplicationTrackerProps> = ({ onTailor
                       <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
                         {app.tailored_resume ? (
                           <a
-                            href={`http://127.0.0.1:8000${app.tailored_resume.download_url}`}
+                            href={resolveAssetUrl(app.tailored_resume.download_url)}
                             download
                             className="inline-flex items-center text-cyan-700 hover:text-cyan-900 font-semibold gap-1"
                             title="Download tailored DOCX resume"

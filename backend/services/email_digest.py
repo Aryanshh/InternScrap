@@ -5,11 +5,20 @@ from datetime import datetime, timezone
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import List, Dict, Any, Optional
+import tempfile
 from pathlib import Path
 
-DIGEST_DIR = Path(__file__).resolve().parent.parent / "generated_digests"
-DIGEST_DIR.mkdir(parents=True, exist_ok=True)
+def _resolve_digest_dir() -> Path:
+    base = Path(__file__).resolve().parent.parent / "generated_digests"
+    try:
+        base.mkdir(parents=True, exist_ok=True)
+        return base
+    except Exception:
+        tmp_base = Path(tempfile.gettempdir()) / "internscrap" / "generated_digests"
+        tmp_base.mkdir(parents=True, exist_ok=True)
+        return tmp_base
 
+DIGEST_DIR = _resolve_digest_dir()
 LATEST_DIGEST_FILE = DIGEST_DIR / "latest_digest.html"
 DIGEST_HISTORY_FILE = DIGEST_DIR / "digest_history.json"
 
