@@ -158,7 +158,12 @@ async def execute_keep_alive_ping() -> Dict[str, Any]:
     """
     import os
     import httpx
-    target_url = os.getenv("RENDER_EXTERNAL_URL") or os.getenv("BACKEND_URL") or os.getenv("KEEP_ALIVE_URL")
+    target_url = (
+        os.getenv("RENDER_EXTERNAL_URL")
+        or (f"https://{os.getenv('RENDER_EXTERNAL_HOSTNAME').strip()}" if os.getenv("RENDER_EXTERNAL_HOSTNAME") else None)
+        or os.getenv("BACKEND_URL")
+        or os.getenv("KEEP_ALIVE_URL")
+    )
     if not target_url:
         return {"status": "skipped", "reason": "No RENDER_EXTERNAL_URL or BACKEND_URL configured."}
 

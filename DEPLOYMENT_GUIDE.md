@@ -65,7 +65,7 @@ graph TD
 
 | Key | Example Value | Description |
 | :--- | :--- | :--- |
-| `DATABASE_URL` | `postgresql://postgres:password@db.ref.supabase.co:5432/postgres` | Your Supabase connection URI (or omit to use bundled SQLite) |
+| `DATABASE_URL` | `postgresql://postgres:password@db.ref.supabase.co:5432/postgres` | Your Supabase connection URI (or omit to use local SQLite) |
 | `PORT` | `10000` | Standard Render web port (auto-injected by Render) |
 | `CORS_ORIGINS` | `*` | Allowed frontend domains (allows all Vercel domains) |
 | `ENABLE_BACKGROUND_SCHEDULER` | `true` | Enables APScheduler automatic ingestion and 10-minute Threads scanner |
@@ -103,7 +103,7 @@ You can run the entire application directly on Vercel without creating a separat
    - Builds Vite frontend into `frontend/dist`.
    - Deploys `api/index.py` as a Python Serverless Function.
    - Automatically rewrites `/api/*` requests to the Python serverless backend.
-   - Automatically mounts seed database `jobs.db` to `/tmp/jobs.db` with all 200+ jobs, default users (`Aryanshh` and `Nishtha`), and resumes.
+   - Automatically initializes SQLite database with all tables, default users (`Aryanshh` and `Nishtha`), user profiles, and opportunity leads.
 4. Click **Deploy**. Both the frontend and all API endpoints (`/api/jobs`, `/api/threads`, `/api/daily-21`, `/api/auth`, `/api/resumes`) will be live on your Vercel URL!
 
 ### Mode 2: Split Architecture (Vercel Frontend + Dedicated Render / Railway Backend)

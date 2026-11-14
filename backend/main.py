@@ -25,10 +25,17 @@ async def lifespan(app: FastAPI):
 
     # Seed default login accounts and profiles: Aryanshh, Nishtha
     from backend.routes.profile import seed_all_profiles
+    from backend.models.job import Job
     db = SessionLocal()
     try:
         seed_default_users(db)
         seed_all_profiles(db)
+        # Ensure fresh deployments immediately have initial opportunity leads
+        if db.query(Job).count() == 0:
+            import logging
+            logging.getLogger(__name__).info("Fresh database detected. Seeding initial opportunities...")
+            from backend.routes.threads_radar import execute_threads_scan
+            await execute_threads_scan(db, scan_mode="auto", limit=30, send_alerts=False)
     except Exception as e:
         import logging
         logging.getLogger(__name__).warning(f"Default seeding notice: {e}")

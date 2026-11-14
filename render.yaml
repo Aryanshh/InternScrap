@@ -11,7 +11,7 @@ services:
       - key: PORT
         value: 10000
       - key: DATABASE_URL
-        sync: false # Set in Render Dashboard with your Supabase PostgreSQL connection string, or leave unset to use bundled jobs.db
+        sync: false # Set in Render Dashboard with your Supabase PostgreSQL connection string, or leave unset to use local SQLite
       - key: CORS_ORIGINS
         value: "*"
       - key: ENABLE_BACKGROUND_SCHEDULER

@@ -17,9 +17,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
-# Copy codebase and seed database
+# Copy codebase
 COPY backend /app/backend
-COPY jobs.db /app/jobs.db
 
 # Ensure directories exist for runtime storage
 RUN mkdir -p /app/backend/uploads /app/tailored_resumes /app/digests /app/backend/generated_resumes/screenshots
