@@ -20,6 +20,19 @@ def _create_resilient_engine(primary_url: str):
     if clean_url.startswith("postgres://"):
         clean_url = clean_url.replace("postgres://", "postgresql://", 1)
 
+    # Auto-add sslmode=require for cloud PostgreSQL hosts (Supabase, Neon, Render) if omitted
+    if "sslmode=" not in clean_url and any(h in clean_url for h in ("supabase.com", "supabase.co", "neon.tech", "render.com")):
+        sep = "&" if "?" in clean_url else "?"
+        clean_url = f"{clean_url}{sep}sslmode=require"
+
+    if "pooler.supabase.com" in clean_url and "@" in clean_url:
+        auth_part = clean_url.split("://", 1)[-1].split("@", 1)[0]
+        if ":" not in auth_part:
+            logger.warning(
+                "Notice: Supabase Connection Pooler URL appears to be missing a password (:your_password). "
+                "Expected format: postgresql://postgres.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:6543/postgres?sslmode=require"
+            )
+
     is_vercel = os.getenv("VERCEL") == "1" or not os.access(".", os.W_OK)
     if clean_url.startswith("sqlite"):
         if is_vercel and ("/tmp/" not in clean_url and "\\tmp\\" not in clean_url):
