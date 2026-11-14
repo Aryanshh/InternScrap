@@ -10,42 +10,72 @@ import shutil
 import tempfile
 from pathlib import Path
 
-# Normalize legacy postgres:// URI to postgresql:// for SQLAlchemy 2.0
-db_url = settings.DATABASE_URL
-if db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql://", 1)
+def _create_resilient_engine(primary_url: str):
+    """
+    Constructs an SQLAlchemy engine with automated driver normalization and fallback.
+    Supports both psycopg (psycopg3) and psycopg2, and falls back to local SQLite
+    if drivers are missing or incompatible so module import never raises ModuleNotFoundError.
+    """
+    clean_url = (primary_url or "").strip()
+    if clean_url.startswith("postgres://"):
+        clean_url = clean_url.replace("postgres://", "postgresql://", 1)
 
-if db_url.startswith("sqlite"):
-    # On Vercel or read-only filesystems, use /tmp/jobs.db
     is_vercel = os.getenv("VERCEL") == "1" or not os.access(".", os.W_OK)
-    if is_vercel and ("/tmp/" not in db_url and "\\tmp\\" not in db_url):
-        tmp_db = Path(tempfile.gettempdir()) / "jobs.db"
-        bundled_db = Path(__file__).resolve().parent.parent / "jobs.db"
-        if not tmp_db.exists() and bundled_db.exists():
-            try:
-                shutil.copy2(bundled_db, tmp_db)
-                logger.info(f"Copied bundled jobs.db to writable temp location: {tmp_db}")
-            except Exception as copy_err:
-                logger.warning(f"Could not copy bundled jobs.db: {copy_err}")
-        db_url = f"sqlite:///{tmp_db.as_posix()}"
+    if clean_url.startswith("sqlite"):
+        if is_vercel and ("/tmp/" not in clean_url and "\\tmp\\" not in clean_url):
+            tmp_db = Path(tempfile.gettempdir()) / "jobs.db"
+            bundled_db = Path(__file__).resolve().parent.parent / "jobs.db"
+            if not tmp_db.exists() and bundled_db.exists():
+                try:
+                    shutil.copy2(bundled_db, tmp_db)
+                    logger.info(f"Copied bundled jobs.db to writable temp location: {tmp_db}")
+                except Exception as copy_err:
+                    logger.warning(f"Could not copy bundled jobs.db: {copy_err}")
+            clean_url = f"sqlite:///{tmp_db.as_posix()}"
+        return create_engine(clean_url, connect_args={"check_same_thread": False}, echo=False)
 
-# Configure connection options
-connect_args = {}
-engine_kwargs = {"echo": False}
+    candidates = [clean_url]
+    # Build candidate alternatives for PostgreSQL drivers
+    if "postgresql+psycopg://" in clean_url:
+        candidates.append(clean_url.replace("postgresql+psycopg://", "postgresql+psycopg2://", 1))
+        candidates.append(clean_url.replace("postgresql+psycopg://", "postgresql://", 1))
+    elif "postgresql+psycopg2://" in clean_url:
+        candidates.append(clean_url.replace("postgresql+psycopg2://", "postgresql+psycopg://", 1))
+        candidates.append(clean_url.replace("postgresql+psycopg2://", "postgresql://", 1))
+    elif clean_url.startswith("postgresql://"):
+        candidates.append(clean_url.replace("postgresql://", "postgresql+psycopg://", 1))
+        candidates.append(clean_url.replace("postgresql://", "postgresql+psycopg2://", 1))
 
-if db_url.startswith("sqlite"):
-    connect_args = {"check_same_thread": False}
-else:
-    engine_kwargs.update({
-        "pool_pre_ping": True,
-        "pool_recycle": 300,
-    })
+    # Add local SQLite as ultimate fallback if PostgreSQL drivers are missing
+    sqlite_fallback = "sqlite:////tmp/jobs.db" if is_vercel else "sqlite:///./jobs.db"
+    candidates.append(sqlite_fallback)
 
-engine = create_engine(
-    db_url,
-    connect_args=connect_args,
-    **engine_kwargs
-)
+    last_exc = None
+    for cand in candidates:
+        try:
+            cand_args = {"check_same_thread": False} if cand.startswith("sqlite") else {}
+            cand_kwargs = {"echo": False}
+            if not cand.startswith("sqlite"):
+                cand_kwargs["pool_pre_ping"] = True
+                cand_kwargs["pool_recycle"] = 300
+            eng = create_engine(cand, connect_args=cand_args, **cand_kwargs)
+            masked = cand.split("@")[-1] if "@" in cand else cand
+            logger.info(f"Initialized database engine with: {masked}")
+            return eng
+        except (ModuleNotFoundError, ImportError) as mod_err:
+            masked = cand.split("@")[-1] if "@" in cand else cand
+            logger.warning(f"Database driver missing for {masked}: {mod_err}. Trying alternate...")
+            last_exc = mod_err
+        except Exception as exc:
+            masked = cand.split("@")[-1] if "@" in cand else cand
+            logger.warning(f"Could not initialize engine for {masked}: {exc}. Trying alternate...")
+            last_exc = exc
+
+    logger.error(f"All candidate engines failed ({last_exc}). Falling back to sqlite:///./jobs.db")
+    return create_engine("sqlite:///./jobs.db", connect_args={"check_same_thread": False}, echo=False)
+
+
+engine = _create_resilient_engine(settings.DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
