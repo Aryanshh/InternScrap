@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   AlertCircle,
   ArrowRight,
-  ArrowUpRight,
   Briefcase,
   CheckCircle2,
   Clock,
@@ -111,53 +110,6 @@ export const HomePage: React.FC<HomePageProps> = ({
   const rawFirst = (currentProfile?.full_name || activeUserId || '').trim().split(' ')[0];
   const displayFirstName = rawFirst && rawFirst.toLowerCase() !== 'demo' ? rawFirst : '';
 
-  const showcaseModules = [
-    {
-      id: 'daily21',
-      title: 'Daily 21',
-      italicWord: 'Remote Drops',
-      category: '[CURATED BATCH AUTOMATION]',
-      metric: '21 Roles / Day',
-      tint: 'bg-gradient-to-br from-indigo-100/80 via-blue-50 to-white',
-      orbClass: 'bg-indigo-400/25',
-      staggered: false,
-      onClick: onNavigateToDaily21 || onNavigateToListings,
-    },
-    {
-      id: 'threads',
-      title: 'Threads',
-      italicWord: 'Opportunity Radar',
-      category: '[GRAPHIC • TECH • PROJECT]',
-      metric: 'Intent Scanned',
-      tint: 'bg-gradient-to-br from-violet-100/80 via-purple-50 to-white',
-      orbClass: 'bg-violet-400/25',
-      staggered: true,
-      onClick: onNavigateToThreads || onNavigateToListings,
-    },
-    {
-      id: 'listings',
-      title: 'Explore',
-      italicWord: 'Verified Feeds',
-      category: `[${stats?.total_jobs || 0} ACTIVE LISTINGS]`,
-      metric: `${stats?.remote_jobs || 0} Remote`,
-      tint: 'bg-gradient-to-br from-sky-100/80 via-cyan-50 to-white',
-      orbClass: 'bg-sky-400/25',
-      staggered: false,
-      onClick: onNavigateToListings,
-    },
-    {
-      id: 'gforms',
-      title: 'Google Forms',
-      italicWord: 'Auto-Registrant',
-      category: '[MULTI-PAGE PLAYWRIGHT BOT]',
-      metric: 'Proof Ready',
-      tint: 'bg-gradient-to-br from-emerald-100/75 via-teal-50 to-white',
-      orbClass: 'bg-emerald-400/20',
-      staggered: true,
-      onClick: onNavigateToGoogleForms || onNavigateToListings,
-    },
-  ];
-
   return (
     <div className="bg-[#f6f8fe] text-[#0f172a]">
       {/* 1. Full-Bleed Midnight Sapphire Hero with Glowing Indigo/Sky Mesh + Wave Bridge */}
@@ -261,77 +213,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       </section>
 
-      {/* 2. Staggered 2-Column Editorial Discovery Modules Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12 border-b border-[#d4dcf0] pb-6">
-          <div>
-            <span className="oi-mono-label text-[11px] text-[#4338ca] block mb-2">
-              Search Tools
-            </span>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-[#0f172a]">
-              Main <em className="italic font-normal">Workspaces</em>
-            </h2>
-          </div>
-          <p className="text-xs sm:text-sm text-slate-600 max-w-md">
-            Switch between daily remote drops, Threads hiring leads, and Google Forms.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start">
-          {showcaseModules.map((mod) => (
-            <div
-              key={mod.id}
-              className={`group ${mod.staggered ? 'md:mt-14' : ''}`}
-            >
-              <button
-                type="button"
-                onClick={mod.onClick}
-                className={`oi-card-lift relative w-full aspect-[4/3] rounded-[1rem] ${mod.tint} border border-[#d4dcf0] overflow-hidden p-7 flex flex-col justify-between text-left cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#4338ca] focus-visible:outline-offset-4`}
-              >
-                {/* Blurred Orbital Center Glow */}
-                <div
-                  aria-hidden="true"
-                  className={`absolute inset-0 m-auto w-56 h-56 rounded-full ${mod.orbClass} blur-3xl transition-transform duration-700 ease-premium group-hover:scale-125 pointer-events-none`}
-                />
-
-                <div className="relative z-10 flex items-center justify-between">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-slate-600">
-                    {mod.category}
-                  </span>
-                  <span className="font-mono text-xs font-bold text-[#4338ca] bg-white/80 px-3 py-1 rounded-full border border-[#d4dcf0]">
-                    {mod.metric}
-                  </span>
-                </div>
-
-                <div className="relative z-10 flex items-end justify-between gap-4">
-                  <div className="font-serif text-3xl sm:text-4xl leading-none text-[#0f172a]">
-                    {mod.title}
-                    <br />
-                    <em className="italic font-normal text-[#4338ca]">{mod.italicWord}</em>
-                  </div>
-
-                  <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white text-[#0f172a] font-mono text-[10px] font-bold uppercase tracking-[0.25em] border border-[#d4dcf0] opacity-90 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-premium">
-                    <span>View</span>
-                    <ArrowUpRight className="w-3.5 h-3.5" aria-hidden="true" />
-                  </span>
-                </div>
-              </button>
-
-              {/* Editorial Metadata Footer below Card */}
-              <div className="mt-4 pt-3 border-t border-[#d4dcf0] flex items-center justify-between gap-2">
-                <span className="font-serif text-lg font-bold text-[#0f172a]">
-                  {mod.title} <em className="italic font-normal">{mod.italicWord}</em>
-                </span>
-                <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-slate-500">
-                  {mod.id.toUpperCase()}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 3. Core Capabilities Accordion Split */}
+      {/* Core Capabilities Accordion Split */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-[#d4dcf0]">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           {/* Left Sticky Header */}
