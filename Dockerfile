@@ -7,33 +7,23 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
-# Install system dependencies for build tools and PostgreSQL client libraries
+# Install minimal build and runtime libraries for PostgreSQL client
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libpq-dev \
     curl \
+    libpq5 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python requirements
-COPY backend/requirements.txt /app/backend/requirements.txt
-RUN pip install --no-cache-dir -r /app/backend/requirements.txt
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
-# Install Playwright Chromium headless browser and OS dependencies
-RUN playwright install --with-deps chromium
-
-# Pre-download SentenceTransformer model to eliminate cold-start runtime latency
-RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
-
-# Copy backend codebase
+# Copy codebase and seed database
 COPY backend /app/backend
+COPY jobs.db /app/jobs.db
 
-# Create runtime directories for uploads, tailored resumes, generated resumes, and digests
+# Ensure directories exist for runtime storage
 RUN mkdir -p /app/backend/uploads /app/tailored_resumes /app/digests /app/backend/generated_resumes/screenshots
 
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-  CMD curl -f http://localhost:${PORT:-8000}/api/jobs/stats || exit 1
-
-CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["sh", "-c", "python -m uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

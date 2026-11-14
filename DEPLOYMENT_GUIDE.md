@@ -52,36 +52,30 @@ graph TD
 
 1. Push your repository to **GitHub**.
 2. Log in to [render.com](https://render.com).
-3. Click **New +** -> **Blueprint** (or **Web Service**):
-   - If using **Blueprint**, select your repo. Render will automatically read `render.yaml`.
-   - If creating manually as a **Web Service**:
-     - **Name**: `internscrap-backend`
-     - **Environment**: `Docker` (or `Python 3`)
-     - **DockerfilePath**: `./Dockerfile`
-     - **Region**: Oregon (or your preferred region)
-     - **Instance Type**: `Free`
-4. In the **Environment Variables** tab, add:
+3. Click **New +** -> **Web Service**:
+   - Connect your GitHub repository (`InternScrap`).
+   - **Name**: `internscrap-backend`
+   - **Region**: Oregon (or your preferred region)
+   - **Environment**: **Python 3** (Recommended for fastest builds) or **Docker**
+   - **Build Command** (for Python): `pip install -r requirements.txt`
+   - **Start Command** (for Python): `python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
+   - *(If using Docker, leave defaults; `Dockerfile` is pre-configured and optimized)*
+   - **Plan Type**: `Free`
+4. Under **Advanced** / **Environment Variables**, add:
 
 | Key | Example Value | Description |
 | :--- | :--- | :--- |
-| `DATABASE_URL` | `postgresql://postgres:password@db.ref.supabase.co:5432/postgres` | Your Supabase connection URI |
-| `PORT` | `8000` | Standard web port |
-| `CORS_ORIGINS` | `https://your-internscrap.vercel.app,http://localhost:5173` | Allowed frontend domains |
-| `ENABLE_BACKGROUND_SCHEDULER` | `true` | Enables APScheduler automatic ingestion & alerts |
-| `SCHEDULER_INTERVAL_HOURS` | `6` | Runs sync & alert pipeline every 6 hours |
-| `ALERT_MIN_MATCH_SCORE` | `70.0` | Minimum score threshold for email digests |
-| `DIGEST_RECIPIENT_EMAIL` | `youremail@example.com` | Candidate email for alerts |
-| `SMTP_HOST` | `smtp.sendgrid.net` | (Optional) SMTP host for email delivery |
-| `SMTP_PORT` | `587` | Standard TLS port |
-| `SMTP_USER` | `apikey` | SendGrid user |
-| `SMTP_PASSWORD` | `SG.your-sendgrid-secret-key` | SendGrid secret key |
-| `SMTP_FROM_EMAIL` | `alerts@internscrap.dev` | Verified sender email address |
+| `DATABASE_URL` | `postgresql://postgres:password@db.ref.supabase.co:5432/postgres` | Your Supabase connection URI (or omit to use bundled SQLite) |
+| `PORT` | `10000` | Standard Render web port (auto-injected by Render) |
+| `CORS_ORIGINS` | `*` | Allowed frontend domains (allows all Vercel domains) |
+| `ENABLE_BACKGROUND_SCHEDULER` | `true` | Enables APScheduler automatic ingestion and 10-minute Threads scanner |
+| `SCHEDULER_INTERVAL_HOURS` | `4` | Runs full multi-source API sync every 4 hours |
+| `THREADS_SCAN_INTERVAL_MINUTES` | `10` | Runs Threads Opportunity Radar scanner every 10 minutes |
+| `ALERT_MIN_MATCH_SCORE` | `60` | Minimum score threshold for email digests |
+| `RENDER_EXTERNAL_URL` | `https://your-backend.onrender.com` | Automatically provided by Render for 24/7 keep-alive self-pinging |
 
-5. Click **Create Web Service**. The build will:
-   - Install all dependencies from `backend/requirements.txt`.
-   - Pre-download the `SentenceTransformer('all-MiniLM-L6-v2')` model into the Docker layer to eliminate runtime cold starts.
-   - Start Uvicorn on `0.0.0.0:8000`.
-6. Once deployed, note your service URL (e.g., `https://internscrap-backend.onrender.com`). Verify by visiting `https://internscrap-backend.onrender.com/api/jobs/stats`.
+5. Click **Create Web Service**. The deployment will install dependencies in under 30 seconds and start Uvicorn.
+6. Once deployed, verify your service by visiting `https://your-backend.onrender.com/api/health` (returns `{"status":"healthy"}`).
 
 ---
 
@@ -126,21 +120,29 @@ If you prefer a persistent background worker (e.g., continuous 24/7 background s
 
 ---
 
-## Step 4: Keep-Alive & Cold-Start Optimization
+## Step 4: Keep-Alive & 24/7 Continuous Operation
 
-> [!TIP]
-> **Free Tier Keep-Alive Strategy**: Render free-tier services spin down after 15 minutes without incoming HTTP traffic. When asleep, internal background timers pause until awakened.
+Render free-tier services spin down after 15 minutes of zero incoming HTTP traffic. To ensure your backend and 10-minute Threads scanner run 24/7 without interruption at **$0 cost**, InternScrap includes two complementary keep-alive layers:
 
-To keep your `APScheduler` background daemon active 24/7 at **\$0 cost**:
-1. Register a free account at [cron-job.org](https://cron-job.org) or [uptimerobot.com](https://uptimerobot.com).
+### Layer 1: Built-in 9-Minute Self-Pinger
+
+APScheduler automatically registers a 9-minute self-ping job (`render_keep_alive_ping`) in [backend/services/scheduler.py](file:///c:/Users/aryan/Desktop/InternScrap/internscrap-web/backend/services/scheduler.py).
+- Render automatically sets `RENDER_EXTERNAL_URL=https://your-backend.onrender.com`.
+- Every 9 minutes (well before the 15-minute sleep threshold), the scheduler sends an HTTP GET request to `https://your-backend.onrender.com/api/health`.
+- This incoming request resets Render's idle timer, keeping the instance active 24/7.
+
+### Layer 2: Free External Monitor (Guarantees Zero Cold Starts)
+
+To ensure the instance stays awake even after maintenance restarts:
+1. Create a free account at [cron-job.org](https://cron-job.org) or [uptimerobot.com](https://uptimerobot.com).
 2. Create a new HTTP monitor:
-   - **URL**: `https://internscrap-backend.onrender.com/api/jobs/stats`
-   - **Schedule**: Every 10 minutes (`*/10 * * * *`)
+   - **URL**: `https://your-backend.onrender.com/api/health` (or `/api/ping`)
+   - **Interval**: Every 5 or 10 minutes (`*/10 * * * *`)
    - **Method**: `GET`
-3. This lightweight health check query:
-   - Keeps the FastAPI container warm with instant zero-second response times for end users.
-   - Guarantees `APScheduler` fires uninterrupted to discover new jobs and deliver email digests.
-   - Consumes negligible bandwidth.
+3. This guarantees:
+   - Zero cold-start latency for end users visiting your Vercel frontend.
+   - APScheduler continuously executes the 10-minute Meta Threads scanner without pausing.
+   - Minimal bandwidth consumption (health check returns 48 bytes in under 1ms).
 
 ---
 

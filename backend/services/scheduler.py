@@ -151,6 +151,28 @@ async def execute_scheduled_threads_scan() -> Dict[str, Any]:
     finally:
         db.close()
 
+async def execute_keep_alive_ping() -> Dict[str, Any]:
+    """
+    Pings the public backend URL every 9 minutes to keep the Render free tier
+    service awake 24/7 and prevent idle spin-down.
+    """
+    import os
+    import httpx
+    target_url = os.getenv("RENDER_EXTERNAL_URL") or os.getenv("BACKEND_URL") or os.getenv("KEEP_ALIVE_URL")
+    if not target_url:
+        return {"status": "skipped", "reason": "No RENDER_EXTERNAL_URL or BACKEND_URL configured."}
+
+    clean_url = target_url.strip().rstrip("/")
+    ping_url = f"{clean_url}/api/health"
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(ping_url)
+            logger.info(f"Keep-alive self-ping to {ping_url}: HTTP {resp.status_code}")
+            return {"status": "ok", "url": ping_url, "code": resp.status_code}
+    except Exception as exc:
+        logger.warning(f"Keep-alive self-ping notice: {exc}")
+        return {"status": "error", "url": ping_url, "detail": str(exc)}
+
 def start_scheduler():
     """Starts the APScheduler background thread."""
     if not scheduler.running:
@@ -168,9 +190,16 @@ def start_scheduler():
             name="Periodic Threads Opportunity Radar (Project, Internship, Tech, Collab, Graphic)",
             replace_existing=True
         )
+        scheduler.add_job(
+            execute_keep_alive_ping,
+            trigger=IntervalTrigger(minutes=9),
+            id="render_keep_alive_ping",
+            name="Render 24/7 Keep-Alive Self-Pinger",
+            replace_existing=True
+        )
         scheduler.start()
         scheduler_state["is_running"] = True
-        logger.info("APScheduler started successfully.")
+        logger.info("APScheduler started successfully with 24/7 keep-alive monitor.")
 
 def shutdown_scheduler():
     """Gracefully shuts down APScheduler."""

@@ -85,6 +85,8 @@ app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 @app.get("/")
 @app.get("/api")
 @app.get("/api/health")
+@app.get("/api/ping")
+@app.get("/api/keep-alive")
 def root():
     return {
         "app": settings.PROJECT_NAME,

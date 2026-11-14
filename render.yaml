@@ -1,31 +1,26 @@
 services:
   - type: web
     name: internscrap-backend
-    env: docker
-    dockerfilePath: ./Dockerfile
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT
     plan: free
     region: oregon
-    healthCheckPath: /api/jobs/stats
+    healthCheckPath: /api/health
     envVars:
       - key: PORT
-        value: 8000
+        value: 10000
       - key: DATABASE_URL
-        sync: false # Set in Render Dashboard with your Supabase PostgreSQL connection string
+        sync: false # Set in Render Dashboard with your Supabase PostgreSQL connection string, or leave unset to use bundled jobs.db
       - key: CORS_ORIGINS
-        value: "https://internscrap.vercel.app,http://localhost:5173"
+        value: "*"
       - key: ENABLE_BACKGROUND_SCHEDULER
         value: "true"
       - key: SCHEDULER_INTERVAL_HOURS
-        value: "6"
+        value: "4"
+      - key: THREADS_SCAN_INTERVAL_MINUTES
+        value: "10"
       - key: ALERT_MIN_MATCH_SCORE
-        value: "70"
-      - key: DIGEST_RECIPIENT_EMAIL
-        sync: false # Optional: candidate email for alerts
-      - key: SMTP_HOST
-        sync: false # Optional: smtp.sendgrid.net or smtp.mailgun.org
-      - key: SMTP_PORT
-        value: "587"
-      - key: SMTP_USER
-        sync: false
-      - key: SMTP_PASSWORD
-        sync: false
+        value: "60"
+      - key: RENDER_EXTERNAL_URL
+        sync: false # Automatically set by Render, or set to your https://<app>.onrender.com for 24/7 keep-alive
