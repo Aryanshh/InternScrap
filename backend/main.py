@@ -101,6 +101,36 @@ def root():
         "docs": "/docs"
     }
 
+@app.get("/api/db/status")
+def db_status():
+    from backend.database import engine, SessionLocal
+    from backend.models.job import Job
+    from backend.models.user import User
+    dialect_name = engine.dialect.name
+    driver_name = getattr(engine, "driver", "unknown")
+    db = SessionLocal()
+    try:
+        job_count = db.query(Job).count()
+        user_count = db.query(User).count()
+        return {
+            "status": "connected",
+            "dialect": dialect_name,
+            "driver": driver_name,
+            "persistent": dialect_name == "postgresql",
+            "counts": {
+                "jobs": job_count,
+                "users": user_count,
+            }
+        }
+    except Exception as exc:
+        return {
+            "status": "error",
+            "dialect": dialect_name,
+            "detail": str(exc),
+        }
+    finally:
+        db.close()
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("backend.main:app", host="127.0.0.1", port=8000, reload=True)

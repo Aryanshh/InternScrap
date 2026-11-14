@@ -58,6 +58,8 @@ def _create_resilient_engine(primary_url: str):
             if not cand.startswith("sqlite"):
                 cand_kwargs["pool_pre_ping"] = True
                 cand_kwargs["pool_recycle"] = 300
+                cand_kwargs["pool_size"] = 5
+                cand_kwargs["max_overflow"] = 10
             eng = create_engine(cand, connect_args=cand_args, **cand_kwargs)
             masked = cand.split("@")[-1] if "@" in cand else cand
             logger.info(f"Initialized database engine with: {masked}")
@@ -96,7 +98,7 @@ def _migrate_table_columns(eng):
         ("user_profiles", "primary_role", "VARCHAR(120) DEFAULT 'Full-Stack Software Engineer'"),
         ("user_profiles", "years_of_experience", "INTEGER DEFAULT 3"),
         ("user_profiles", "notice_period", "VARCHAR(50) DEFAULT 'Immediately available'"),
-        ("user_profiles", "relocation_open", "BOOLEAN DEFAULT 0"),
+        ("user_profiles", "relocation_open", "BOOLEAN DEFAULT FALSE"),
         ("user_profiles", "work_authorization", "VARCHAR(50) DEFAULT 'yes'"),
         ("user_profiles", "require_sponsorship", "VARCHAR(50) DEFAULT 'no'"),
         ("user_profiles", "citizenship_country", "VARCHAR(100) DEFAULT 'United States'"),
@@ -111,15 +113,22 @@ def _migrate_table_columns(eng):
         ("users", "email", "VARCHAR(150)"),
     ]
     try:
-        with eng.connect() as conn:
-            for table, col, col_def in new_columns:
-                try:
-                    conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {col_def}"))
-                    conn.commit()
-                except Exception:
-                    pass
-    except Exception:
-        pass
+        from sqlalchemy import inspect
+        inspector = inspect(eng)
+        existing_tables = set(inspector.get_table_names())
+        for table, col, col_def in new_columns:
+            if table in existing_tables:
+                existing_cols = {c["name"] for c in inspector.get_columns(table)}
+                if col not in existing_cols:
+                    try:
+                        with eng.connect() as conn:
+                            conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {col_def}"))
+                            conn.commit()
+                            logger.info(f"Added column {col} to {table}.")
+                    except Exception as col_err:
+                        logger.warning(f"Column migration warning for {table}.{col}: {col_err}")
+    except Exception as inspect_err:
+        logger.warning(f"Table inspection notice: {inspect_err}")
 
 
 def init_db():
